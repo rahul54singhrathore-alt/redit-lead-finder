@@ -256,6 +256,205 @@ input:focus {
   color: var(--muted);
 }
 
+.signin-screen {
+  min-height: 100vh;
+  padding: 42px clamp(24px, 5vw, 74px);
+  background: #fff;
+}
+
+.signin-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  color: #09090b;
+  font-size: 1.7rem;
+}
+
+.signin-logo img {
+  width: 52px;
+  height: 52px;
+}
+
+.signin-panel {
+  display: grid;
+  width: min(100%, 610px);
+  gap: 24px;
+  margin: clamp(160px, 24vh, 290px) auto 0;
+}
+
+.signin-heading {
+  display: grid;
+  gap: 12px;
+  text-align: center;
+}
+
+.signin-heading h1 {
+  margin: 0;
+  color: #08090c;
+  font-size: clamp(2.25rem, 4vw, 3.15rem);
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+.signin-heading p,
+.signin-message,
+.signin-links {
+  margin: 0;
+  color: #85858f;
+  font-size: 1.25rem;
+}
+
+.google-button,
+.signin-submit,
+.auth-tabs,
+.signin-form label {
+  width: 100%;
+  border: 1px solid #dedfe5;
+  border-radius: 13px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(10, 12, 18, 0.05);
+}
+
+.google-button {
+  display: inline-flex;
+  min-height: 60px;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  color: #19191f;
+  font-size: 1.12rem;
+  cursor: pointer;
+}
+
+.google-button span {
+  color: #4285f4;
+  font-weight: 700;
+}
+
+.signin-divider {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 18px;
+  color: #9a9aa3;
+}
+
+.signin-divider span {
+  height: 1px;
+  background: #e5e5ea;
+}
+
+.signin-divider p {
+  margin: 0;
+}
+
+.auth-tabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  padding: 4px;
+  background: #f7f7f8;
+}
+
+.auth-tabs button {
+  min-height: 42px;
+  border: 0;
+  border-radius: 9px;
+  color: #797982;
+  background: transparent;
+  cursor: pointer;
+}
+
+.auth-tabs button.active {
+  color: #0b0b10;
+  background: #fff;
+  box-shadow: 0 1px 5px rgba(10, 12, 18, 0.08);
+}
+
+.signin-form {
+  display: grid;
+  gap: 20px;
+}
+
+.signin-form label {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  min-height: 60px;
+  align-items: center;
+  gap: 14px;
+  padding: 0 16px;
+}
+
+.signin-form input {
+  min-height: 58px;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  color: #111217;
+  font-size: 1.12rem;
+  box-shadow: none;
+}
+
+.signin-form input::placeholder {
+  color: #8a8a94;
+}
+
+.input-icon,
+.password-toggle {
+  color: #85858f;
+}
+
+.password-toggle {
+  display: inline-grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.signin-submit {
+  min-height: 64px;
+  border: 0;
+  color: #fff;
+  background: #d91456;
+  font-size: 1.18rem;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(217, 20, 86, 0.18);
+}
+
+.signin-submit:disabled,
+.google-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.72;
+}
+
+.signin-message {
+  text-align: center;
+}
+
+.signin-links {
+  display: grid;
+  gap: 28px;
+  justify-items: center;
+  margin-top: 10px;
+}
+
+.signin-links p {
+  margin: 0;
+  text-align: center;
+}
+
+.signin-links a,
+.signin-links button {
+  border: 0;
+  padding: 0;
+  color: #d91456;
+  background: transparent;
+  cursor: pointer;
+}
+
 @media (max-width: 760px) {
   .site-header {
     align-items: flex-start;
@@ -265,5 +464,19 @@ input:focus {
   .features,
   .waitlist {
     grid-template-columns: 1fr;
+  }
+
+  .signin-screen {
+    padding: 24px 18px;
+  }
+
+  .signin-panel {
+    margin-top: 110px;
+  }
+
+  .signin-heading p,
+  .signin-message,
+  .signin-links {
+    font-size: 1rem;
   }
 }
