@@ -1,20 +1,13 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { createClient } from "@supabase/supabase-js";
+import { createBrowserSupabaseClient } from "../lib/supabase";
 
 export default function Home() {
   const [formNote, setFormNote] = useState("No spam. We will only send product updates.");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const supabase = useMemo(() => {
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-    if (!url || !anonKey) return null;
-
-    return createClient(url, anonKey);
-  }, []);
+  const supabase = useMemo(() => createBrowserSupabaseClient(), []);
 
   async function handleSubmit(event) {
     event.preventDefault();
