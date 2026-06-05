@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { createBrowserSupabaseClient } from "../../lib/supabase";
+import { createBrowserSupabaseClient, getAppUrl } from "../../lib/supabase";
 
 export default function SignInPage() {
   const [email, setEmail] = useState("");
@@ -26,8 +26,8 @@ export default function SignInPage() {
   }, [router, supabase]);
 
   function getRedirectUrl() {
-    if (typeof window === "undefined") return undefined;
-    return `${window.location.origin}/auth/callback?next=/`;
+    const baseUrl = getAppUrl();
+    return baseUrl ? `${baseUrl}/auth/callback?next=/` : undefined;
   }
 
   async function signInWithGoogle() {
