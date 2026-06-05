@@ -418,10 +418,10 @@ input:focus {
   min-height: 64px;
   border: 0;
   color: #fff;
-  background: #d91456;
+  background: #111;
   font-size: 1.18rem;
   cursor: pointer;
-  box-shadow: 0 4px 10px rgba(217, 20, 86, 0.18);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.14);
 }
 
 .signin-submit:disabled,
@@ -450,7 +450,7 @@ input:focus {
 .signin-links button {
   border: 0;
   padding: 0;
-  color: #d91456;
+  color: #111;
   background: transparent;
   cursor: pointer;
 }
