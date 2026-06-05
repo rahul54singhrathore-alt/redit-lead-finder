@@ -36,7 +36,7 @@ export async function middleware(request) {
   }
 
   // If user is not signed in and trying to go to dashboard, redirect to signin
-  if (!user && path === "/dashboard") {
+  if (!user && path.startsWith("/dashboard")) {
     return NextResponse.redirect(new URL("/signin", request.url));
   }
 
@@ -44,5 +44,5 @@ export async function middleware(request) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|logo.svg|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"],
+  matcher: ["/signin", "/dashboard/:path*"],
 };
