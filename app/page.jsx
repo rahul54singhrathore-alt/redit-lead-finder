@@ -62,6 +62,7 @@ export default function Home() {
         <nav className="nav-links" aria-label="Primary navigation">
           <a href="#features">Features</a>
           <a href="#waitlist">Waitlist</a>
+          <a href="/signin">Sign in</a>
         </nav>
       </header>
 
