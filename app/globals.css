@@ -1,0 +1,208 @@
+@import url("https://fonts.googleapis.com/css2?family=Cal+Sans&display=swap");
+
+:root {
+  --bg: #ffffff;
+  --ink: #111111;
+  --muted: #646464;
+  --line: #e7e7e7;
+  --surface: #f7f7f7;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  color: var(--ink);
+  background: var(--bg);
+  font-family: "Cal Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+body,
+button,
+input {
+  font: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.page-shell {
+  min-height: 100vh;
+}
+
+.site-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 28px clamp(20px, 5vw, 72px);
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.25rem;
+}
+
+.brand img {
+  width: 34px;
+  height: 34px;
+  color: var(--ink);
+}
+
+.nav-links {
+  display: flex;
+  gap: 24px;
+  color: var(--muted);
+}
+
+.hero {
+  display: grid;
+  justify-items: center;
+  padding: clamp(80px, 12vw, 150px) clamp(20px, 5vw, 72px);
+  text-align: center;
+}
+
+.eyebrow {
+  margin: 0 0 16px;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+.hero h1 {
+  max-width: 980px;
+  margin: 0;
+  font-size: clamp(3rem, 8vw, 7rem);
+  font-weight: 400;
+  line-height: 0.95;
+  letter-spacing: 0;
+}
+
+.hero-copy {
+  max-width: 680px;
+  margin: 28px 0 0;
+  color: var(--muted);
+  font-size: clamp(1.1rem, 2vw, 1.4rem);
+  line-height: 1.5;
+}
+
+.primary-link,
+.waitlist-form button {
+  display: inline-flex;
+  min-height: 52px;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 999px;
+  padding: 0 24px;
+  color: #fff;
+  background: #111;
+  cursor: pointer;
+}
+
+.primary-link {
+  margin-top: 34px;
+}
+
+.features {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  padding: 0 clamp(20px, 5vw, 72px) clamp(72px, 9vw, 120px);
+}
+
+.features article,
+.waitlist-form {
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--surface);
+}
+
+.features article {
+  padding: 26px;
+}
+
+.features h2,
+.waitlist h2 {
+  margin: 0;
+  font-size: clamp(1.6rem, 3vw, 2.8rem);
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+.features p {
+  margin: 14px 0 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.waitlist {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(320px, 520px);
+  gap: clamp(28px, 6vw, 76px);
+  align-items: start;
+  padding: clamp(72px, 9vw, 120px) clamp(20px, 5vw, 72px);
+  border-top: 1px solid var(--line);
+}
+
+.waitlist-form {
+  display: grid;
+  gap: 16px;
+  padding: 22px;
+}
+
+.hidden-field {
+  display: none;
+}
+
+label {
+  display: grid;
+  gap: 8px;
+}
+
+input {
+  width: 100%;
+  min-height: 50px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 0 14px;
+  color: var(--ink);
+  background: #fff;
+  outline: 0;
+}
+
+input:focus {
+  border-color: #111;
+}
+
+.waitlist-form button:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.waitlist-form p {
+  margin: 0;
+  color: var(--muted);
+  text-align: center;
+}
+
+@media (max-width: 760px) {
+  .site-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .features,
+  .waitlist {
+    grid-template-columns: 1fr;
+  }
+}
