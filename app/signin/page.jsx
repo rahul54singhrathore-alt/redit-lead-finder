@@ -27,7 +27,9 @@ export default function SignInPage() {
 
   function getRedirectUrl() {
     const baseUrl = getAppUrl();
-    return baseUrl ? `${baseUrl}/auth/callback?next=/` : undefined;
+    if (!baseUrl) return undefined;
+    const cleanBaseUrl = baseUrl.replace(/\/$/, "");
+    return `${cleanBaseUrl}/auth/callback?next=/dashboard`;
   }
 
   async function signInWithGoogle() {
@@ -39,10 +41,13 @@ export default function SignInPage() {
     setIsSubmitting(true);
     setMessage("");
 
+    const redirectUrl = getRedirectUrl();
+    console.log("Google Sign-In Redirect URL:", redirectUrl); // Debug log
+
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: getRedirectUrl(),
+        redirectTo: redirectUrl,
       },
     });
 
@@ -50,6 +55,7 @@ export default function SignInPage() {
 
     if (error) {
       setMessage(error.message || "Could not start Google sign in.");
+      console.error("Google Sign-In Error:", error);
     }
   }
 

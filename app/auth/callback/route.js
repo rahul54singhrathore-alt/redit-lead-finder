@@ -5,12 +5,13 @@ export async function GET(request) {
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get("code");
   const next = requestUrl.searchParams.get("next") || "/";
-  let response = NextResponse.redirect(new URL(next, request.url));
-
+  const redirectUrl = new URL(next, request.url);
+  
   if (code) {
+    const response = NextResponse.redirect(redirectUrl);
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
       {
         cookies: {
           getAll() {
@@ -26,7 +27,8 @@ export async function GET(request) {
     );
 
     await supabase.auth.exchangeCodeForSession(code);
+    return response;
   }
 
-  return response;
+  return NextResponse.redirect(redirectUrl);
 }
