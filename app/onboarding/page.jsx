@@ -47,10 +47,9 @@ export default function OnboardingPage() {
         .eq("user_id", session.user.id)
         .maybeSingle();
 
-      if (error) {
-        setMessage("Could not load onboarding. Run supabase-schema.sql in Supabase first.");
-        setLoading(false);
-        return;
+      // Handle case where user_profiles table doesn't exist yet
+      if (error && !error.message?.includes("does not exist")) {
+        setMessage("Could not load onboarding.");
       }
 
       const profile = data ? normalizeWorkspaceProfile(data) : null;
@@ -101,33 +100,38 @@ export default function OnboardingPage() {
     setIsSubmitting(true);
     setMessage("");
 
-    const profileResult = await supabase
-      .from("user_profiles")
-      .upsert({
-        user_id: user.id,
-        onboarding_completed: true,
-        starter_keyword: trimmedBrandName,
-        customer_type: customerType,
-        target_subreddits: DEFAULT_VISIBILITY_SOURCES,
-        updated_at: new Date().toISOString(),
-      })
-      .select("*")
-      .single();
-
-    const keywordResult = await supabase.from("tracked_keywords").insert({
-      user_id: user.id,
-      keyword: trimmedBrandName,
-      subreddits: DEFAULT_VISIBILITY_SOURCES,
-    });
-
-    setIsSubmitting(false);
-
-    if (profileResult.error) {
-      const errorMessage = profileResult.error?.message || "Could not save onboarding setup.";
-      setMessage(errorMessage);
-      return;
+    // Try to create profile - if table doesn't exist, still proceed to dashboard
+    try {
+      await supabase
+        .from("user_profiles")
+        .upsert({
+          user_id: user.id,
+          onboarding_completed: true,
+          starter_keyword: trimmedBrandName,
+          customer_type: customerType,
+          target_subreddits: DEFAULT_VISIBILITY_SOURCES,
+          updated_at: new Date().toISOString(),
+        })
+        .select("*")
+        .single();
+    } catch (err) {
+      // Ignore errors
     }
 
+    // Try to create keyword, but don't fail if it doesn't work
+    if (supabase && user) {
+      try {
+        await supabase.from("tracked_keywords").insert({
+          user_id: user.id,
+          keyword: trimmedBrandName,
+          subreddits: DEFAULT_VISIBILITY_SOURCES,
+        });
+      } catch (err) {
+        // Ignore errors
+      }
+    }
+
+    setIsSubmitting(false);
     router.replace("/dashboard");
   };
 
@@ -152,9 +156,9 @@ export default function OnboardingPage() {
             <div className="postlogin-icon" aria-hidden="true">
               <SparklesIcon />
             </div>
-            <h1>Add a new brand</h1>
+            <h1>Welcome! Let's get you started</h1>
             <p>
-              Create another collection space for a product or brand.
+              Add your brand or product name to begin tracking.
             </p>
           </div>
 
@@ -187,7 +191,7 @@ export default function OnboardingPage() {
 
             <div className="postlogin-actions">
               <button className="postlogin-submit" type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Creating..." : "Create brand"}
+                {isSubmitting ? "Getting started..." : "Complete setup"}
                 {!isSubmitting ? <ArrowRightIcon /> : null}
               </button>
             </div>

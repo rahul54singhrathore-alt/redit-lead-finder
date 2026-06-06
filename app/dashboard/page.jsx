@@ -135,7 +135,11 @@ export default function DashboardPage() {
         return;
       }
       setUser(session.user);
-      await loadDashboardData(session.user.id);
+      const needsOnboarding = await loadDashboardData(session.user.id);
+      if (needsOnboarding) {
+        router.replace("/onboarding");
+        return;
+      }
       setLoading(false);
     };
 
@@ -146,8 +150,13 @@ export default function DashboardPage() {
         router.replace("/signin");
       } else {
         setUser(session.user);
-        loadDashboardData(session.user.id);
-        setLoading(false);
+        loadDashboardData(session.user.id).then((needsOnboarding) => {
+          if (needsOnboarding) {
+            router.replace("/onboarding");
+          } else {
+            setLoading(false);
+          }
+        });
       }
     });
 
@@ -157,7 +166,7 @@ export default function DashboardPage() {
   }, [router, supabase]);
 
   const loadDashboardData = async (userId) => {
-    if (!supabase) return;
+    if (!supabase) return false;
 
     const [profileResult, leadsResult, keywordsResult, alertsResult] = await Promise.all([
       supabase
@@ -179,19 +188,22 @@ export default function DashboardPage() {
         .eq("active", true),
     ]);
 
-    if (profileResult.error || leadsResult.error || alertsResult.error) {
-      setMessage("Could not load dashboard data. Run supabase-schema.sql in Supabase first.");
-      return;
+    // Check if profile exists and onboarding is completed
+    const profile = profileResult.data ? normalizeWorkspaceProfile(profileResult.data) : null;
+    if (!profile || !profile.onboarding_completed) {
+      // Redirect to onboarding if not completed
+      return true;
     }
 
-    setProfile(profileResult.data ? normalizeWorkspaceProfile(profileResult.data) : null);
+    setProfile(profile);
     const keywords = keywordsResult.error ? [] : keywordsResult.data || [];
     const sources = new Set(keywords.flatMap((item) => item.subreddits || []));
-    setDashboardLeads(leadsResult.data || []);
+    setDashboardLeads(leadsResult.error ? [] : leadsResult.data || []);
     setKeywordCount(keywords.length);
     setSourceCount(sources.size);
-    setAlertCount((alertsResult.data || []).length);
+    setAlertCount(alertsResult.error ? 0 : (alertsResult.data || []).length);
     setMessage("");
+    return false;
   };
 
   const handleOnboardingComplete = async () => {

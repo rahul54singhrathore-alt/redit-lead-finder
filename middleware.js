@@ -17,10 +17,12 @@ export function middleware(request) {
   const hasSession = hasSupabaseAuthSession(request);
   const isPrivatePath = path.startsWith("/dashboard") || path.startsWith("/onboarding");
 
+  // If logged in and on signin, go to dashboard
   if (hasSession && path === "/signin") {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
+  // If not logged in and trying to access private paths, go to signin
   if (!hasSession && isPrivatePath) {
     return NextResponse.redirect(new URL("/signin", request.url));
   }
