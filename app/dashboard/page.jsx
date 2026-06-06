@@ -3,9 +3,16 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { BuyerIntelTool } from "@/components/buyer-intel-tool";
 import { AppSidebar } from "@/components/app-sidebar";
+import { DashboardOnboarding } from "@/components/dashboard-onboarding";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { createBrowserSupabaseClient } from "../../lib/supabase";
+import {
+  DEFAULT_VISIBILITY_SOURCES,
+  normalizeWorkspaceProfile,
+} from "../../lib/workspace-profile";
+import { SparklesIcon } from "lucide-react";
 
 // SVG icons
 const SearchIcon = () => (
@@ -32,27 +39,77 @@ const BellIcon = () => (
 const recentActivity = [
   {
     id: 1,
-    action: "New lead found",
-    details: "in r/Entrepreneur",
+    action: "Brand mention found",
+    details: "in ChatGPT",
     time: "2 min ago",
   },
   {
     id: 2,
-    action: "Keyword added",
-    details: "\"CRM tools\"",
+    action: "Brand added",
+    details: "\"Rankora\"",
     time: "15 min ago",
   },
   {
     id: 3,
-    action: "Daily digest sent",
-    details: "to your email",
+    action: "GEO audit run",
+    details: "with missing citations flagged",
     time: "2 hours ago",
   },
   {
     id: 4,
-    action: "Lead marked",
-    details: "as contacted",
+    action: "Citation saved",
+    details: "for competitor comparison",
     time: "5 hours ago",
+  },
+];
+
+const setupSteps = [
+  {
+    title: "Brand",
+    description: "Add the name you want to track.",
+    href: "/dashboard/keywords",
+    cta: "Manage brands",
+  },
+  {
+    title: "Sources",
+    description: "Choose the places where signals matter.",
+    href: "/dashboard/settings",
+    cta: "Edit sources",
+  },
+  {
+    title: "Alerts",
+    description: "Set when the workspace should notify you.",
+    href: "/dashboard/alerts",
+    cta: "Set alerts",
+  },
+  {
+    title: "Briefs",
+    description: "Generate SEO briefs and blog ideas from keywords.",
+    href: "/dashboard/keywords",
+    cta: "Open briefs",
+  },
+];
+
+const quickAccess = [
+  {
+    title: "Add a brand",
+    description: "Start tracking a new keyword or brand.",
+    href: "/dashboard/keywords",
+  },
+  {
+    title: "Review signals",
+    description: "Check the latest leads and mentions.",
+    href: "/dashboard/leads",
+  },
+  {
+    title: "Adjust alerts",
+    description: "Change cadence and notification settings.",
+    href: "/dashboard/alerts",
+  },
+  {
+    title: "Open settings",
+    description: "Tune the workspace and export preferences.",
+    href: "/dashboard/settings",
   },
 ];
 
@@ -61,8 +118,9 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [dashboardLeads, setDashboardLeads] = useState([]);
   const [keywordCount, setKeywordCount] = useState(0);
-  const [subredditCount, setSubredditCount] = useState(0);
+  const [sourceCount, setSourceCount] = useState(0);
   const [alertCount, setAlertCount] = useState(0);
+  const [profile, setProfile] = useState(null);
   const [message, setMessage] = useState("");
   const router = useRouter();
   const supabase = useMemo(() => createBrowserSupabaseClient(), []);
@@ -77,7 +135,7 @@ export default function DashboardPage() {
         return;
       }
       setUser(session.user);
-      await loadDashboardData();
+      await loadDashboardData(session.user.id);
       setLoading(false);
     };
 
@@ -88,7 +146,7 @@ export default function DashboardPage() {
         router.replace("/signin");
       } else {
         setUser(session.user);
-        loadDashboardData();
+        loadDashboardData(session.user.id);
         setLoading(false);
       }
     });
@@ -98,10 +156,15 @@ export default function DashboardPage() {
     };
   }, [router, supabase]);
 
-  const loadDashboardData = async () => {
+  const loadDashboardData = async (userId) => {
     if (!supabase) return;
 
-    const [leadsResult, keywordsResult, alertsResult] = await Promise.all([
+    const [profileResult, leadsResult, keywordsResult, alertsResult] = await Promise.all([
+      supabase
+        .from("user_profiles")
+        .select("*")
+        .eq("user_id", userId)
+        .maybeSingle(),
       supabase
         .from("reddit_leads")
         .select("id, subreddit, title, author, posted_at, score, comments, intent, keyword, url")
@@ -116,18 +179,25 @@ export default function DashboardPage() {
         .eq("active", true),
     ]);
 
-    if (leadsResult.error || keywordsResult.error || alertsResult.error) {
+    if (profileResult.error || leadsResult.error || alertsResult.error) {
       setMessage("Could not load dashboard data. Run supabase-schema.sql in Supabase first.");
       return;
     }
 
-    const keywords = keywordsResult.data || [];
-    const subreddits = new Set(keywords.flatMap((item) => item.subreddits || []));
+    setProfile(profileResult.data ? normalizeWorkspaceProfile(profileResult.data) : null);
+    const keywords = keywordsResult.error ? [] : keywordsResult.data || [];
+    const sources = new Set(keywords.flatMap((item) => item.subreddits || []));
     setDashboardLeads(leadsResult.data || []);
     setKeywordCount(keywords.length);
-    setSubredditCount(subreddits.size);
+    setSourceCount(sources.size);
     setAlertCount((alertsResult.data || []).length);
     setMessage("");
+  };
+
+  const handleOnboardingComplete = async () => {
+    if (!user) return;
+
+    await loadDashboardData(user.id);
   };
 
   const handleSignOut = async () => {
@@ -169,14 +239,81 @@ export default function DashboardPage() {
       return acc;
     }, {}),
   ).slice(0, 3);
+  const visibilityScores = [
+    { label: "ChatGPT visibility", value: 65, tone: "blue" },
+    { label: "Gemini visibility", value: 72, tone: "green" },
+    { label: "Claude visibility", value: 40, tone: "purple" },
+    { label: "Perplexity visibility", value: 58, tone: "amber" },
+  ];
+  const overallGeoScore = Math.round(
+    visibilityScores.reduce((sum, score) => sum + score.value, 0) / visibilityScores.length,
+  );
+  const mentionFocus = [
+    "Best SEO tools",
+    "Best AI tools",
+    "Best CRM",
+    "Best influencer platform",
+  ];
+  const mentionSources = [
+    { label: "ChatGPT signals", value: latestLeadCount ? Math.max(4, latestLeadCount) : 0, tone: "blue" },
+    { label: "Gemini signals", value: latestLeadCount ? Math.max(4, latestLeadCount) : 0, tone: "green" },
+    { label: "Claude signals", value: latestLeadCount ? Math.max(3, Math.round(latestLeadCount * 0.8)) : 0, tone: "purple" },
+    { label: "Perplexity signals", value: latestLeadCount ? Math.max(3, Math.round(latestLeadCount * 0.8)) : 0, tone: "amber" },
+    { label: "Reddit mentions", value: latestLeadCount ? Math.max(6, latestLeadCount * 2) : 0, tone: "blue" },
+    { label: "Quora mentions", value: latestLeadCount ? Math.max(3, Math.round(latestLeadCount * 0.8)) : 0, tone: "purple" },
+  ];
+  const trackedSources = profile?.target_subreddits?.length
+    ? profile.target_subreddits
+    : DEFAULT_VISIBILITY_SOURCES;
+
+  const isOnboarding = !profile?.onboarding_completed;
+  const frequencyLabel = profile?.digest_frequency
+    ? profile.digest_frequency.charAt(0).toUpperCase() + profile.digest_frequency.slice(1)
+    : "Daily";
+  const supabaseStatus = supabase ? "Supabase connected" : "Supabase not configured";
 
   if (loading) {
     return (
       <SidebarProvider>
         <SidebarInset>
-          <div className="dashboard-main dashboard-main-shadcn" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <p>Loading...</p>
-        </div>
+          <div
+            className="dashboard-main dashboard-main-shadcn"
+            style={{ display: "flex", alignItems: "center", justifyContent: "center" }}
+          >
+            <p>Loading...</p>
+          </div>
+        </SidebarInset>
+      </SidebarProvider>
+    );
+  }
+
+  if (isOnboarding) {
+    return (
+      <SidebarProvider>
+        <AppSidebar
+          user={user}
+          onSignOut={handleSignOut}
+          leadCount={latestLeadCount}
+          alertCount={alertCount}
+        />
+        <SidebarInset>
+          <main className="dashboard-main dashboard-main-shadcn">
+            <div className="dashboard-header">
+              <div>
+                <SidebarTrigger className="dashboard-sidebar-trigger" />
+                <h1>Set up your workspace</h1>
+                <p style={{ color: "#71717a", margin: "4px 0 0 0" }}>
+                  Add your first brand, the sources to watch, and the audit cadence.
+                </p>
+              </div>
+              <div className="user-menu">
+                <div className="user-avatar">{getInitials(user?.email)}</div>
+              </div>
+            </div>
+
+            {message ? <p className="signin-message" style={{ textAlign: "left" }}>{message}</p> : null}
+            <DashboardOnboarding user={user} supabase={supabase} onComplete={handleOnboardingComplete} />
+          </main>
         </SidebarInset>
       </SidebarProvider>
     );
@@ -191,95 +328,228 @@ export default function DashboardPage() {
         alertCount={alertCount}
       />
       <SidebarInset>
-      <main className="dashboard-main dashboard-main-shadcn">
-        <div className="dashboard-header">
-          <div>
-            <SidebarTrigger className="dashboard-sidebar-trigger" />
-            <h1>Welcome back!</h1>
-            <p style={{ color: "#71717a", margin: "4px 0 0 0" }}>Here's what's happening with your leads today</p>
-          </div>
-          <div className="user-menu">
-            <Link href="/dashboard/alerts" className="header-action-button">
-              <BellIcon />
-              Alerts
-            </Link>
-            <div className="user-avatar">{getInitials(user?.email)}</div>
-          </div>
-        </div>
-
-        <div className="dashboard-content">
-          <section className="dashboard-hero-card">
-            <div>
-              <span className="dashboard-kicker">Today&apos;s lead flow</span>
-              <h2>{highIntentCount} high-intent posts are ready for review.</h2>
-              <p>Prioritize recent recommendation requests, then save or mark contacted from the Leads workspace.</p>
+        <main className="dashboard-main dashboard-main-shadcn">
+          <div className="dashboard-header">
+              <div>
+                <SidebarTrigger className="dashboard-sidebar-trigger" />
+                <h1>Welcome back!</h1>
+              <p style={{ color: "#71717a", margin: "4px 0 0 0" }}>Here's what AI visibility looks like today</p>
             </div>
-            <img className="dashboard-character" src="/lead-finder-character-alerts.jpg" alt="" />
-            <div className="dashboard-hero-actions">
-              <Link href="/dashboard/leads" className="primary-button dashboard-primary-action">Review leads</Link>
-              <Link href="/dashboard/keywords" className="secondary-button dashboard-secondary-action">Tune keywords</Link>
-            </div>
-          </section>
-
-          <div className="stats-grid">
-            <div className="stat-card">
-              <div className="stat-icon stat-icon-blue">
-                <SearchIcon />
-              </div>
-              <h3>Keywords tracked</h3>
-              <p className="stat-value">{keywordCount}</p>
-              <span className="stat-delta">+2 this week</span>
-            </div>
-            <div className="stat-card">
-              <div className="stat-icon stat-icon-green">
-                <TrendingIcon />
-              </div>
-              <h3>Leads found</h3>
-              <p className="stat-value">{latestLeadCount}</p>
-              <span className="stat-delta">latest loaded</span>
-            </div>
-            <div className="stat-card">
-              <div className="stat-icon stat-icon-purple">
-                <svg className="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <circle cx="12" cy="12" r="10" />
-                  <circle cx="12" cy="12" r="6" />
-                  <circle cx="12" cy="12" r="2" />
-                </svg>
-              </div>
-              <h3>Subreddits</h3>
-              <p className="stat-value">{subredditCount}</p>
-              <span className="stat-delta">watched now</span>
-            </div>
-            <div className="stat-card">
-              <div className="stat-icon stat-icon-amber">
+            <div className="user-menu">
+              <span className={`header-status-pill${supabase ? " header-status-pill-ready" : " header-status-pill-warn"}`}>
+                <span />
+                {supabaseStatus}
+              </span>
+              <Link href="/dashboard/alerts" className="header-action-button">
                 <BellIcon />
-              </div>
-              <h3>Alerts sent</h3>
-              <p className="stat-value">{alertCount}</p>
-              <span className="stat-delta">active rules</span>
+                Audits
+              </Link>
+              <Link href="/onboarding" className="header-action-button">
+                <SparklesIcon />
+                Onboarding
+              </Link>
+              <div className="user-avatar">{getInitials(user?.email)}</div>
             </div>
           </div>
-          {message ? <p className="signin-message" style={{ textAlign: "left" }}>{message}</p> : null}
 
-          <div className="dashboard-insight-grid">
+          <div className="dashboard-content">
+            <BuyerIntelTool />
+
+            <section className="dashboard-setup-hub">
+              <div className="dashboard-setup-hub-copy">
+                <span className="dashboard-kicker">Visibility setup</span>
+                <h2>Everything your team needs to start in one place.</h2>
+                <p>
+                  Add a brand, pick sources, set alerts, and jump straight into SEO briefs or blog ideas without digging through menus.
+                </p>
+              </div>
+              <div className="dashboard-setup-hub-actions">
+                <Link href="/dashboard/keywords" className="primary-button dashboard-primary-action">
+                  Open setup
+                </Link>
+                <Link href="/dashboard/settings" className="secondary-button dashboard-secondary-action">
+                  Preferences
+                </Link>
+              </div>
+            </section>
+
+            <div className="dashboard-setup-grid">
+              {setupSteps.map((step) => (
+                <section key={step.title} className="dashboard-setup-card">
+                  <div className="dashboard-setup-card-top">
+                    <span className="dashboard-setup-step">{step.title}</span>
+                    <Link href={step.href} className="card-link">
+                      {step.cta}
+                    </Link>
+                  </div>
+                  <p>{step.description}</p>
+                </section>
+              ))}
+            </div>
+
+            <section className="dashboard-card dashboard-quick-access">
+              <div className="card-header">
+                <div>
+                  <h2>Quick access</h2>
+                  <p className="card-supporting-copy">Jump straight to the parts of the workspace people use most.</p>
+                </div>
+              </div>
+              <div className="quick-access-grid">
+                {quickAccess.map((item) => (
+                  <Link key={item.title} href={item.href} className="quick-access-card">
+                    <strong>{item.title}</strong>
+                    <span>{item.description}</span>
+                  </Link>
+                ))}
+              </div>
+            </section>
+
+            {profile?.starter_keyword ? (
+              <section className="dashboard-setup-banner">
+                <div>
+                  <span className="dashboard-kicker">Workspace ready</span>
+                  <h2>
+                    Tracking {profile.starter_keyword} across{" "}
+                    {trackedSources.length} visibility sources.
+                  </h2>
+                  <p>
+                    Audit frequency is set to {frequencyLabel.toLowerCase()} and the first
+                    brand is already saved in your workspace.
+                  </p>
+                </div>
+                <div className="setup-banner-pills">
+                  {trackedSources.map((source) => (
+                    <span key={source} className="source-mini-chip">{source}</span>
+                  ))}
+                  <span>{frequencyLabel} audits</span>
+                </div>
+              </section>
+            ) : null}
+
+            <section className="dashboard-hero-card">
+              <div>
+                <span className="dashboard-kicker">Today&apos;s visibility flow</span>
+                <h2>{highIntentCount} visibility signals are ready for review.</h2>
+                <p>Prioritize fresh mentions, then save or compare them from the Signals workspace.</p>
+              </div>
+              <img className="dashboard-character" src="/lead-finder-character-alerts.jpg" alt="" />
+              <div className="dashboard-hero-actions">
+                <Link href="/dashboard/leads" className="primary-button dashboard-primary-action">Review signals</Link>
+                <Link href="/dashboard/keywords" className="secondary-button dashboard-secondary-action">Tune brands</Link>
+              </div>
+            </section>
+
+            <div className="stats-grid">
+              <div className="stat-card">
+                <div className="stat-icon stat-icon-blue">
+                  <SearchIcon />
+                </div>
+                <h3>Brands tracked</h3>
+                <p className="stat-value">{keywordCount}</p>
+                <span className="stat-delta">saved now</span>
+              </div>
+              <div className="stat-card">
+                <div className="stat-icon stat-icon-green">
+                  <TrendingIcon />
+                </div>
+                <h3>Signals found</h3>
+                <p className="stat-value">{latestLeadCount}</p>
+                <span className="stat-delta">latest loaded</span>
+              </div>
+              <div className="stat-card">
+                <div className="stat-icon stat-icon-purple">
+                  <svg className="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="12" cy="12" r="10" />
+                    <circle cx="12" cy="12" r="6" />
+                    <circle cx="12" cy="12" r="2" />
+                  </svg>
+                </div>
+                <h3>Sources</h3>
+                <p className="stat-value">{sourceCount || trackedSources.length}</p>
+                <span className="stat-delta">watched now</span>
+              </div>
+              <div className="stat-card">
+                <div className="stat-icon stat-icon-amber">
+                  <BellIcon />
+                </div>
+                <h3>Audits running</h3>
+                <p className="stat-value">{alertCount}</p>
+                <span className="stat-delta">active rules</span>
+              </div>
+            </div>
+            {message ? <p className="signin-message" style={{ textAlign: "left" }}>{message}</p> : null}
+
+            <section className="dashboard-card dashboard-score-card">
+              <div className="card-header">
+                <div>
+                  <h2>AI Visibility Score</h2>
+                  <p className="card-supporting-copy">Model visibility and source coverage in one view.</p>
+                </div>
+                <span className="score-badge">Overall GEO score {overallGeoScore}/100</span>
+              </div>
+              <div className="dashboard-score-grid">
+                <div className="dashboard-score-summary">
+                  <div className="dashboard-score-ring">
+                    <strong>{overallGeoScore}</strong>
+                    <span>GEO</span>
+                  </div>
+                  <div className="dashboard-score-copy">
+                    <p>Higher scores mean your brand appears more often in AI answers and supporting source pages.</p>
+                    <div className="focus-chip-list">
+                      {mentionFocus.map((item) => (
+                        <span key={item} className="focus-chip">{item}</span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <div className="dashboard-model-list">
+                  {visibilityScores.map((score) => (
+                    <div key={score.label} className="model-score-item">
+                      <div className="model-score-label">
+                        <strong>{score.label}</strong>
+                        <span>{score.value}/100</span>
+                      </div>
+                      <div className={`model-score-track model-score-track-${score.tone}`}>
+                        <span style={{ width: `${score.value}%` }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="dashboard-source-breakdown">
+                  {mentionSources.map((source) => (
+                    <div key={source.label} className="source-score-item">
+                      <div className="source-score-label">
+                        <strong>{source.label}</strong>
+                        <span>{source.value}</span>
+                      </div>
+                      <div className={`source-score-track source-score-track-${source.tone}`}>
+                        <span style={{ width: `${Math.min(100, source.value * 10)}%` }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            <div className="dashboard-insight-grid">
             <section className="dashboard-card">
               <div className="card-header">
-                <h2>Intent split</h2>
-                <Link href="/dashboard/leads" className="card-link">Open leads</Link>
+                <h2>Visibility split</h2>
+                <Link href="/dashboard/leads" className="card-link">Open signals</Link>
               </div>
               <div className="intent-bars">
                 <div className="intent-bar-row">
-                  <span>High intent</span>
+                  <span>High confidence</span>
                   <div className="intent-track"><span style={{ width: `${intentPercent(highIntentCount)}%` }} /></div>
                   <strong>{intentPercent(highIntentCount)}%</strong>
                 </div>
                 <div className="intent-bar-row">
-                  <span>Medium</span>
+                  <span>Medium confidence</span>
                   <div className="intent-track"><span style={{ width: `${intentPercent(mediumIntentCount)}%` }} /></div>
                   <strong>{intentPercent(mediumIntentCount)}%</strong>
                 </div>
                 <div className="intent-bar-row">
-                  <span>Low</span>
+                  <span>Low confidence</span>
                   <div className="intent-track"><span style={{ width: `${intentPercent(lowIntentCount)}%` }} /></div>
                   <strong>{intentPercent(lowIntentCount)}%</strong>
                 </div>
@@ -288,7 +558,7 @@ export default function DashboardPage() {
 
             <section className="dashboard-card">
               <div className="card-header">
-                <h2>Keyword pulse</h2>
+                <h2>Brand pulse</h2>
                 <Link href="/dashboard/keywords" className="card-link">Manage</Link>
               </div>
               <div className="keyword-pulse-list">
@@ -296,15 +566,15 @@ export default function DashboardPage() {
                   <div key={item.keyword} className="keyword-pulse-item">
                     <div>
                       <strong>{item.keyword}</strong>
-                      <span>{item.count} leads</span>
+                      <span>{item.count} mentions</span>
                     </div>
                     <em>{latestLeadCount ? `${Math.round((item.count / latestLeadCount) * 100)}%` : "0%"}</em>
                   </div>
                 ))}
                 {keywordPulse.length === 0 && (
                   <div className="empty-state">
-                    <h2>No keyword pulse yet</h2>
-                    <p>Matched leads will appear here.</p>
+                    <h2>No brand pulse yet</h2>
+                    <p>Matched mentions will appear here.</p>
                   </div>
                 )}
               </div>
@@ -315,7 +585,7 @@ export default function DashboardPage() {
             {/* Recent Leads */}
             <div className="dashboard-card dashboard-card-large">
               <div className="card-header">
-                <h2>Recent leads</h2>
+                <h2>Recent signals</h2>
                 <Link href="/dashboard/leads" className="card-link">View all</Link>
               </div>
               <div className="lead-list">
@@ -348,8 +618,8 @@ export default function DashboardPage() {
                 ))}
                 {dashboardLeads.length === 0 && (
                   <div className="empty-state">
-                    <h2>No leads yet</h2>
-                    <p>Add keywords and load Reddit leads into Supabase to see them here.</p>
+                    <h2>No signals yet</h2>
+                    <p>Add brands and load visibility results into Supabase to see them here.</p>
                   </div>
                 )}
               </div>
@@ -381,7 +651,7 @@ export default function DashboardPage() {
               <div className="quick-actions">
                 <Link href="/dashboard/keywords" className="action-button">
                   <SearchIcon />
-                  Add keyword
+                  Add brand
                 </Link>
                 <Link href="/dashboard/leads" className="action-button">
                   <svg className="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -391,17 +661,17 @@ export default function DashboardPage() {
                     <line x1="16" y1="17" x2="8" y2="17" />
                     <polyline points="10 9 9 9 8 9" />
                   </svg>
-                  Export leads
+                  Export signals
                 </Link>
                 <Link href="/dashboard/alerts" className="action-button">
                   <BellIcon />
-                  Configure alerts
+                  Configure audits
                 </Link>
               </div>
             </div>
+            </div>
           </div>
-        </div>
-      </main>
+        </main>
       </SidebarInset>
     </SidebarProvider>
   );

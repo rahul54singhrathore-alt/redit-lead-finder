@@ -4,11 +4,11 @@ const plans = [
   {
     name: "Starter",
     price: "Free",
-    description: "For testing a small Reddit lead workflow.",
+    description: "For testing a single brand and checking where it appears in AI answers.",
     features: [
-      "3 keywords",
-      "10 alerts/day",
-      "Email notifications",
+      "1 brand",
+      "25 prompt runs",
+      "Basic GEO audit",
       "7-day history",
     ],
     cta: "Start free",
@@ -18,13 +18,14 @@ const plans = [
     name: "Pro",
     price: "$19",
     cadence: "/month",
-    description: "For founders and solo operators tracking active demand.",
+    description: "For founders and solo operators tracking visibility and citation coverage.",
     features: [
-      "50 keywords",
-      "Unlimited alerts",
-      "AI intent scoring",
-      "AI reply generation",
-      "Email + Slack notifications",
+      "5 brands",
+      "100 prompt runs",
+      "AI citation finder",
+      "Competitor GEO tracker",
+      "Full SEO brief generator",
+      "Email notifications",
       "30-day history",
     ],
     cta: "Choose Pro",
@@ -35,12 +36,13 @@ const plans = [
     price: "$49",
     cadence: "/month",
     badge: "Popular",
-    description: "For growing teams monitoring more markets and competitors.",
+    description: "For growing teams improving content and measuring AI visibility at scale.",
     features: [
-      "250 keywords",
-      "Competitor tracking",
-      "Reddit + X monitoring",
-      "Google Sheets export",
+      "20 brands",
+      "Daily GEO audits",
+      "AEO question finder",
+      "Full SEO brief generator",
+      "Content optimizer",
       "Team members (3)",
       "6-month history",
     ],
@@ -52,12 +54,13 @@ const plans = [
     name: "Agency",
     price: "$99",
     cadence: "/month",
-    description: "For agencies managing lead monitoring for multiple clients.",
+    description: "For agencies managing visibility reporting across multiple clients.",
     features: [
-      "Unlimited keywords",
+      "Unlimited brands",
       "Unlimited team members",
       "White-label reports",
-      "Notion, CRM, Zapier integrations",
+      "Full SEO brief generator",
+      "Exportable audits",
       "API access",
       "Priority support",
     ],
@@ -67,10 +70,10 @@ const plans = [
 ];
 
 const serviceFeatures = [
-  "Daily qualified leads",
-  "Leads delivered to Slack/Email",
-  "AI-generated outreach suggestions",
-  "Weekly opportunity report",
+  "Daily visibility checks",
+  "Mentions delivered to Slack/Email",
+  "AI-generated content suggestions",
+  "Weekly GEO report",
 ];
 
 export default function PricingPage() {
@@ -78,8 +81,8 @@ export default function PricingPage() {
     <main className="pricing-page">
       <header className="site-header">
         <Link className="brand" href="/">
-          <img src="/logo.svg" alt="" />
-          Lead Finder
+          <img src="/logo.png" alt="" />
+          Rankora
         </Link>
         <nav className="nav-links">
           <Link href="/">Home</Link>
@@ -90,9 +93,9 @@ export default function PricingPage() {
 
       <section className="pricing-hero">
         <p className="eyebrow">Subscription plans</p>
-        <h1>Choose the Reddit lead engine that fits your pipeline.</h1>
+        <h1>Choose the AI visibility plan that fits your workflow.</h1>
         <p>
-          Start free, upgrade when you need more keywords, stronger automation, team access, or a fully managed lead service.
+          Start free, upgrade when you need more brands, stronger prompt coverage, team access, or a managed visibility service.
         </p>
       </section>
 
@@ -125,8 +128,8 @@ export default function PricingPage() {
       <section className="service-plan">
         <div>
           <span className="pricing-badge">Done-For-You</span>
-          <h2>Done-For-You Lead Service</h2>
-          <p>Instead of only software, get a managed lead workflow with qualified opportunities delivered every day.</p>
+          <h2>Done-For-You Visibility Service</h2>
+          <p>Instead of only software, get a managed AI visibility workflow with audits, tracking, and content recommendations delivered every week.</p>
         </div>
         <div className="service-price">
           <strong>$299</strong>

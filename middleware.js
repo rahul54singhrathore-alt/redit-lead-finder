@@ -1,48 +1,33 @@
-import { createServerClient } from "@supabase/ssr";
 import { NextResponse } from "next/server";
 
-export async function middleware(request) {
-  let response = NextResponse.next({
-    request,
+function hasSupabaseAuthSession(request) {
+  return request.cookies.getAll().some((cookie) => {
+    const name = cookie.name.toLowerCase();
+    return (
+      name.startsWith("sb-") &&
+      name.includes("auth-token") &&
+      !name.includes("code-verifier") &&
+      Boolean(cookie.value)
+    );
   });
+}
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll();
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
-          cookiesToSet.forEach(({ name, value, options }) => {
-            response.cookies.set(name, value, options);
-          });
-        },
-      },
-    },
-  );
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
+export function middleware(request) {
   const path = request.nextUrl.pathname;
+  const hasSession = hasSupabaseAuthSession(request);
+  const isPrivatePath = path.startsWith("/dashboard") || path.startsWith("/onboarding");
 
-  // If user is signed in and trying to go to signin, redirect to dashboard
-  if (user && path === "/signin") {
+  if (hasSession && path === "/signin") {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
-  // If user is not signed in and trying to go to dashboard, redirect to signin
-  if (!user && path.startsWith("/dashboard")) {
+  if (!hasSession && isPrivatePath) {
     return NextResponse.redirect(new URL("/signin", request.url));
   }
 
-  return response;
+  return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/signin", "/dashboard/:path*"],
+  matcher: ["/signin", "/dashboard/:path*", "/onboarding"],
 };

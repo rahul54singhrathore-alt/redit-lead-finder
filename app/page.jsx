@@ -1,211 +1,358 @@
-"use client";
-
-import { useMemo, useState, useEffect } from "react";
 import Link from "next/link";
-import { createBrowserSupabaseClient } from "../lib/supabase";
+import { AuthNavActions } from "@/components/auth-nav-actions";
+import {
+  ArrowUpRightIcon,
+  BotIcon,
+  BoxIcon,
+  BracesIcon,
+  ChevronDownIcon,
+  CodeIcon,
+  CopyIcon,
+  GlobeIcon,
+  MailIcon,
+  PlusIcon,
+  SendIcon,
+  SettingsIcon,
+  SparklesIcon,
+  StarIcon,
+  WorkflowIcon,
+} from "lucide-react";
+
+const solutionCards = [
+  {
+    title: "AI Visibility Score",
+    copy: "Track ChatGPT, Gemini, Claude, and one overall GEO score in one dashboard.",
+  },
+  {
+    title: "Competitor Gap",
+    copy: "Compare your mentions against competitors and see who AI recommends first.",
+  },
+  {
+    title: "Prompt Library",
+    copy: "Monitor prompts like best SEO tools, best AI tools, best CRM, and influencer platforms.",
+  },
+];
+
+const stats = [
+  ["65/100", "ChatGPT visibility"],
+  ["72/100", "Gemini visibility"],
+  ["40/100", "Claude visibility"],
+  ["62/100", "Overall GEO score"],
+];
+
+const companies = ["Your Brand 18", "Competitor A 42", "Competitor B 35", "Today +15"];
+
+const features = [
+  {
+    icon: BracesIcon,
+    title: "AI CITATION SOURCES",
+    copy: "See where AI is pulling brand context from: Reddit, Quora, blogs, news, comparison pages, and directories.",
+  },
+  {
+    icon: BoxIcon,
+    title: "WHY NOT MENTIONED?",
+    copy: "Rankora explains why competitors appear, like high-authority citations, stronger entity coverage, or missing comparison pages.",
+  },
+  {
+    icon: GlobeIcon,
+    title: "GEO RECOMMENDATIONS",
+    copy: "Get automatic actions: add FAQ schema, author pages, comparison pages, citations, and entity-rich content.",
+  },
+  {
+    icon: WorkflowIcon,
+    title: "BRAND MONITORING",
+    copy: "Run daily scans, track yesterday vs today mentions, and watch trend graphs across every AI answer engine.",
+  },
+];
+
+const integrations = [
+  ["ChatGPT", SparklesIcon],
+  ["Gemini", BotIcon],
+  ["Claude", StarIcon],
+  ["Perplexity", WorkflowIcon],
+  ["Reddit", BoxIcon],
+  ["Quora", SendIcon],
+  ["Blogs", BotIcon],
+  ["News", PlusIcon],
+];
+
+const trackedPrompts = [
+  ["Best SEO tools", "ChatGPT mentions Competitor A. Gemini mentions your brand."],
+  ["Best AI tools", "Claude does not mention you yet. Add comparison and citation pages."],
+  ["Best CRM", "Competitor B appears in 35 answers across ChatGPT and Perplexity."],
+  ["Best influencer platform", "Your brand appears in Perplexity, but not ChatGPT."],
+  ["Best UGC marketplace", "Gap detected: competitors rank, your brand is missing."],
+];
 
 export default function Home() {
-  const [formNote, setFormNote] = useState("No spam. We'll only send product updates.");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [user, setUser] = useState(null);
-
-  const supabase = useMemo(() => createBrowserSupabaseClient(), []);
-
-  useEffect(() => {
-    if (!supabase) return;
-
-    const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        setUser(session.user);
-      }
-    };
-
-    checkUser();
-
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session) {
-        setUser(session.user);
-      } else {
-        setUser(null);
-      }
-    });
-
-    return () => {
-      authListener?.subscription?.unsubscribe();
-    };
-  }, [supabase]);
-
-  const handleSignOut = async () => {
-    if (!supabase) return;
-    await supabase.auth.signOut();
-    setUser(null);
-  };
-
-  async function handleSubmit(event) {
-    event.preventDefault();
-
-    const form = event.currentTarget;
-    const data = new FormData(form);
-    const honeypot = data.get("website")?.toString().trim();
-    if (honeypot) return;
-
-    const email = data.get("email")?.toString().trim();
-    const market = data.get("market")?.toString().trim() || "Reddit lead tracking";
-
-    if (!email) {
-      setFormNote("Add your email to join the waitlist.");
-      return;
-    }
-
-    if (!supabase) {
-      setFormNote("Supabase is not configured yet. Add your keys in .env.local.");
-      return;
-    }
-
-    setIsSubmitting(true);
-    setFormNote("Saving your request...");
-
-    const { error } = await supabase.from("early_access_leads").insert({
-      email,
-      market,
-      source: "website",
-      user_agent: navigator.userAgent,
-    });
-
-    setIsSubmitting(false);
-
-    if (error) {
-      setFormNote("Could not save your request. Please check Supabase setup.");
-      console.error(error);
-      return;
-    }
-
-    setFormNote("You're on the list! We'll be in touch soon.");
-    form.reset();
-  }
-
   return (
-    <main className="page-shell">
-      <header className="site-header">
-        <Link className="brand" href="/">
-          <img src="/logo.svg" alt="" />
-          Lead Finder
+    <main className="autosend-page">
+      <header className="autosend-nav rankora-simple-nav">
+        <Link className="autosend-brand" href="/">
+          <img src="/logo.png" alt="" />
+          <span>RANKORA</span>
         </Link>
-        <nav className="nav-links">
-          {user ? (
-            <>
-              <Link className="nav-cta" href="/dashboard">Dashboard</Link>
-              <button onClick={handleSignOut}>Sign Out</button>
-            </>
-          ) : (
-            <>
-              <a href="#features">Features</a>
-              <Link href="/pricing">Pricing</Link>
-              <a href="#waitlist">Early Access</a>
-              <Link className="nav-cta" href="/signin">Sign In</Link>
-            </>
-          )}
-        </nav>
+
+        <AuthNavActions primary />
       </header>
 
-      <section className="hero">
-        <div className="hero-content">
-          <p className="eyebrow">Reddit lead tracking for operators</p>
-          <h1>Find buyer-intent Reddit posts before they go cold</h1>
-          <p className="hero-copy">
-            Track keywords, spot active buying questions, and turn relevant Reddit threads into a clean lead inbox.
-          </p>
-          <div className="hero-actions">
-            {user ? (
-              <Link href="/dashboard" className="primary-button">
-                Go to Dashboard
-              </Link>
-            ) : (
-              <>
-                <a href="#waitlist" className="primary-button">
-                  Join the Waitlist
-                </a>
-                <Link href="/signin" className="secondary-button">
-                  Sign In
-                </Link>
-                <Link href="/pricing" className="secondary-button">
-                  See Pricing
-                </Link>
-              </>
-            )}
+      <section className="autosend-hero">
+        <h1>
+          AI visibility for <em>brands</em>
+          <br />
+          growing in <em>answers</em>
+        </h1>
+        <p>
+          Track where ChatGPT, Gemini, Claude, and Perplexity mention your brand.
+          <br />
+          Compare competitors, citations, prompts, and GEO actions in one place.
+        </p>
+        <div className="autosend-hero-actions">
+          <Link className="autosend-button autosend-button-ghost" href="#demo">
+            VIEW DEMO
+          </Link>
+          <AuthNavActions primary />
+        </div>
+      </section>
+
+      <section className="rankora-demo" id="demo" aria-label="AI recommendation simulator demo">
+        <div className="rankora-demo-illustration" aria-hidden="true">
+          <img src="/logo.png" alt="" />
+        </div>
+        <div className="rankora-simulator">
+          <div className="rankora-simulator-bar">
+            <span />
+            <span />
+            <span />
+            <strong>AI Recommendation Simulator</strong>
+          </div>
+          <div className="rankora-simulator-prompt">
+            <p>Best influencer marketing platform for startups</p>
+            <button type="button" aria-label="Run simulation">
+              <SendIcon aria-hidden="true" />
+            </button>
+          </div>
+          <div className="rankora-simulator-results">
+            {[
+              ["ChatGPT", "Competitor A", "lose"],
+              ["Gemini", "Competitor B", "warn"],
+              ["Claude", "Not Mentioned", "neutral"],
+              ["Perplexity", "Your Brand", "win"],
+            ].map(([engine, result, tone]) => (
+              <div className={`rankora-result ${tone}`} key={engine}>
+                <span>{engine}</span>
+                <strong>{result}</strong>
+              </div>
+            ))}
+          </div>
+          <div className="rankora-simulator-note">
+            <h2>Why not mentioned?</h2>
+            <p>Competitor A appears on 15 high-authority sites. Your brand appears on only 3.</p>
           </div>
         </div>
       </section>
 
-      <section className="product-strip" aria-label="Lead Finder highlights">
-        <div>
-          <strong>48</strong>
-          <span>sample leads found</span>
+      <section className="autosend-docs-grid" id="solutions">
+        {solutionCards.map((card) => (
+          <article key={card.title}>
+            <h2>{card.title}</h2>
+            <p>{card.copy}</p>
+            <a href="#docs">
+              DOCS <ArrowUpRightIcon aria-hidden="true" />
+            </a>
+          </article>
+        ))}
+      </section>
+
+      <section className="autosend-proof">
+        <div className="autosend-stat-grid">
+          {stats.map(([value, label]) => (
+            <div key={label}>
+              <strong>{value}</strong>
+              <span>{label}</span>
+            </div>
+          ))}
         </div>
-        <div>
-          <strong>12</strong>
-          <span>keywords tracked</span>
-        </div>
-        <div>
-          <strong>8</strong>
-          <span>subreddits monitored</span>
+        <h2>AI MENTION TRACKING FOR BRANDS AND AGENCIES!</h2>
+        <div className="autosend-company-grid">
+          {companies.map((company, index) => (
+            <div key={company}>
+              <span>{company}</span>
+            </div>
+          ))}
         </div>
       </section>
 
-      <section className="screenshot-section">
-        <div className="screenshot-container">
-          <img src="/reddit-lead-dashboard.png" alt="Lead Finder dashboard screenshot" />
+      <section className="autosend-product" id="docs">
+        <div className="autosend-product-head">
+          <span>#01 - AI RECOMMENDATION SIMULATOR</span>
+          <h2>See which AI engine recommends you, competitors, or nobody.</h2>
         </div>
-      </section>
+        <div className="autosend-product-body">
+          <div className="autosend-feature-list">
+            {features.map((feature) => {
+              const Icon = feature.icon;
+              return (
+                <article key={feature.title}>
+                  <Icon aria-hidden="true" />
+                  <div>
+                    <h3>{feature.title}</h3>
+                    <p>{feature.copy}</p>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+          <div className="autosend-code-panel">
+            <div className="autosend-window">
+              <div className="autosend-window-bar">
+                <span />
+                <span />
+                <span />
+              </div>
+              <div className="autosend-code-content">
+                <aside>
+                  {["ChatGPT", "Gemini", "Claude", "Perplexity", "Reddit", "Quora", "Blogs", "News"].map((item) => (
+                    <button key={item} type="button">
+                      <CodeIcon aria-hidden="true" />
+                      {item}
+                    </button>
+                  ))}
+                </aside>
+                <pre>{`Prompt:
+"Best influencer marketing platform for startups"
 
-      <section className="features" id="features">
-        <article className="feature-card">
-          <span className="feature-icon">01</span>
-          <h2>Real-time keyword tracking</h2>
-          <p>Monitor the words and phrases your customers use when asking for help or recommendations on Reddit.</p>
-        </article>
-        <article className="feature-card">
-          <span className="feature-icon">02</span>
-          <h2>Smart lead filtering</h2>
-          <p>Focus on posts that sound like active buying requests instead of generic mentions or discussions.</p>
-        </article>
-        <article className="feature-card">
-          <span className="feature-icon">03</span>
-          <h2>Instant email alerts</h2>
-          <p>Get notified while the thread is still fresh and warm, before everyone else jumps in.</p>
-        </article>
-      </section>
+AI result:
+ChatGPT      Competitor A
+Gemini       Competitor B
+Claude       Not mentioned
+Perplexity   Your brand
 
-      <section className="waitlist" id="waitlist">
-        <div className="waitlist-text">
-          <h2>Join the early access list</h2>
-          <p>Be the first to try Lead Finder when we launch. We're onboarding users in batches.</p>
-          <div className="waitlist-points">
-            <span>Keyword monitoring</span>
-            <span>Lead inbox</span>
-            <span>Intent alerts</span>
+Why not mentioned?
+Competitor A appears on 15 high-authority
+sites. Your brand appears on only 3.
+
+Recommended actions:
+Add comparison pages
+Add FAQ schema
+Build Reddit and Quora citations
+Create author and entity pages`}</pre>
+                <button className="autosend-copy" type="button" aria-label="Copy code">
+                  <CopyIcon aria-hidden="true" />
+                </button>
+              </div>
+            </div>
           </div>
         </div>
-        <form className="waitlist-form" onSubmit={handleSubmit}>
-          <label className="hidden-field" aria-hidden="true">
-            Website
-            <input type="text" name="website" tabIndex="-1" autoComplete="off" />
-          </label>
-          <label className="form-label">
-            Work email
-            <input className="form-input" type="email" name="email" placeholder="you@company.com" required />
-          </label>
-          <label className="form-label">
-            What do you sell?
-            <input className="form-input" type="text" name="market" placeholder="SEO agency, CRM, AI tool..." />
-          </label>
-          <button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Joining..." : "Join the waitlist"}
-          </button>
-          <p className="form-note">{formNote}</p>
-        </form>
+        <a className="autosend-section-link" href="#docs">
+          EXPLORE THE AI SIMULATOR <ArrowUpRightIcon aria-hidden="true" />
+        </a>
       </section>
+
+      <section className="autosend-split">
+        <div>
+          <span>COMPETITOR CONTENT GAP</span>
+          <h2>Find prompts competitors rank for and you do not.</h2>
+          <p>Track gaps like influencer marketing platform, UGC marketplace, creator CRM, best AI tools, best CRM, and best SEO tools.</p>
+        </div>
+        <div className="autosend-project-visual">
+          <div className="autosend-window">
+            <div className="autosend-window-bar">
+              <span />
+              <span />
+              <span />
+            </div>
+            <div className="autosend-project-card">
+              <button type="button">
+                <MailIcon aria-hidden="true" />
+                Client Workspace
+                <ChevronDownIcon aria-hidden="true" />
+              </button>
+              <div>
+                <p>
+                  <MailIcon aria-hidden="true" />
+                  <strong>Brand Alpha</strong>
+                  <small>18 mentions</small>
+                  <SettingsIcon aria-hidden="true" />
+                </p>
+                <p>
+                  <SparklesIcon aria-hidden="true" />
+                  <strong>Competitor A</strong>
+                  <small>42 mentions</small>
+                </p>
+                <p>
+                  <PlusIcon aria-hidden="true" />
+                  <strong>NEW CLIENT</strong>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="autosend-integrations" id="agents">
+        <div>
+          <span>AI CITATION SOURCES</span>
+          <h2>Know where answer engines learn about your brand.</h2>
+        </div>
+        <div className="autosend-integration-grid">
+          {integrations.map(([name, Icon]) => (
+            <article key={name}>
+              <Icon aria-hidden="true" />
+              <ArrowUpRightIcon aria-hidden="true" />
+              <h3>{name}</h3>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="rankora-prompt-library" id="blog">
+        <div className="rankora-prompt-lead">
+          <span>PROMPT LIBRARY</span>
+          <h2>Track the prompts that decide who gets recommended.</h2>
+        </div>
+        {trackedPrompts.map(([prompt, result]) => (
+          <article key={prompt}>
+            <h3>{prompt}</h3>
+            <p>{result}</p>
+            <ArrowUpRightIcon aria-hidden="true" />
+          </article>
+        ))}
+      </section>
+
+      <section className="autosend-pricing" id="pricing">
+        <span>#03 - AGENCY READY</span>
+        <h2>Generate white-label GEO audit reports and manage every client dashboard from one account.</h2>
+        <Link className="autosend-button autosend-button-primary" href="/pricing">
+          VIEW PRICING
+        </Link>
+      </section>
+
+      <footer className="rankora-footer">
+        <div className="rankora-footer-brand">
+          <Link className="autosend-brand" href="/">
+            <img src="/logo.png" alt="" />
+            <span>RANKORA</span>
+          </Link>
+          <p>AI visibility, GEO audits, citation tracking, and white-label reports for brands and agencies.</p>
+        </div>
+        {[
+          ["PRODUCT", "GEO Score", "Prompt Library", "Citation Sources", "Reports"],
+          ["AGENTS", "ChatGPT", "Codex", "Claude", "Cursor"],
+          ["RESOURCES", "Docs", "Blog", "Templates", "Status"],
+          ["ACCOUNT", "Log in", "Dashboard", "Pricing", "Support"],
+        ].map(([heading, ...items]) => (
+          <div className="rankora-footer-list" key={heading}>
+            <h2>{heading}</h2>
+            {items.map((item) => (
+              <a href={item === "Pricing" ? "/pricing" : item === "Log in" ? "/signin" : item === "Dashboard" ? "/dashboard" : "#"} key={item}>
+                {item}
+              </a>
+            ))}
+          </div>
+        ))}
+        <p className="rankora-footer-bottom">© 2026 · RANKORA INC.</p>
+      </footer>
     </main>
   );
 }

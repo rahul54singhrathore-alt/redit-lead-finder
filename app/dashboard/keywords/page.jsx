@@ -3,43 +3,16 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { createBrowserSupabaseClient } from "../../../lib/supabase";
-
-// Simple SVG icons
-const HomeIcon = () => (
-  <svg className="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-    <polyline points="9 22 9 12 15 12 15 22" />
-  </svg>
-);
-
-const SearchIcon = () => (
-  <svg className="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <circle cx="11" cy="11" r="8" />
-    <path d="m21 21-4.35-4.35" />
-  </svg>
-);
-
-const TrendingIcon = () => (
-  <svg className="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
-    <polyline points="17 6 23 6 23 12" />
-  </svg>
-);
-
-const BellIcon = () => (
-  <svg className="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-    <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-  </svg>
-);
-
-const SettingsIcon = () => (
-  <svg className="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <circle cx="12" cy="12" r="3" />
-    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
-  </svg>
-);
+import { AppSidebar } from "@/components/app-sidebar";
+import { SourcePresetPicker } from "@/components/source-preset-picker";
+import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { ArrowRightIcon, LockIcon, SparklesIcon } from "lucide-react";
+import { createBrowserSupabaseClient, isMissingSupabaseTableError } from "../../../lib/supabase";
+import {
+  formatDefaultVisibilitySources,
+  normalizeWorkspaceProfile,
+  parseCommaSeparatedList,
+} from "../../../lib/workspace-profile";
 
 const PlusIcon = () => (
   <svg className="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -53,6 +26,368 @@ const TrashIcon = () => (
   </svg>
 );
 
+function buildSeoBrief(keyword) {
+  const cleanKeyword = keyword.trim();
+
+  return {
+    titleIdeas: [
+      `${cleanKeyword}: A Practical Guide for Better Rankings`,
+      `How to Use ${cleanKeyword} to Capture More Qualified Traffic`,
+      `The Complete ${cleanKeyword} Playbook for 2026`,
+    ],
+    h1: `The Complete ${cleanKeyword} Guide`,
+    h2s: [
+      `What is ${cleanKeyword}?`,
+      `How ${cleanKeyword} helps users decide`,
+      `Best practices for using ${cleanKeyword} on your site`,
+      `Common mistakes to avoid with ${cleanKeyword}`,
+    ],
+    faqs: [
+      {
+        q: `What is the best way to start with ${cleanKeyword}?`,
+        a: `Open with a clear definition, then add a quick how-to section and a practical example.`,
+      },
+      {
+        q: `How do I optimize content for ${cleanKeyword}?`,
+        a: `Use the keyword in the title, H1, intro, a few H2s, and a concise meta description without stuffing.`,
+      },
+      {
+        q: `What questions should a ${cleanKeyword} page answer?`,
+        a: `Answer intent, use cases, comparison points, pricing or process, and next steps for the reader.`,
+      },
+      {
+        q: `How can I improve GEO and AEO for ${cleanKeyword}?`,
+        a: `Add concise answers, FAQ schema, citations, and clear entity references so AI systems can parse the page easily.`,
+      },
+    ],
+    internalLinks: [
+      "Link to the related product or category page",
+      "Link to the pricing page for conversion intent",
+      "Link to a supporting blog post or case study",
+      "Link to a comparison or alternatives page",
+    ],
+    metaDescription: `Learn how to use ${cleanKeyword} with a concise SEO brief covering titles, headings, FAQs, internal links, and GEO/AEO optimization.`,
+    geoAeo: [
+      "Add a direct answer near the top of the page.",
+      "Use structured FAQs with schema markup.",
+      "Cite sources and reference related entities.",
+      "Keep paragraphs short and answer-first.",
+      "Include comparison language and outcome-driven phrasing.",
+    ],
+  };
+}
+
+function buildBlogIdeas(niche) {
+  const cleanNiche = niche.trim();
+  const formats = [
+    "ultimate guide",
+    "best practices",
+    "how to choose",
+    "buyer's guide",
+    "comparison",
+  ];
+  const outcomes = [
+    "for beginners",
+    "for small teams",
+    "for founders",
+    "for marketers",
+    "for agencies",
+    "that drives conversions",
+    "that ranks fast",
+    "that attracts buyers",
+    "that improves GEO",
+    "that supports AEO",
+  ];
+  const angles = [
+    "pricing",
+    "tools",
+    "templates",
+    "mistakes",
+    "checklist",
+    "workflow",
+    "strategy",
+    "examples",
+    "benchmarks",
+    "case studies",
+  ];
+
+  const ideas = [];
+  formats.forEach((format, formatIndex) => {
+    angles.forEach((angle, angleIndex) => {
+      outcomes.forEach((outcome, outcomeIndex) => {
+        if (ideas.length >= 50) return;
+        const number = ideas.length + 1;
+        const titleParts = [
+          `${number}. ${cleanNiche} ${format}`,
+          `${cleanNiche} ${angle} ${outcome}`,
+        ];
+
+        ideas.push({
+          title: titleParts.join(" - "),
+          label: "Low competition + high intent",
+          note: `Focus: ${format} / ${angle} / ${outcome}`,
+          score: 90 - formatIndex - angleIndex - outcomeIndex,
+        });
+      });
+    });
+  });
+
+  return ideas.slice(0, 50);
+}
+
+function SeoBriefTool({ subscriptionTier = "free", defaultKeyword = "" }) {
+  const isPremium = subscriptionTier !== "free";
+  const [keyword, setKeyword] = useState(defaultKeyword);
+  const [brief, setBrief] = useState(() => (defaultKeyword.trim() ? buildSeoBrief(defaultKeyword) : null));
+
+  useEffect(() => {
+    if (defaultKeyword.trim()) {
+      setKeyword(defaultKeyword);
+      setBrief(buildSeoBrief(defaultKeyword));
+    }
+  }, [defaultKeyword]);
+
+  const handleGenerate = (event) => {
+    event.preventDefault();
+
+    const cleaned = keyword.trim();
+    if (!cleaned) return;
+
+    setBrief(buildSeoBrief(cleaned));
+  };
+
+  if (!isPremium) {
+    return (
+      <section className="dashboard-card seo-brief-lock">
+        <div className="card-header">
+          <div>
+            <h2>Full SEO brief</h2>
+            <p className="card-supporting-copy">Available on Pro and above.</p>
+          </div>
+          <span className="pricing-badge">Locked</span>
+        </div>
+        <div className="seo-brief-locked">
+          <LockIcon />
+          <div>
+            <strong>Upgrade to unlock keyword briefs</strong>
+            <p>
+              Get title ideas, H1/H2 structure, FAQs, internal links, meta descriptions, and GEO/AEO recommendations for any keyword.
+            </p>
+          </div>
+          <Link className="primary-button seo-brief-upgrade" href="/pricing">
+            View plans
+            <ArrowRightIcon />
+          </Link>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section className="dashboard-card seo-brief-card">
+      <div className="card-header">
+        <div>
+          <h2>Full SEO brief</h2>
+          <p className="card-supporting-copy">Generate a keyword brief with SEO, AEO, and GEO guidance.</p>
+        </div>
+        <span className="pricing-badge">Pro</span>
+      </div>
+
+      <form className="seo-brief-form" onSubmit={handleGenerate}>
+        <label className="form-label" htmlFor="seo-brief-keyword">
+          Keyword
+        </label>
+        <div className="seo-brief-row">
+          <input
+            id="seo-brief-keyword"
+            className="form-input"
+            placeholder="e.g., AI lead generation"
+            value={keyword}
+            onChange={(event) => setKeyword(event.target.value)}
+          />
+          <button className="primary-button seo-brief-button" type="submit">
+            Generate brief
+            <SparklesIcon />
+          </button>
+        </div>
+      </form>
+
+      {brief ? (
+        <div className="seo-brief-output">
+          <div className="seo-brief-block">
+            <h3>Title ideas</h3>
+            <ul>
+              {brief.titleIdeas.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="seo-brief-grid">
+            <div className="seo-brief-block">
+              <h3>H1 / H2</h3>
+              <p><strong>H1:</strong> {brief.h1}</p>
+              <ul>
+                {brief.h2s.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="seo-brief-block">
+              <h3>Meta description</h3>
+              <p>{brief.metaDescription}</p>
+            </div>
+          </div>
+
+          <div className="seo-brief-grid">
+            <div className="seo-brief-block">
+              <h3>FAQs</h3>
+              <ul>
+                {brief.faqs.map((item) => (
+                  <li key={item.q}>
+                    <strong>{item.q}</strong>
+                    <span>{item.a}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="seo-brief-block">
+              <h3>Internal links</h3>
+              <ul>
+                {brief.internalLinks.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          <div className="seo-brief-block seo-brief-full-width">
+            <h3>GEO / AEO optimization</h3>
+            <ul className="seo-brief-chips">
+              {brief.geoAeo.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      ) : (
+        <div className="seo-brief-empty">
+          <SparklesIcon />
+          <p>Enter a keyword to generate the full SEO brief.</p>
+        </div>
+      )}
+    </section>
+  );
+}
+
+function BlogIdeasTool({ subscriptionTier = "free", defaultNiche = "" }) {
+  const isPremium = subscriptionTier !== "free";
+  const [niche, setNiche] = useState(defaultNiche);
+  const [ideas, setIdeas] = useState(() => (defaultNiche.trim() ? buildBlogIdeas(defaultNiche) : []));
+
+  useEffect(() => {
+    if (defaultNiche.trim()) {
+      setNiche(defaultNiche);
+      setIdeas(buildBlogIdeas(defaultNiche));
+    }
+  }, [defaultNiche]);
+
+  const handleGenerate = (event) => {
+    event.preventDefault();
+
+    const cleaned = niche.trim();
+    if (!cleaned) return;
+
+    setIdeas(buildBlogIdeas(cleaned));
+  };
+
+  if (!isPremium) {
+    return (
+      <section className="dashboard-card seo-brief-lock">
+        <div className="card-header">
+          <div>
+            <h2>50 SEO blog ideas</h2>
+            <p className="card-supporting-copy">Available on Pro and above.</p>
+          </div>
+          <span className="pricing-badge">Locked</span>
+        </div>
+        <div className="seo-brief-locked">
+          <LockIcon />
+          <div>
+            <strong>Upgrade to unlock blog idea generation</strong>
+            <p>
+              Enter a niche and generate 50 blog ideas tagged with `Low competition + high intent`.
+            </p>
+          </div>
+          <Link className="primary-button seo-brief-upgrade" href="/pricing">
+            View plans
+            <ArrowRightIcon />
+          </Link>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section className="dashboard-card seo-brief-card">
+      <div className="card-header">
+        <div>
+          <h2>50 SEO blog ideas</h2>
+          <p className="card-supporting-copy">Enter a niche and generate content ideas with low competition and high intent.</p>
+        </div>
+        <span className="pricing-badge">Pro</span>
+      </div>
+
+      <form className="seo-brief-form" onSubmit={handleGenerate}>
+        <label className="form-label" htmlFor="blog-ideas-niche">
+          Niche
+        </label>
+        <div className="seo-brief-row">
+          <input
+            id="blog-ideas-niche"
+            className="form-input"
+            placeholder="e.g., AI lead generation"
+            value={niche}
+            onChange={(event) => setNiche(event.target.value)}
+          />
+          <button className="primary-button seo-brief-button" type="submit">
+            Generate 50 ideas
+            <SparklesIcon />
+          </button>
+        </div>
+      </form>
+
+      {ideas.length > 0 ? (
+        <div className="blog-ideas-output">
+          <div className="blog-ideas-summary">
+            <strong>{ideas.length}</strong>
+            <span>ideas ready</span>
+          </div>
+          <div className="blog-ideas-list">
+            {ideas.map((idea) => (
+              <article key={idea.title} className="blog-idea-card">
+                <div className="blog-idea-top">
+                  <span className="blog-idea-index">{idea.score}</span>
+                  <span className="blog-idea-label">{idea.label}</span>
+                </div>
+                <h3>{idea.title}</h3>
+                <p>{idea.note}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <div className="seo-brief-empty">
+          <SparklesIcon />
+          <p>Enter a niche to generate 50 SEO blog ideas.</p>
+        </div>
+      )}
+    </section>
+  );
+}
+
 export default function KeywordsPage() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -60,11 +395,24 @@ export default function KeywordsPage() {
   const [newKeyword, setNewKeyword] = useState("");
   const [newSubreddits, setNewSubreddits] = useState("");
   const [message, setMessage] = useState("");
+  const [profile, setProfile] = useState(null);
   const router = useRouter();
   const supabase = useMemo(() => createBrowserSupabaseClient(), []);
 
   useEffect(() => {
-    if (!supabase) return;
+    if (!supabase) {
+      setUser({ id: "demo-user", email: "demo@local" });
+      setProfile({
+        onboarding_completed: true,
+        starter_keyword: "AI lead generation",
+        target_subreddits: formatDefaultVisibilitySources().split(", ").filter(Boolean),
+        subscription_tier: "pro",
+      });
+      setKeywords([]);
+      setMessage("Demo mode is active because Supabase is not configured.");
+      setLoading(false);
+      return;
+    }
 
     const checkUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -73,7 +421,7 @@ export default function KeywordsPage() {
         return;
       }
       setUser(session.user);
-      await loadKeywords();
+      await loadWorkspace(session.user.id);
       setLoading(false);
     };
 
@@ -84,7 +432,7 @@ export default function KeywordsPage() {
         router.replace("/signin");
       } else {
         setUser(session.user);
-        loadKeywords();
+        loadWorkspace(session.user.id);
         setLoading(false);
       }
     });
@@ -94,19 +442,28 @@ export default function KeywordsPage() {
     };
   }, [router, supabase]);
 
-  const loadKeywords = async () => {
+  const loadWorkspace = async (userId) => {
     if (!supabase) return;
-    const { data, error } = await supabase
-      .from("tracked_keywords")
-      .select("id, keyword, subreddits, leads_found")
-      .order("created_at", { ascending: false });
+    const [profileResult, keywordsResult] = await Promise.all([
+      supabase
+        .from("user_profiles")
+        .select("*")
+        .eq("user_id", userId)
+        .maybeSingle(),
+      supabase
+        .from("tracked_keywords")
+        .select("id, keyword, subreddits, leads_found")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false }),
+    ]);
 
-    if (error) {
+    if (profileResult.error) {
       setMessage("Could not load keywords. Run supabase-schema.sql in Supabase first.");
       return;
     }
 
-    setKeywords(data || []);
+    setProfile(profileResult.data ? normalizeWorkspaceProfile(profileResult.data) : null);
+    setKeywords(keywordsResult.data || []);
     setMessage("");
   };
 
@@ -116,19 +473,14 @@ export default function KeywordsPage() {
     router.replace("/");
   };
 
-  const getInitials = (email) => {
-    if (!email) return "U";
-    const name = email.split("@")[0];
-    return name.charAt(0).toUpperCase();
-  };
-
   const handleAddKeyword = async (e) => {
     e.preventDefault();
+    if (!supabase) {
+      setMessage("Demo mode: connect Supabase to save brands.");
+      return;
+    }
     if (!newKeyword.trim() || !user || !supabase) return;
-    const subreddits = newSubreddits
-      .split(",")
-      .map((item) => item.trim())
-      .filter(Boolean);
+    const subreddits = parseCommaSeparatedList(newSubreddits);
     const { data, error } = await supabase
       .from("tracked_keywords")
       .insert({
@@ -140,188 +492,170 @@ export default function KeywordsPage() {
       .single();
 
     if (error) {
-      setMessage(error.message || "Could not add keyword.");
+      if (!isMissingSupabaseTableError(error, "tracked_keywords")) {
+        setMessage(error.message || "Could not add keyword.");
+        return;
+      }
+      setKeywords([{ id: `${Date.now()}`, keyword: newKeyword.trim(), subreddits, leads_found: 0 }, ...keywords]);
+      setNewKeyword("");
+      setNewSubreddits("");
       return;
     }
 
-    const keyword = {
-      id: data.id,
-      keyword: newKeyword,
-      subreddits: data.subreddits || [],
-      leads_found: data.leads_found || 0,
-    };
-    setKeywords([...keywords, keyword]);
-    setNewKeyword("");
-    setNewSubreddits("");
-    setMessage("");
+    if (data) {
+      setKeywords([data, ...keywords]);
+      setNewKeyword("");
+      setNewSubreddits("");
+    }
   };
 
   const handleDeleteKeyword = async (id) => {
     if (!supabase) return;
     const { error } = await supabase.from("tracked_keywords").delete().eq("id", id);
-    if (error) {
+    if (error && !isMissingSupabaseTableError(error, "tracked_keywords")) {
       setMessage(error.message || "Could not delete keyword.");
       return;
     }
-    setKeywords(keywords.filter(k => k.id !== id));
+    setKeywords(keywords.filter((k) => k.id !== id));
   };
 
   if (loading) {
     return (
-      <div className="dashboard-layout">
-        <div className="dashboard-main" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <p>Loading...</p>
-        </div>
-      </div>
+      <SidebarProvider>
+        <SidebarInset>
+          <div className="dashboard-main" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <p>Loading...</p>
+          </div>
+        </SidebarInset>
+      </SidebarProvider>
     );
   }
 
   return (
-    <div className="dashboard-layout">
-      {/* Sidebar */}
-      <aside className="sidebar">
-        <div className="sidebar-header">
-          <Link className="brand" href="/">
-            <img src="/logo.svg" alt="" />
-            Lead Finder
-          </Link>
-        </div>
-        <nav className="sidebar-nav">
-          <span className="sidebar-section-label">Workspace</span>
-          <Link href="/dashboard" className="sidebar-item">
-            <HomeIcon />
-            <span>Dashboard</span>
-          </Link>
-          <Link href="/dashboard/keywords" className="sidebar-item active">
-            <SearchIcon />
-            <span>Keywords</span>
-          </Link>
-          <Link href="/dashboard/leads" className="sidebar-item">
-            <TrendingIcon />
-            <span>Leads</span>
-            <span className="sidebar-badge">48</span>
-          </Link>
-          <Link href="/dashboard/alerts" className="sidebar-item">
-            <BellIcon />
-            <span>Alerts</span>
-            <span className="sidebar-badge">7</span>
-          </Link>
-          <Link href="/dashboard/settings" className="sidebar-item">
-            <SettingsIcon />
-            <span>Settings</span>
-          </Link>
-        </nav>
-        <div className="sidebar-status">
-          <div className="sidebar-status-dot" />
-          <div>
-            <p className="sidebar-status-title">Monitoring active</p>
-            <p className="sidebar-status-meta">8 subreddits watched</p>
-          </div>
-        </div>
-        <div className="sidebar-footer">
-          <button className="sidebar-item" onClick={handleSignOut}>
-            <svg className="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-              <polyline points="16 17 21 12 16 7" />
-              <line x1="21" y1="12" x2="9" y2="12" />
-            </svg>
-            <span>Sign Out</span>
-          </button>
-        </div>
-      </aside>
-
-      {/* Main Content */}
-      <main className="dashboard-main">
-        <div className="dashboard-header">
-          <div>
-            <h1>Keywords</h1>
-            <p style={{ color: "#71717a", margin: "4px 0 0 0" }}>
-              Manage the keywords you want to track on Reddit
-            </p>
-          </div>
-          <div className="user-menu">
-            <div className="user-avatar">{getInitials(user?.email)}</div>
-          </div>
-        </div>
-
-        <div className="dashboard-content">
-          {/* Add New Keyword Card */}
-          <div className="dashboard-card">
-            <div className="card-header">
-              <h2>Add New Keyword</h2>
+    <SidebarProvider>
+      <AppSidebar user={user} onSignOut={handleSignOut} />
+      <SidebarInset>
+        <main className="dashboard-main">
+          <div className="dashboard-header">
+            <div>
+              <SidebarTrigger className="dashboard-sidebar-trigger" />
+              <h1>Brands</h1>
+              <p style={{ color: "#71717a", margin: "4px 0 0 0" }}>Manage the brands you want to track across AI answers</p>
             </div>
-            <form onSubmit={handleAddKeyword} className="add-keyword-form">
-              <div className="form-fields">
-                <div className="form-group">
-                  <label className="form-label">Keyword</label>
-                  <input
-                    type="text"
-                    className="form-input"
-                    placeholder="e.g., best CRM for startups"
-                    value={newKeyword}
-                    onChange={(e) => setNewKeyword(e.target.value)}
-                  />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Subreddits (comma separated)</label>
-                  <input
-                    type="text"
-                    className="form-input"
-                    placeholder="e.g., r/SaaS, r/Entrepreneur"
-                    value={newSubreddits}
-                    onChange={(e) => setNewSubreddits(e.target.value)}
-                  />
-                </div>
+          </div>
+
+          {message ? <p className="signin-message" style={{ textAlign: "left" }}>{message}</p> : null}
+
+          <div className="dashboard-content">
+            <section className="dashboard-setup-hub">
+              <div className="dashboard-setup-hub-copy">
+                <span className="dashboard-kicker">Visibility setup</span>
+                <h2>Start here: setup and brands live in one place.</h2>
+                <p>
+                  This page is the control center for both setup and brand management. Add your first brand, pick sources, and open the brief tools without hunting through the sidebar.
+                </p>
               </div>
-              <button type="submit" className="primary-button">
-                <PlusIcon /> Add Keyword
-              </button>
-            </form>
-          </div>
+              <div className="dashboard-setup-hub-actions">
+                <Link href="/dashboard/settings" className="secondary-button dashboard-secondary-action">
+                  Sources
+                </Link>
+                <Link href="/dashboard/alerts" className="secondary-button dashboard-secondary-action">
+                  Alerts
+                </Link>
+                <Link href="/dashboard" className="primary-button dashboard-primary-action">
+                  Open dashboard
+                </Link>
+              </div>
+            </section>
 
-          {/* Keywords List */}
-          <div className="dashboard-card">
-            <div className="card-header">
-              <h2>Your Keywords</h2>
-              <span style={{ fontSize: "0.875rem", color: "#71717a" }}>
-                {keywords.length} keywords
-              </span>
-            </div>
-            {message ? <p className="signin-message" style={{ textAlign: "left", marginBottom: "16px" }}>{message}</p> : null}
-            <div className="keywords-list">
-              {keywords.map((keyword) => (
-                <div key={keyword.id} className="keyword-item">
-                  <div className="keyword-info">
-                    <div className="keyword-name">
-                      {keyword.keyword}
-                    </div>
-                    <div className="keyword-subreddits">
-                      {Array.isArray(keyword.subreddits) && keyword.subreddits.length > 0 ? keyword.subreddits.join(", ") : "All subreddits"}
-                    </div>
+            <div className="dashboard-card">
+              <div className="card-header">
+                <h2>Add new brand</h2>
+              </div>
+              <form onSubmit={handleAddKeyword} className="add-keyword-form">
+                <div className="form-fields">
+                  <div className="form-group">
+                    <label className="form-label">Brand</label>
+                    <input
+                      type="text"
+                      className="form-input"
+                      placeholder="e.g., Rankora"
+                      value={newKeyword}
+                      onChange={(e) => setNewKeyword(e.target.value)}
+                    />
                   </div>
-                  <div className="keyword-stats">
-                    <span className="stat-badge">
-                      {keyword.leads_found || 0} leads found
-                    </span>
-                    <button
-                      className="delete-button"
-                      onClick={() => handleDeleteKeyword(keyword.id)}
-                    >
-                      <TrashIcon />
-                    </button>
+                  <div className="form-group">
+                    <label className="form-label">Sources (comma separated)</label>
+                    <input
+                      type="text"
+                      className="form-input"
+                      placeholder={formatDefaultVisibilitySources()}
+                      value={newSubreddits}
+                      onChange={(e) => setNewSubreddits(e.target.value)}
+                    />
+                    <SourcePresetPicker value={newSubreddits} onChange={setNewSubreddits} />
                   </div>
                 </div>
-              ))}
-              {keywords.length === 0 && (
+                <button type="submit" className="primary-button">
+                  <PlusIcon /> Add Brand
+                </button>
+              </form>
+            </div>
+
+            <div className="dashboard-card">
+              <div className="card-header">
+                <h2>Your Brands</h2>
+                <span style={{ fontSize: "0.875rem", color: "#71717a" }}>{keywords.length} brands</span>
+              </div>
+              {keywords.length === 0 ? (
                 <div className="empty-state">
-                  <h2>No keywords yet</h2>
-                  <p>Add your first keyword to start tracking Reddit leads.</p>
+                  <h2>No brands yet</h2>
+                  <p>Add your first brand to start tracking visibility signals.</p>
+                </div>
+              ) : (
+                <div className="keywords-list">
+                  {keywords.map((keyword) => (
+                    <div key={keyword.id} className="keyword-item">
+                      <div className="keyword-info">
+                        <div className="keyword-name">{keyword.keyword}</div>
+                        <div className="keyword-subreddits">
+                          {Array.isArray(keyword.subreddits) && keyword.subreddits.length > 0 ? (
+                            <div className="source-chip-row">
+                              {keyword.subreddits.map((source) => (
+                                <span key={source} className="source-mini-chip">{source}</span>
+                              ))}
+                            </div>
+                          ) : (
+                            "All sources"
+                          )}
+                        </div>
+                      </div>
+                      <div className="keyword-stats">
+                        <span className="stat-badge">{keyword.leads_found || 0} mentions found</span>
+                        <button
+                          className="delete-button"
+                          onClick={() => handleDeleteKeyword(keyword.id)}
+                        >
+                          <TrashIcon />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
+
+            <SeoBriefTool
+              subscriptionTier={profile?.subscription_tier || "free"}
+              defaultKeyword={profile?.starter_keyword || keywords[0]?.keyword || ""}
+            />
+            <BlogIdeasTool
+              subscriptionTier={profile?.subscription_tier || "free"}
+              defaultNiche={profile?.starter_keyword || keywords[0]?.keyword || ""}
+            />
           </div>
-        </div>
-      </main>
-    </div>
+        </main>
+      </SidebarInset>
+    </SidebarProvider>
   );
 }

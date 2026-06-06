@@ -2,9 +2,13 @@ import "./globals.css";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 export const metadata = {
-  title: "Lead Finder | Reddit Lead Monitoring",
+  title: "Rankora | AI Visibility and GEO Tracking",
   description:
-    "Track buyer-intent Reddit posts and join the waitlist for early access.",
+    "Track AI visibility, competitor mentions, prompt rankings, citations, GEO recommendations, and white-label client reports.",
+  icons: {
+    icon: "/logo.png",
+    apple: "/logo.png",
+  },
 };
 
 export default function RootLayout({ children }) {

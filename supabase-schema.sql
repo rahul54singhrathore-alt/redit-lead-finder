@@ -22,16 +22,69 @@ with check (
   and source = 'website'
 );
 
+create table if not exists public.user_profiles (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  onboarding_completed boolean not null default false,
+  starter_keyword text not null default '',
+  customer_type text not null default 'both' check (customer_type in ('b2b', 'b2c', 'both')),
+  target_subreddits text[] not null default array['ChatGPT', 'Gemini', 'Claude', 'Perplexity', 'Reddit', 'Quora']::text[],
+  digest_frequency text not null default 'daily' check (digest_frequency in ('daily', 'weekly', 'off')),
+  email_digest boolean not null default true,
+  instant_alerts boolean not null default true,
+  alert_channel text not null default 'email' check (alert_channel in ('email', 'dashboard')),
+  min_score integer not null default 5,
+  min_comments integer not null default 3,
+  ignored_terms text not null default '',
+  export_format text not null default 'csv' check (export_format in ('csv', 'json')),
+  subscription_tier text not null default 'free' check (subscription_tier in ('free', 'pro', 'growth', 'agency')),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+alter table public.user_profiles
+  alter column target_subreddits set default array['ChatGPT', 'Gemini', 'Claude', 'Perplexity', 'Reddit', 'Quora']::text[];
+
+alter table public.user_profiles enable row level security;
+
+drop policy if exists "Users can read own profile" on public.user_profiles;
+drop policy if exists "Users can insert own profile" on public.user_profiles;
+drop policy if exists "Users can update own profile" on public.user_profiles;
+drop policy if exists "Users can delete own profile" on public.user_profiles;
+
+create policy "Users can read own profile"
+on public.user_profiles for select
+to authenticated
+using (auth.uid() = user_id);
+
+create policy "Users can insert own profile"
+on public.user_profiles for insert
+to authenticated
+with check (auth.uid() = user_id);
+
+create policy "Users can update own profile"
+on public.user_profiles for update
+to authenticated
+using (auth.uid() = user_id)
+with check (auth.uid() = user_id);
+
+create policy "Users can delete own profile"
+on public.user_profiles for delete
+to authenticated
+using (auth.uid() = user_id);
+
 create table if not exists public.tracked_keywords (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
   keyword text not null,
-  subreddits text[] not null default '{}',
+  subreddits text[] not null default array['ChatGPT', 'Gemini', 'Claude', 'Perplexity', 'Reddit', 'Quora']::text[],
   leads_found integer not null default 0,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   constraint tracked_keywords_keyword_length check (length(keyword) between 1 and 160)
 );
+
+alter table public.tracked_keywords
+  alter column subreddits set default array['ChatGPT', 'Gemini', 'Claude', 'Perplexity', 'Reddit', 'Quora']::text[];
 
 alter table public.tracked_keywords enable row level security;
 
@@ -72,11 +125,14 @@ create table if not exists public.reddit_leads (
   status text not null default 'New' check (status in ('New', 'Saved', 'Contacted', 'Archived')),
   score integer not null default 0,
   comments integer not null default 0,
-  url text not null default 'https://reddit.com',
+  url text not null default 'https://example.com',
   posted_at timestamptz not null default now(),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+alter table public.reddit_leads
+  alter column url set default 'https://example.com';
 
 alter table public.reddit_leads enable row level security;
 

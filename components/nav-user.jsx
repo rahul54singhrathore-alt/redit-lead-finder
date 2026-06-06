@@ -2,11 +2,9 @@
 
 import Link from "next/link";
 import {
-  BellIcon,
   ChevronsUpDownIcon,
   CreditCardIcon,
   LogOutIcon,
-  SettingsIcon,
   UserCircleIcon,
 } from "lucide-react";
 
@@ -92,14 +90,7 @@ export function NavUser({ user, onSignOut }) {
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link href="/dashboard/alerts">
-                  <BellIcon />
                   Notifications
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link href="/dashboard/settings">
-                  <SettingsIcon />
-                  Settings
                 </Link>
               </DropdownMenuItem>
             </DropdownMenuGroup>
