@@ -6,7 +6,7 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --font-sans: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-sans: var(--font-inter), "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --bg: #ffffff;
   --ink: #09090b;
   --muted: #71717a;
@@ -3072,67 +3072,68 @@ button {
 
 /* Post-login onboarding */
 .postlogin-onboarding {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   min-height: 100vh;
-  padding: 40px 24px 60px;
+  padding: 48px 24px;
   background:
-    radial-gradient(circle at top, rgba(251, 146, 60, 0.08), transparent 32%),
+    radial-gradient(circle at 50% 0%, rgba(251, 146, 60, 0.12), transparent 42%),
     #fffaf3;
   color: #201a16;
 }
 
 .postlogin-onboarding-shell {
-  width: min(100%, 720px);
-  margin: 0 auto;
-}
-
-.postlogin-back {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  color: #8f6e52;
-  font-size: 0.92rem;
-  font-weight: 600;
-}
-
-.postlogin-back svg {
-  width: 16px;
-  height: 16px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
 }
 
 .postlogin-onboarding-card {
-  width: min(100%, 380px);
-  margin: 64px auto 0;
+  width: min(100%, 440px);
+  margin: 0 auto;
+  padding: 40px 36px 36px;
+  border: 1px solid #f0e6da;
+  border-radius: 24px;
+  background: #ffffff;
+  box-shadow:
+    0 1px 2px rgba(120, 80, 40, 0.04),
+    0 24px 60px -28px rgba(120, 80, 40, 0.22);
 }
 
 .postlogin-onboarding-copy {
   display: grid;
   justify-items: center;
-  gap: 10px;
+  gap: 8px;
   text-align: center;
 }
 
-.postlogin-icon {
-  display: inline-grid;
-  place-items: center;
-  width: 56px;
-  height: 56px;
-  border-radius: 999px;
-  color: #f97316;
-  background: rgba(249, 115, 22, 0.1);
-  box-shadow: 0 12px 28px rgba(249, 115, 22, 0.12);
+.postlogin-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
 }
 
-.postlogin-icon svg {
-  width: 22px;
-  height: 22px;
+.postlogin-brand img {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+}
+
+.postlogin-brand span {
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: #201a16;
 }
 
 .postlogin-onboarding-copy h1 {
-  margin: 4px 0 0;
-  font-size: clamp(2rem, 3vw, 2.6rem);
-  line-height: 1.08;
+  margin: 6px 0 0;
+  font-size: clamp(1.6rem, 2.4vw, 1.9rem);
+  line-height: 1.15;
   font-weight: 800;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.025em;
 }
 
 .postlogin-onboarding-copy p {
@@ -3160,21 +3161,38 @@ button {
   font-weight: 700;
 }
 
-.postlogin-field input {
+.postlogin-field input,
+.postlogin-field select {
   width: 100%;
   min-height: 48px;
   padding: 0 16px;
-  border: 1px solid #ddd3c7;
+  border: 1px solid #e4d9cc;
   border-radius: 14px;
-  background: rgba(255, 255, 255, 0.82);
+  background: #fffdfa;
   color: #221b16;
   font: inherit;
   outline: 0;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.postlogin-field input:focus,
+.postlogin-field select:focus {
+  border-color: #f97316;
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.14);
 }
 
 .postlogin-field input::placeholder {
   color: #c2b3a5;
+}
+
+.postlogin-field select {
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  padding-right: 40px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238f6e52' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
 }
 
 .postlogin-choice-group {
@@ -3189,19 +3207,27 @@ button {
 }
 
 .postlogin-choice {
-  min-height: 40px;
-  border: 1px solid #e2d7cc;
+  min-height: 44px;
+  border: 1px solid #e4d9cc;
   border-radius: 12px;
-  background: #fff;
+  background: #fffdfa;
   color: #6b6057;
   font-size: 0.88rem;
   font-weight: 700;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+
+.postlogin-choice:hover {
+  border-color: #f6c89a;
+  color: #d2691e;
 }
 
 .postlogin-choice.active {
-  border-color: rgba(249, 115, 22, 0.22);
+  border-color: #f97316;
   color: #f97316;
-  background: rgba(249, 115, 22, 0.08);
+  background: rgba(249, 115, 22, 0.1);
+  box-shadow: 0 0 0 1px rgba(249, 115, 22, 0.35) inset;
 }
 
 .postlogin-actions {
@@ -3221,6 +3247,17 @@ button {
   box-shadow: 0 14px 26px rgba(249, 115, 22, 0.24);
   font-size: 0.98rem;
   font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.15s ease, filter 0.15s ease;
+}
+
+.postlogin-submit:hover:not(:disabled) {
+  filter: brightness(1.03);
+  box-shadow: 0 18px 32px rgba(249, 115, 22, 0.3);
+}
+
+.postlogin-submit:active:not(:disabled) {
+  transform: translateY(1px);
 }
 
 .postlogin-submit:disabled {
@@ -5852,12 +5889,12 @@ button {
   }
 
   .postlogin-onboarding {
-    padding: 28px 16px 44px;
+    padding: 28px 16px;
   }
 
   .postlogin-onboarding-card {
-    width: min(100%, 420px);
-    margin-top: 44px;
+    width: 100%;
+    padding: 32px 22px 28px;
   }
 
   .postlogin-choices {
@@ -6629,7 +6666,7 @@ button {
 
 @theme inline {
   --font-heading: var(--font-sans);
-  --font-sans: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-sans: var(--font-inter), "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -6721,7 +6758,7 @@ button {
   min-height: 100vh;
   color: #2d2926;
   background: #fbfbfa;
-  font-family: "Inter", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-family: var(--font-sans);
 }
 
 .autosend-page a {
@@ -6730,17 +6767,21 @@ button {
 
 .autosend-nav {
   position: sticky;
-  top: 0;
+  top: 18px;
   z-index: 50;
   display: grid;
-  grid-template-columns: minmax(190px, 1fr) auto minmax(190px, 1fr);
+  grid-template-columns: auto 1fr auto;
   align-items: center;
-  width: min(100%, 1104px);
-  height: 58px;
-  margin: 0 auto;
-  padding: 0 1px;
-  background: rgba(251, 251, 250, 0.78);
-  backdrop-filter: blur(18px);
+  width: min(100% - 32px, 560px);
+  height: 54px;
+  margin: 18px auto 0;
+  padding: 0 8px 0 20px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  background: #15130f;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.04) inset,
+    0 16px 40px -16px rgba(0, 0, 0, 0.45);
 }
 
 .autosend-brand,
@@ -6753,28 +6794,28 @@ button {
 }
 
 .autosend-brand {
-  gap: 10px;
+  gap: 9px;
   width: fit-content;
-  color: #24211f;
-  font-size: 17px;
+  color: #fdfcfa;
+  font-size: 15px;
   font-weight: 700;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
 }
 
 .autosend-brand img {
   width: 24px;
   height: 24px;
   border-radius: 6px;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .autosend-links {
   justify-content: center;
-  gap: 34px;
-  color: #191716;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  gap: 30px;
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
 }
 
 .autosend-links a {
@@ -6783,6 +6824,11 @@ button {
   gap: 4px;
   color: inherit;
   white-space: nowrap;
+  transition: color 0.15s ease;
+}
+
+.autosend-links a:hover {
+  color: #ffffff;
 }
 
 .autosend-links svg,
@@ -6793,20 +6839,20 @@ button {
 
 .autosend-actions {
   justify-content: flex-end;
-  gap: 16px;
+  gap: 12px;
 }
 
 .autosend-button {
   justify-content: center;
-  min-height: 32px;
-  padding: 0 18px;
+  min-height: 38px;
+  padding: 0 20px;
   border: 1px solid #dedbd8;
-  border-radius: 12px;
+  border-radius: 999px;
   color: #211f1e;
   background: #fff;
   font-size: 12px;
   font-weight: 800;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   line-height: 1;
 }
 
@@ -6817,14 +6863,28 @@ button {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.24);
 }
 
+/* Inside the dark pill nav, the CTA is a light/white pill (StarHQ style). */
+.autosend-nav .autosend-button-primary {
+  border-color: #ffffff;
+  color: #15130f;
+  background: #ffffff;
+  box-shadow: none;
+  transition: filter 0.15s ease;
+}
+
+.autosend-nav .autosend-button-primary:hover {
+  filter: brightness(0.92);
+}
+
 .autosend-menu {
   display: none;
   justify-content: center;
-  width: 34px;
-  height: 34px;
-  border: 1px solid #dedbd8;
-  border-radius: 10px;
-  background: #fff;
+  width: 38px;
+  height: 38px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .autosend-menu svg {
@@ -6835,37 +6895,112 @@ button {
 .autosend-hero {
   display: grid;
   justify-items: center;
-  padding: 118px 20px 112px;
+  gap: 48px;
+  width: min(100% - 48px, 1180px);
+  margin: 0 auto;
+  padding: 64px 0 80px;
+}
+
+.autosend-hero-copy {
+  display: grid;
+  justify-items: center;
   text-align: center;
 }
 
+.autosend-hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 24px;
+  padding: 7px 14px 7px 12px;
+  border: 1px solid #f1e6db;
+  border-radius: 999px;
+  background: #fff;
+  color: #7c736b;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  box-shadow: 0 2px 10px -4px rgba(120, 80, 40, 0.18);
+}
+
+.autosend-hero-eyebrow::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: #f97316;
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.18);
+}
+
 .autosend-hero h1 {
+  max-width: 16ch;
   margin: 0;
-  color: #2c2927;
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(48px, 5.1vw, 84px);
-  font-weight: 500;
-  line-height: 1.05;
-  letter-spacing: 0;
+  color: #14110e;
+  font-family: var(--font-sans);
+  font-size: clamp(42px, 5vw, 72px);
+  font-weight: 800;
+  line-height: 1.02;
+  letter-spacing: -0.04em;
+  text-wrap: balance;
 }
 
 .autosend-hero h1 em {
-  font-style: italic;
-  font-weight: 400;
+  font-style: normal;
+  background: linear-gradient(180deg, #fb923c, #f97316);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: #f97316;
 }
 
 .autosend-hero p {
-  margin: 28px 0 0;
-  color: #7d7772;
-  font-size: 20px;
-  line-height: 1.45;
-  letter-spacing: 0;
+  max-width: 46ch;
+  margin: 24px 0 0;
+  color: #76706a;
+  font-size: clamp(16px, 1.4vw, 19px);
+  line-height: 1.55;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
 }
 
 .autosend-hero-actions {
   display: flex;
-  gap: 14px;
-  margin-top: 42px;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 34px;
+}
+
+/* Hero CTA buttons are larger than the nav pills. */
+.autosend-hero-actions .autosend-button {
+  min-height: 46px;
+  padding: 0 24px;
+  border-radius: 12px;
+  font-size: 13px;
+}
+
+.autosend-hero-actions .autosend-button-ghost {
+  border-color: #e2ded9;
+  background: #fff;
+  color: #2a2723;
+}
+
+/* The mobile menu button is irrelevant inside the hero action row. */
+.autosend-hero-actions .autosend-menu {
+  display: none;
+}
+
+/* The simulator is the hero's bottom illustration — centered, no card chrome. */
+/* Hero bottom illustration (AI Recommendation Simulator graphic). */
+.autosend-hero-illustration {
+  width: min(100%, 1040px);
+  margin: 0 auto;
+}
+
+.autosend-hero-illustration img {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
 .autosend-forest {
@@ -7516,8 +7651,8 @@ button {
 @media (max-width: 900px) {
   .autosend-nav {
     grid-template-columns: 1fr auto;
-    width: 100%;
-    padding: 0 16px;
+    width: min(100% - 24px, 560px);
+    padding: 0 8px 0 18px;
   }
 
   .autosend-links {
@@ -7537,11 +7672,24 @@ button {
   }
 
   .autosend-hero {
-    padding: 80px 18px 74px;
+    grid-template-columns: 1fr;
+    gap: 40px;
+    width: calc(100% - 32px);
+    padding: 56px 0 64px;
+  }
+
+  .autosend-hero-copy {
+    justify-items: center;
+    text-align: center;
   }
 
   .autosend-hero p {
+    max-width: 46ch;
     font-size: 17px;
+  }
+
+  .autosend-hero-actions {
+    justify-content: center;
   }
 
   .autosend-forest,
@@ -7675,8 +7823,9 @@ button {
   font-family: Inter, sans-serif;
 }
 
-.rankora-auth-nav {
-  width: min(100%, 1104px);
+/* No-navbar variant (onboarding): wrap fills and centers, footer pins bottom. */
+.rankora-auth-page-plain {
+  grid-template-rows: 1fr auto;
 }
 
 .rankora-auth-wrap {
@@ -7691,155 +7840,242 @@ button {
   height: 46px;
   margin-bottom: 26px;
   border-radius: 10px;
-  object-fit: cover;
+  object-fit: contain;
 }
 
-.rankora-login-card {
-  width: min(100%, 384px);
-  overflow: hidden;
-  border: 1px solid #dedbd8;
-  border-radius: 14px;
-  background: #fff;
+/* StarHQ-style minimal, card-less login. */
+.rankora-login {
+  width: min(100%, 400px);
+  display: grid;
+  gap: 14px;
 }
 
 .rankora-login-head {
-  padding: 22px 24px 24px;
-  border-bottom: 1px solid #e7e4e1;
-  background: #f7f7f6;
+  margin-bottom: 14px;
+  text-align: center;
 }
 
 .rankora-login-head h1 {
   margin: 0;
-  color: #3a3633;
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 25px;
-  font-weight: 500;
-  letter-spacing: 0;
+  color: #16140f;
+  font-family: var(--font-sans);
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -0.025em;
 }
 
 .rankora-login-head p {
   margin: 8px 0 0;
   color: #77716c;
-  font-size: 13px;
-}
-
-.rankora-login-head a,
-.rankora-terms a {
-  color: #6b6763;
-  font-weight: 800;
-  text-decoration: underline;
-}
-
-.rankora-google-button,
-.rankora-login-submit {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: calc(100% - 48px);
-  min-height: 34px;
-  margin: 0 24px;
-  border: 2px solid #231f1c;
-  border-radius: 11px;
-  color: #fff;
-  background: #4d4741;
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-}
-
-.rankora-google-button {
-  gap: 10px;
-  margin-top: 24px;
-  margin-bottom: 24px;
-}
-
-.rankora-google-button:disabled {
-  opacity: 0.65;
-  cursor: not-allowed;
+  font-size: 15px;
 }
 
 .rankora-login-form {
   display: grid;
-  gap: 18px;
-  padding: 26px 24px 24px;
-  border-top: 1px solid #e7e4e1;
+  gap: 12px;
 }
 
-.rankora-login-form label {
-  display: grid;
-  gap: 7px;
+.rankora-auth-input {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 52px;
+  padding: 0 16px;
+  border: 1px solid transparent;
+  border-radius: 14px;
+  background: #f1efed;
+  transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.rankora-auth-input:focus-within {
+  border-color: #6357ff;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(99, 87, 255, 0.14);
+}
+
+.rankora-auth-input svg {
+  width: 18px;
+  height: 18px;
+  color: #9a938c;
+  flex: 0 0 auto;
+}
+
+.rankora-auth-input input {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #1c1a18;
+  font-size: 15px;
+}
+
+.rankora-auth-input input::placeholder {
+  color: #9a938c;
+}
+
+.rankora-auth-input input:disabled {
+  color: #4a4540;
+  cursor: not-allowed;
+}
+
+.rankora-auth-primary,
+.rankora-auth-google {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 52px;
+  border-radius: 999px;
+  font-size: 15px;
+  font-weight: 700;
+  transition: filter 0.15s ease, background 0.15s ease;
+}
+
+.rankora-auth-primary {
+  color: #fff;
+  background: #6357ff;
+}
+
+.rankora-auth-primary:hover:not(:disabled) {
+  filter: brightness(1.05);
+}
+
+.rankora-auth-google {
+  margin-top: 2px;
   color: #2d2926;
-  font-size: 14px;
+  background: #f1efed;
+}
+
+.rankora-auth-google:hover:not(:disabled) {
+  background: #e9e6e3;
+}
+
+.rankora-auth-primary:disabled,
+.rankora-auth-google:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.rankora-auth-google .google-mark {
+  display: inline-flex;
+}
+
+.rankora-auth-google .google-mark svg {
+  width: 18px;
+  height: 18px;
+}
+
+.rankora-auth-note {
+  margin: 2px 0 0;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.rankora-auth-note.success {
+  color: #15803d;
+  background: #ecfdf3;
+}
+
+.rankora-auth-note.error {
+  color: #b42318;
+  background: #fef3f2;
+}
+
+/* Onboarding reuses the sign-in look, with labelled fields. */
+.rankora-onboard {
+  width: min(100%, 420px);
+}
+
+.rankora-auth-loading {
+  color: #77716c;
+  font-size: 15px;
   font-weight: 600;
 }
 
-.rankora-login-form label > span {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+.rankora-auth-field {
+  display: grid;
+  gap: 8px;
 }
 
-.rankora-login-form em {
-  color: #ff2251;
-  font-style: normal;
-}
-
-.rankora-login-form label a {
-  color: #8d8782;
-  font-size: 10px;
-  font-weight: 500;
-}
-
-.rankora-login-form input {
-  width: 100%;
-  height: 36px;
-  padding: 0 10px;
-  border: 1px solid #dedbd8;
-  border-radius: 8px;
-  background: #fff;
+.rankora-auth-field > span {
   color: #2d2926;
-  outline: 0;
+  font-size: 13px;
+  font-weight: 700;
 }
 
-.rankora-login-form input:focus {
-  border-color: #4d4741;
-}
-
-.rankora-password-input {
+.rankora-auth-select {
   position: relative;
+  padding-right: 0;
 }
 
-.rankora-password-input input {
-  padding-right: 36px;
-}
-
-.rankora-password-input svg {
-  position: absolute;
-  top: 50%;
-  right: 12px;
-  width: 16px;
-  height: 16px;
-  color: #77716c;
-  transform: translateY(-50%);
-}
-
-.rankora-login-submit {
+.rankora-auth-input select {
   width: 100%;
-  margin: 6px 0 0;
+  height: 100%;
+  padding: 0 36px 0 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #1c1a18;
+  font-size: 15px;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
 }
 
-.rankora-auth-page .signin-message {
-  padding: 0 24px 22px;
-  color: #ff2251;
-  font-size: 12px;
-  text-align: left;
+.rankora-auth-select::after {
+  content: "";
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  width: 11px;
+  height: 11px;
+  transform: translateY(-60%) rotate(45deg);
+  border-right: 2px solid #9a938c;
+  border-bottom: 2px solid #9a938c;
+  pointer-events: none;
 }
 
-.rankora-terms {
-  margin: 24px 0 0;
-  color: #8a8580;
-  font-size: 12px;
-  text-align: center;
+.rankora-choices {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.rankora-choice {
+  min-height: 48px;
+  border: 1px solid transparent;
+  border-radius: 14px;
+  background: #f1efed;
+  color: #6b6057;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+
+.rankora-choice:hover {
+  background: #e9e6e3;
+}
+
+.rankora-choice.active {
+  border-color: #6357ff;
+  color: #6357ff;
+  background: #efeefe;
+}
+
+/* Live favicon preview on the right of the Product URL field. */
+.rankora-url-favicon {
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  object-fit: contain;
+  background: #fff;
 }
 
 .rankora-auth-footer {
@@ -8051,9 +8287,6 @@ button {
   display: none;
 }
 
-.rankora-login-card .rankora-google-button {
-  margin-bottom: 30px;
-}
 
 .rankora-simple-nav {
   grid-template-columns: minmax(190px, 1fr) auto;

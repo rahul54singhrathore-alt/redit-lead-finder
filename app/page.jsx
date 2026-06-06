@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { AuthNavActions } from "@/components/auth-nav-actions";
+import { SiteNavbar } from "@/components/site-navbar";
 import {
   ArrowUpRightIcon,
   BotIcon,
@@ -87,68 +87,25 @@ const trackedPrompts = [
 export default function Home() {
   return (
     <main className="autosend-page">
-      <header className="autosend-nav rankora-simple-nav">
-        <Link className="autosend-brand" href="/">
-          <img src="/logo.png" alt="" />
-          <span>RANKORA</span>
-        </Link>
+      <SiteNavbar />
 
-        <AuthNavActions primary />
-      </header>
-
-      <section className="autosend-hero">
-        <h1>
-          AI visibility for <em>brands</em>
-          <br />
-          growing in <em>answers</em>
-        </h1>
-        <p>
-          Track where ChatGPT, Gemini, Claude, and Perplexity mention your brand.
-          <br />
-          Compare competitors, citations, prompts, and GEO actions in one place.
-        </p>
-        <div className="autosend-hero-actions">
-          <Link className="autosend-button autosend-button-ghost" href="#demo">
-            VIEW DEMO
-          </Link>
-          <AuthNavActions primary />
+      <section className="autosend-hero" id="demo">
+        <div className="autosend-hero-copy">
+          <span className="autosend-hero-eyebrow">AI VISIBILITY &amp; GEO TRACKING</span>
+          <h1>
+            AI visibility for <em>brands</em> growing in <em>answers</em>
+          </h1>
+          <p>
+            Track where ChatGPT, Gemini, Claude, and Perplexity mention your brand.
+            Compare competitors, citations, prompts, and GEO actions in one place.
+          </p>
         </div>
-      </section>
 
-      <section className="rankora-demo" id="demo" aria-label="AI recommendation simulator demo">
-        <div className="rankora-demo-illustration" aria-hidden="true">
-          <img src="/logo.png" alt="" />
-        </div>
-        <div className="rankora-simulator">
-          <div className="rankora-simulator-bar">
-            <span />
-            <span />
-            <span />
-            <strong>AI Recommendation Simulator</strong>
-          </div>
-          <div className="rankora-simulator-prompt">
-            <p>Best influencer marketing platform for startups</p>
-            <button type="button" aria-label="Run simulation">
-              <SendIcon aria-hidden="true" />
-            </button>
-          </div>
-          <div className="rankora-simulator-results">
-            {[
-              ["ChatGPT", "Competitor A", "lose"],
-              ["Gemini", "Competitor B", "warn"],
-              ["Claude", "Not Mentioned", "neutral"],
-              ["Perplexity", "Your Brand", "win"],
-            ].map(([engine, result, tone]) => (
-              <div className={`rankora-result ${tone}`} key={engine}>
-                <span>{engine}</span>
-                <strong>{result}</strong>
-              </div>
-            ))}
-          </div>
-          <div className="rankora-simulator-note">
-            <h2>Why not mentioned?</h2>
-            <p>Competitor A appears on 15 high-authority sites. Your brand appears on only 3.</p>
-          </div>
+        <div className="autosend-hero-illustration">
+          <img
+            src="/illustor.png"
+            alt="AI Recommendation Simulator showing how ChatGPT, Gemini, Claude, and Perplexity rank your brand against competitors"
+          />
         </div>
       </section>
 

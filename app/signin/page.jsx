@@ -1,22 +1,43 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { AuthNavActions } from "@/components/auth-nav-actions";
+import { MailIcon } from "lucide-react";
+import { SiteNavbar } from "@/components/site-navbar";
 import { createBrowserSupabaseClient, getAppUrl } from "../../lib/supabase";
 
 export default function SignInPage() {
+  const [email, setEmail] = useState("");
+  const [otp, setOtp] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
   const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState("error");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
 
   const supabase = useMemo(() => createBrowserSupabaseClient(), []);
 
+  // After auth, send the user to the dashboard if onboarding is done, else onboarding.
+  async function routeAfterAuth(userId) {
+    let destination = "/onboarding";
+    if (supabase && userId) {
+      const { data } = await supabase
+        .from("user_profiles")
+        .select("onboarding_completed")
+        .eq("user_id", userId)
+        .maybeSingle();
+      if (data?.onboarding_completed) {
+        destination = "/dashboard";
+      }
+    }
+    router.replace(destination);
+  }
+
   useEffect(() => {
     if (typeof window !== "undefined") {
       const authError = new URLSearchParams(window.location.search).get("error");
       if (authError) {
+        setMessageType("error");
         setMessage(authError);
       }
     }
@@ -25,9 +46,10 @@ export default function SignInPage() {
 
     supabase.auth.getSession().then(({ data }) => {
       if (data.session) {
-        router.replace("/onboarding");
+        routeAfterAuth(data.session.user.id);
       }
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router, supabase]);
 
   function getRedirectUrl() {
@@ -37,8 +59,78 @@ export default function SignInPage() {
     return `${cleanBaseUrl}/auth/callback?next=/onboarding`;
   }
 
+  async function handleEmailSubmit(event) {
+    event.preventDefault();
+
+    if (!supabase) {
+      setMessageType("error");
+      setMessage("Supabase is not configured yet.");
+      return;
+    }
+
+    const trimmedEmail = email.trim();
+    if (!trimmedEmail) {
+      setMessageType("error");
+      setMessage("Enter your email address.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    setMessage("");
+
+    // Step 1: send the OTP code to the email.
+    if (!otpSent) {
+      const { error } = await supabase.auth.signInWithOtp({
+        email: trimmedEmail,
+        options: {
+          shouldCreateUser: true,
+          emailRedirectTo: getRedirectUrl(),
+        },
+      });
+
+      setIsSubmitting(false);
+
+      if (error) {
+        setMessageType("error");
+        setMessage(error.message || "Could not send the OTP. Please try again.");
+        return;
+      }
+
+      setOtpSent(true);
+      setMessageType("success");
+      setMessage("Enter the OTP sent to your email.");
+      return;
+    }
+
+    // Step 2: verify the OTP code and sign in.
+    const trimmedOtp = otp.trim();
+    if (!trimmedOtp) {
+      setIsSubmitting(false);
+      setMessageType("error");
+      setMessage("Enter the OTP sent to your email.");
+      return;
+    }
+
+    const { data, error } = await supabase.auth.verifyOtp({
+      email: trimmedEmail,
+      token: trimmedOtp,
+      type: "email",
+    });
+
+    setIsSubmitting(false);
+
+    if (error) {
+      setMessageType("error");
+      setMessage(error.message || "Invalid or expired OTP. Please try again.");
+      return;
+    }
+
+    await routeAfterAuth(data?.user?.id);
+  }
+
   async function signInWithGoogle() {
     if (!supabase) {
+      setMessageType("error");
       setMessage("Supabase is not configured yet.");
       return;
     }
@@ -56,6 +148,7 @@ export default function SignInPage() {
     setIsSubmitting(false);
 
     if (error) {
+      setMessageType("error");
       setMessage(error.message || "Could not start Google sign in.");
       console.error("Google Sign-In Error:", error);
     }
@@ -63,26 +156,49 @@ export default function SignInPage() {
 
   return (
     <main className="rankora-auth-page">
-      <header className="autosend-nav rankora-auth-nav rankora-simple-nav">
-        <Link className="autosend-brand" href="/">
-          <img src="/logo.png" alt="" />
-          <span>RANKORA</span>
-        </Link>
-
-        <AuthNavActions primary />
-      </header>
+      <SiteNavbar />
 
       <section className="rankora-auth-wrap" aria-label="Login">
-        <img className="rankora-auth-mark" src="/logo.png" alt="" />
-
-        <div className="rankora-login-card">
+        <div className="rankora-login">
           <div className="rankora-login-head">
-            <h1>Login</h1>
-            <p>Use Google to continue to your Rankora workspace.</p>
+            <h1>Log in to Rankora</h1>
+            <p>AI visibility and GEO tracking for modern teams.</p>
           </div>
 
+          <form className="rankora-login-form" onSubmit={handleEmailSubmit}>
+            <label className="rankora-auth-input">
+              <MailIcon aria-hidden="true" />
+              <input
+                type="email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                placeholder="Email address"
+                autoComplete="email"
+                disabled={otpSent}
+              />
+            </label>
+
+            {otpSent ? (
+              <label className="rankora-auth-input">
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={otp}
+                  onChange={(event) => setOtp(event.target.value)}
+                  placeholder="Enter OTP"
+                  autoComplete="one-time-code"
+                  autoFocus
+                />
+              </label>
+            ) : null}
+
+            <button className="rankora-auth-primary" type="submit" disabled={isSubmitting}>
+              {otpSent ? "Continue" : "Continue with OTP"}
+            </button>
+          </form>
+
           <button
-            className="rankora-google-button"
+            className="rankora-auth-google"
             type="button"
             onClick={signInWithGoogle}
             disabled={isSubmitting}
@@ -95,15 +211,13 @@ export default function SignInPage() {
                 <path fill="#EA4335" d="M12.17 5.38c1.44 0 2.73.5 3.75 1.47l2.81-2.81C17.02 2.46 14.81 1.5 12.17 1.5 8.37 1.5 5.08 3.97 3.46 7.89l3.27 2.5c.77-2.28 2.91-5.01 5.44-5.01z" />
               </svg>
             </span>
-            LOGIN WITH GOOGLE
+            Continue with Google
           </button>
 
-          {message ? <p className="signin-message">{message}</p> : null}
+          {message ? (
+            <p className={`rankora-auth-note ${messageType}`}>{message}</p>
+          ) : null}
         </div>
-
-        <p className="rankora-terms">
-          By signing in, you agree to Rankora <a href="#">Terms</a> and <a href="#">Privacy Policy</a>
-        </p>
       </section>
 
       <footer className="rankora-auth-footer">© 2026 · RANKORA INC.</footer>

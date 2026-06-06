@@ -1,12 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowRightIcon, ChevronLeftIcon, SparklesIcon } from "lucide-react";
-import { createBrowserSupabaseClient } from "../../lib/supabase";
+import { createBrowserSupabaseClient, isMissingSupabaseTableError } from "../../lib/supabase";
 import {
   DEFAULT_VISIBILITY_SOURCES,
+  REFERRAL_SOURCE_OPTIONS,
   normalizeWorkspaceProfile,
 } from "../../lib/workspace-profile";
 
@@ -16,15 +15,32 @@ const customerOptions = [
   { label: "BOTH", value: "both" },
 ];
 
+// Resolve a small favicon for whatever URL the user types, via Google's service.
+function getFaviconUrl(rawUrl) {
+  const value = String(rawUrl || "").trim();
+  if (!value) return "";
+  try {
+    const withProtocol = /^https?:\/\//i.test(value) ? value : `https://${value}`;
+    const { hostname } = new URL(withProtocol);
+    if (!hostname.includes(".")) return "";
+    return `https://www.google.com/s2/favicons?domain=${hostname}&sz=64`;
+  } catch {
+    return "";
+  }
+}
+
 export default function OnboardingPage() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
-  const [brandName, setBrandName] = useState("");
+  const [productName, setProductName] = useState("");
+  const [productUrl, setProductUrl] = useState("");
   const [customerType, setCustomerType] = useState("both");
+  const [referralSource, setReferralSource] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
   const supabase = useMemo(() => createBrowserSupabaseClient(), []);
+  const faviconUrl = useMemo(() => getFaviconUrl(productUrl), [productUrl]);
 
   useEffect(() => {
     if (!supabase) return;
@@ -48,7 +64,7 @@ export default function OnboardingPage() {
         .maybeSingle();
 
       // Handle case where user_profiles table doesn't exist yet
-      if (error && !error.message?.includes("does not exist")) {
+      if (error && !isMissingSupabaseTableError(error, "user_profiles")) {
         setMessage("Could not load onboarding.");
       }
 
@@ -58,11 +74,17 @@ export default function OnboardingPage() {
         return;
       }
 
-      if (profile?.starter_keyword) {
-        setBrandName(profile.starter_keyword);
+      if (profile?.product_name) {
+        setProductName(profile.product_name);
+      }
+      if (profile?.product_url) {
+        setProductUrl(profile.product_url);
       }
       if (profile?.customer_type) {
         setCustomerType(profile.customer_type);
+      }
+      if (profile?.referral_source) {
+        setReferralSource(profile.referral_source);
       }
 
       setLoading(false);
@@ -86,9 +108,20 @@ export default function OnboardingPage() {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    const trimmedBrandName = brandName.trim();
-    if (!trimmedBrandName) {
-      setMessage("Add the brand or product name.");
+    const trimmedProductName = productName.trim();
+    if (!trimmedProductName) {
+      setMessage("Add your product name.");
+      return;
+    }
+
+    const trimmedProductUrl = productUrl.trim();
+    if (!trimmedProductUrl) {
+      setMessage("Add your product URL.");
+      return;
+    }
+
+    if (!referralSource) {
+      setMessage("Let us know where you came from.");
       return;
     }
 
@@ -100,35 +133,47 @@ export default function OnboardingPage() {
     setIsSubmitting(true);
     setMessage("");
 
-    // Try to create profile - if table doesn't exist, still proceed to dashboard
-    try {
-      await supabase
-        .from("user_profiles")
-        .upsert({
-          user_id: user.id,
-          onboarding_completed: true,
-          starter_keyword: trimmedBrandName,
-          customer_type: customerType,
-          target_subreddits: DEFAULT_VISIBILITY_SOURCES,
-          updated_at: new Date().toISOString(),
-        })
-        .select("*")
-        .single();
-    } catch (err) {
-      // Ignore errors
+    // Supabase queries don't throw on failure — they resolve with an `error`
+    // object. We must inspect it: if the profile write fails, the dashboard
+    // will see onboarding_completed unset and bounce straight back here,
+    // creating a redirect loop. So we surface the error and stop instead.
+    const { error: profileError } = await supabase
+      .from("user_profiles")
+      .upsert({
+        user_id: user.id,
+        onboarding_completed: true,
+        product_name: trimmedProductName,
+        product_url: trimmedProductUrl,
+        customer_type: customerType,
+        referral_source: referralSource,
+        starter_keyword: trimmedProductName,
+        target_subreddits: DEFAULT_VISIBILITY_SOURCES,
+        updated_at: new Date().toISOString(),
+      })
+      .select("*")
+      .single();
+
+    if (profileError) {
+      setIsSubmitting(false);
+      setMessage(
+        isMissingSupabaseTableError(profileError, "user_profiles")
+          ? "Database isn't set up yet. Run the Supabase migrations and try again."
+          : "Could not save your onboarding. Please try again."
+      );
+      return;
     }
 
-    // Try to create keyword, but don't fail if it doesn't work
-    if (supabase && user) {
-      try {
-        await supabase.from("tracked_keywords").insert({
-          user_id: user.id,
-          keyword: trimmedBrandName,
-          subreddits: DEFAULT_VISIBILITY_SOURCES,
-        });
-      } catch (err) {
-        // Ignore errors
-      }
+    // Seed the first tracked keyword. This is best-effort — a failure here
+    // shouldn't block the user from reaching the dashboard.
+    const { error: keywordError } = await supabase.from("tracked_keywords").insert({
+      user_id: user.id,
+      keyword: trimmedProductName,
+      subreddits: DEFAULT_VISIBILITY_SOURCES,
+    });
+
+    if (keywordError && !isMissingSupabaseTableError(keywordError, "tracked_keywords")) {
+      // Non-fatal: log for diagnostics but continue to the dashboard.
+      console.error("Failed to create initial tracked keyword:", keywordError);
     }
 
     setIsSubmitting(false);
@@ -137,50 +182,67 @@ export default function OnboardingPage() {
 
   if (loading) {
     return (
-      <main className="onboarding-load">
-        <p>Loading...</p>
+      <main className="rankora-auth-page rankora-auth-page-plain">
+        <section className="rankora-auth-wrap">
+          <p className="rankora-auth-loading">Loading...</p>
+        </section>
+        <footer className="rankora-auth-footer">© 2026 · RANKORA INC.</footer>
       </main>
     );
   }
 
   return (
-    <main className="postlogin-onboarding">
-      <div className="postlogin-onboarding-shell">
-        <Link className="postlogin-back" href="/dashboard">
-          <ChevronLeftIcon />
-          Back to dashboard
-        </Link>
-
-        <section className="postlogin-onboarding-card">
-          <div className="postlogin-onboarding-copy">
-            <div className="postlogin-icon" aria-hidden="true">
-              <SparklesIcon />
-            </div>
+    <main className="rankora-auth-page rankora-auth-page-plain">
+      <section className="rankora-auth-wrap" aria-label="Onboarding">
+        <div className="rankora-login rankora-onboard">
+          <div className="rankora-login-head">
             <h1>Welcome! Let's get you started</h1>
-            <p>
-              Add your brand or product name to begin tracking.
-            </p>
+            <p>Tell us about your product so we can start finding leads for you.</p>
           </div>
 
-          <form className="postlogin-form" onSubmit={handleSubmit}>
-            <label className="postlogin-field">
-              <span>Site or product name</span>
-              <input
-                type="text"
-                value={brandName}
-                onChange={(event) => setBrandName(event.target.value)}
-                placeholder="acme.com"
-              />
-            </label>
+          <form className="rankora-login-form" onSubmit={handleSubmit}>
+            <div className="rankora-auth-field">
+              <span>Product name</span>
+              <label className="rankora-auth-input">
+                <input
+                  type="text"
+                  value={productName}
+                  onChange={(event) => setProductName(event.target.value)}
+                  placeholder="Acme"
+                />
+              </label>
+            </div>
 
-            <div className="postlogin-choice-group">
-              <span className="postlogin-label">Who are your customers?</span>
-              <div className="postlogin-choices">
+            <div className="rankora-auth-field">
+              <span>Product URL</span>
+              <label className="rankora-auth-input">
+                <input
+                  type="text"
+                  value={productUrl}
+                  onChange={(event) => setProductUrl(event.target.value)}
+                  placeholder="https://acme.com"
+                />
+                {faviconUrl ? (
+                  <img
+                    className="rankora-url-favicon"
+                    src={faviconUrl}
+                    alt=""
+                    onError={(event) => {
+                      event.currentTarget.style.display = "none";
+                    }}
+                  />
+                ) : null}
+              </label>
+            </div>
+
+            <div className="rankora-auth-field">
+              <span>Who are your customers?</span>
+              <div className="rankora-choices">
                 {customerOptions.map((option) => (
                   <button
                     key={option.value}
                     type="button"
-                    className={customerType === option.value ? "postlogin-choice active" : "postlogin-choice"}
+                    className={customerType === option.value ? "rankora-choice active" : "rankora-choice"}
                     onClick={() => setCustomerType(option.value)}
                   >
                     {option.label}
@@ -189,17 +251,35 @@ export default function OnboardingPage() {
               </div>
             </div>
 
-            <div className="postlogin-actions">
-              <button className="postlogin-submit" type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Getting started..." : "Complete setup"}
-                {!isSubmitting ? <ArrowRightIcon /> : null}
-              </button>
+            <div className="rankora-auth-field">
+              <span>Where are you coming from?</span>
+              <label className="rankora-auth-input rankora-auth-select">
+                <select
+                  value={referralSource}
+                  onChange={(event) => setReferralSource(event.target.value)}
+                >
+                  <option value="" disabled>
+                    Select an option
+                  </option>
+                  {REFERRAL_SOURCE_OPTIONS.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              </label>
             </div>
 
-            {message ? <p className="postlogin-message">{message}</p> : null}
+            <button className="rankora-auth-primary" type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "Getting started..." : "Complete setup"}
+            </button>
+
+            {message ? <p className="rankora-auth-note error">{message}</p> : null}
           </form>
-        </section>
-      </div>
+        </div>
+      </section>
+
+      <footer className="rankora-auth-footer">© 2026 · RANKORA INC.</footer>
     </main>
   );
 }
