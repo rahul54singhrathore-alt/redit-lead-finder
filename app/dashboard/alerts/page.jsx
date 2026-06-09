@@ -6,6 +6,9 @@ import Link from "next/link";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { createBrowserSupabaseClient } from "../../../lib/supabase";
+import { normalizeWorkspaceProfile } from "../../../lib/workspace-profile";
+import { getTier, hasFeature } from "../../../lib/subscription";
+import { LimitNotice } from "@/components/upgrade-prompt";
 
 const SearchIcon = () => (
   <svg className="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -41,6 +44,7 @@ export default function AlertsPage() {
   const [recentAlerts, setRecentAlerts] = useState([]);
   const [newRule, setNewRule] = useState("");
   const [newTrigger, setNewTrigger] = useState("");
+  const [profile, setProfile] = useState(null);
   const [message, setMessage] = useState("");
   const router = useRouter();
   const supabase = useMemo(() => createBrowserSupabaseClient(), []);
@@ -79,10 +83,17 @@ export default function AlertsPage() {
 
   const loadRules = async () => {
     if (!supabase) return;
-    const { data, error } = await supabase
-      .from("alert_rules")
-      .select("id, name, trigger, channel, active")
-      .order("created_at", { ascending: false });
+    const [{ data, error }, profileResult] = await Promise.all([
+      supabase
+        .from("alert_rules")
+        .select("id, name, trigger, channel, active")
+        .order("created_at", { ascending: false }),
+      supabase.from("user_profiles").select("*").maybeSingle(),
+    ]);
+
+    if (profileResult.data) {
+      setProfile(normalizeWorkspaceProfile(profileResult.data));
+    }
 
     if (error) {
       setMessage("Could not load audit rules. Run supabase-schema.sql in Supabase first.");
@@ -126,13 +137,15 @@ export default function AlertsPage() {
   const addRule = async (event) => {
     event.preventDefault();
     if (!newRule.trim() || !user || !supabase) return;
+    const tierKey = profile?.subscription_tier || "free";
+    const channel = hasFeature(tierKey, "emailAlerts") ? "Instant email" : "Dashboard only";
     const { data, error } = await supabase
       .from("alert_rules")
       .insert({
         user_id: user.id,
         name: newRule,
         trigger: newTrigger || "new matching signal found",
-        channel: "Instant email",
+        channel,
         active: true,
       })
       .select("id, name, trigger, channel, active")
@@ -170,9 +183,11 @@ export default function AlertsPage() {
     );
   }
 
+  const emailAlertsEnabled = hasFeature(profile?.subscription_tier || "free", "emailAlerts");
+
   return (
     <SidebarProvider>
-      <AppSidebar user={user} onSignOut={handleSignOut} />
+      <AppSidebar user={user} onSignOut={handleSignOut} subscriptionTier={profile?.subscription_tier || "free"} />
       <SidebarInset>
         <main className="dashboard-main">
           <div className="dashboard-header">
@@ -232,9 +247,28 @@ export default function AlertsPage() {
                       className="form-input"
                       value={newTrigger}
                       onChange={(event) => setNewTrigger(event.target.value)}
-                      placeholder="e.g., high confidence and brand is Rankora"
+                      placeholder="e.g., high confidence and brand is Oras"
                     />
                   </div>
+                  <div className="form-group">
+                    <label className="form-label">Notification channel</label>
+                    <div className="alert-channel-pill">
+                      {emailAlertsEnabled ? (
+                        <span className="alert-channel-on">⚡ Instant email &amp; Slack</span>
+                      ) : (
+                        <span className="alert-channel-off">🔒 Instant email — locked · using Dashboard only</span>
+                      )}
+                    </div>
+                  </div>
+
+                  {!emailAlertsEnabled ? (
+                    <LimitNotice
+                      title="Get notified the moment your visibility changes"
+                      description="Instant email & Slack alerts are on Pro and above. Free plans see alerts in the dashboard only."
+                      ctaTier={getTier("pro").name}
+                    />
+                  ) : null}
+
                   <button type="submit" className="primary-button alerts-create-button">
                     <PlusIcon />
                     Add rule

@@ -13,6 +13,8 @@ import {
   normalizeWorkspaceProfile,
   parseCommaSeparatedList,
 } from "../../../lib/workspace-profile";
+import { canAddBrand, getLimits, getTier, nextTier } from "../../../lib/subscription";
+import { LimitNotice, UsageMeter } from "@/components/upgrade-prompt";
 
 const PlusIcon = () => (
   <svg className="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -75,64 +77,6 @@ function buildSeoBrief(keyword) {
       "Include comparison language and outcome-driven phrasing.",
     ],
   };
-}
-
-function buildBlogIdeas(niche) {
-  const cleanNiche = niche.trim();
-  const formats = [
-    "ultimate guide",
-    "best practices",
-    "how to choose",
-    "buyer's guide",
-    "comparison",
-  ];
-  const outcomes = [
-    "for beginners",
-    "for small teams",
-    "for founders",
-    "for marketers",
-    "for agencies",
-    "that drives conversions",
-    "that ranks fast",
-    "that attracts buyers",
-    "that improves GEO",
-    "that supports AEO",
-  ];
-  const angles = [
-    "pricing",
-    "tools",
-    "templates",
-    "mistakes",
-    "checklist",
-    "workflow",
-    "strategy",
-    "examples",
-    "benchmarks",
-    "case studies",
-  ];
-
-  const ideas = [];
-  formats.forEach((format, formatIndex) => {
-    angles.forEach((angle, angleIndex) => {
-      outcomes.forEach((outcome, outcomeIndex) => {
-        if (ideas.length >= 50) return;
-        const number = ideas.length + 1;
-        const titleParts = [
-          `${number}. ${cleanNiche} ${format}`,
-          `${cleanNiche} ${angle} ${outcome}`,
-        ];
-
-        ideas.push({
-          title: titleParts.join(" - "),
-          label: "Low competition + high intent",
-          note: `Focus: ${format} / ${angle} / ${outcome}`,
-          score: 90 - formatIndex - angleIndex - outcomeIndex,
-        });
-      });
-    });
-  });
-
-  return ideas.slice(0, 50);
 }
 
 function SeoBriefTool({ subscriptionTier = "free", defaultKeyword = "" }) {
@@ -285,22 +229,38 @@ function SeoBriefTool({ subscriptionTier = "free", defaultKeyword = "" }) {
 function BlogIdeasTool({ subscriptionTier = "free", defaultNiche = "" }) {
   const isPremium = subscriptionTier !== "free";
   const [niche, setNiche] = useState(defaultNiche);
-  const [ideas, setIdeas] = useState(() => (defaultNiche.trim() ? buildBlogIdeas(defaultNiche) : []));
+  const [ideas, setIdeas] = useState([]);
+  const [status, setStatus] = useState("idle"); // idle | loading | error
+  const [error, setError] = useState("");
+
+  const generate = async (rawNiche) => {
+    const cleaned = rawNiche.trim();
+    if (!cleaned) return;
+    setStatus("loading");
+    setError("");
+    try {
+      const response = await fetch("/api/blog-ideas", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ niche: cleaned }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data?.error || "Could not generate ideas.");
+      setIdeas(data.ideas || []);
+      setStatus("done");
+    } catch (err) {
+      setError(err.message);
+      setStatus("error");
+    }
+  };
 
   useEffect(() => {
-    if (defaultNiche.trim()) {
-      setNiche(defaultNiche);
-      setIdeas(buildBlogIdeas(defaultNiche));
-    }
+    if (defaultNiche.trim()) setNiche(defaultNiche);
   }, [defaultNiche]);
 
   const handleGenerate = (event) => {
     event.preventDefault();
-
-    const cleaned = niche.trim();
-    if (!cleaned) return;
-
-    setIdeas(buildBlogIdeas(cleaned));
+    generate(niche);
   };
 
   if (!isPremium) {
@@ -334,8 +294,8 @@ function BlogIdeasTool({ subscriptionTier = "free", defaultNiche = "" }) {
     <section className="dashboard-card seo-brief-card">
       <div className="card-header">
         <div>
-          <h2>50 SEO blog ideas</h2>
-          <p className="card-supporting-copy">Enter a niche and generate content ideas with low competition and high intent.</p>
+          <h2>AI blog ideas</h2>
+          <p className="card-supporting-copy">Enter a niche — AI generates distinct ideas rated by competition and buyer intent.</p>
         </div>
         <span className="pricing-badge">Pro</span>
       </div>
@@ -352,28 +312,44 @@ function BlogIdeasTool({ subscriptionTier = "free", defaultNiche = "" }) {
             value={niche}
             onChange={(event) => setNiche(event.target.value)}
           />
-          <button className="primary-button seo-brief-button" type="submit">
-            Generate 50 ideas
+          <button className="primary-button seo-brief-button" type="submit" disabled={status === "loading"}>
+            {status === "loading" ? "Generating…" : "Generate ideas"}
             <SparklesIcon />
           </button>
         </div>
       </form>
 
-      {ideas.length > 0 ? (
+      {status === "loading" ? (
+        <div className="seo-brief-empty">
+          <SparklesIcon />
+          <p>Generating fresh ideas for “{niche.trim()}”…</p>
+        </div>
+      ) : status === "error" ? (
+        <div className="seo-brief-empty">
+          <p style={{ color: "#dc2626" }}>{error}</p>
+        </div>
+      ) : ideas.length > 0 ? (
         <div className="blog-ideas-output">
           <div className="blog-ideas-summary">
             <strong>{ideas.length}</strong>
             <span>ideas ready</span>
           </div>
           <div className="blog-ideas-list">
-            {ideas.map((idea) => (
-              <article key={idea.title} className="blog-idea-card">
+            {ideas.map((idea, index) => (
+              <article key={`${idea.title}-${index}`} className="blog-idea-card">
                 <div className="blog-idea-top">
-                  <span className="blog-idea-index">{idea.score}</span>
-                  <span className="blog-idea-label">{idea.label}</span>
+                  <span className="blog-idea-index">{index + 1}</span>
+                  <div className="blog-idea-tags">
+                    <span className={`blog-idea-tag blog-idea-comp-${idea.competition.toLowerCase()}`}>
+                      {idea.competition} competition
+                    </span>
+                    <span className={`blog-idea-tag blog-idea-intent-${idea.intent.toLowerCase()}`}>
+                      {idea.intent} intent
+                    </span>
+                  </div>
                 </div>
                 <h3>{idea.title}</h3>
-                <p>{idea.note}</p>
+                {idea.focus ? <p>{idea.focus}</p> : null}
               </article>
             ))}
           </div>
@@ -381,7 +357,7 @@ function BlogIdeasTool({ subscriptionTier = "free", defaultNiche = "" }) {
       ) : (
         <div className="seo-brief-empty">
           <SparklesIcon />
-          <p>Enter a niche to generate 50 SEO blog ideas.</p>
+          <p>Enter a niche to generate AI blog ideas.</p>
         </div>
       )}
     </section>
@@ -480,6 +456,17 @@ export default function KeywordsPage() {
       return;
     }
     if (!newKeyword.trim() || !user || !supabase) return;
+
+    const tierKey = profile?.subscription_tier || "free";
+    if (!canAddBrand(tierKey, keywords.length)) {
+      const upgrade = nextTier(tierKey);
+      setMessage(
+        `You've reached the ${getLimits(tierKey).brands}-brand limit on ${getTier(tierKey).name}.` +
+          (upgrade ? ` Upgrade to ${upgrade.name} to track more.` : ""),
+      );
+      return;
+    }
+
     const subreddits = parseCommaSeparatedList(newSubreddits);
     const { data, error } = await supabase
       .from("tracked_keywords")
@@ -531,9 +518,15 @@ export default function KeywordsPage() {
     );
   }
 
+  const tierKey = profile?.subscription_tier || "free";
+  const brandLimit = getLimits(tierKey).brands;
+  const brandLimitLabel = brandLimit === Infinity ? "unlimited" : brandLimit;
+  const atBrandLimit = !canAddBrand(tierKey, keywords.length);
+  const upgradeTier = nextTier(tierKey);
+
   return (
     <SidebarProvider>
-      <AppSidebar user={user} onSignOut={handleSignOut} />
+      <AppSidebar user={user} onSignOut={handleSignOut} subscriptionTier={tierKey} />
       <SidebarInset>
         <main className="dashboard-main">
           <div className="dashboard-header">
@@ -570,8 +563,29 @@ export default function KeywordsPage() {
 
             <div className="dashboard-card">
               <div className="card-header">
-                <h2>Add new brand</h2>
+                <div>
+                  <h2>Add new brand</h2>
+                  <p className="card-supporting-copy">
+                    {getTier(tierKey).name} plan · {brandLimitLabel} brands included
+                  </p>
+                </div>
+                <span className="pricing-badge">{getTier(tierKey).name}</span>
               </div>
+
+              <UsageMeter label="Brands tracked" used={keywords.length} limit={brandLimit} />
+
+              {atBrandLimit ? (
+                <LimitNotice
+                  title={`You've hit your ${brandLimitLabel}-brand limit`}
+                  description={
+                    upgradeTier
+                      ? `Upgrade to ${upgradeTier.name} to track up to ${getLimits(upgradeTier.key).brands === Infinity ? "unlimited" : getLimits(upgradeTier.key).brands} brands.`
+                      : "You're on the top plan."
+                  }
+                  ctaTier={upgradeTier?.name}
+                />
+              ) : null}
+
               <form onSubmit={handleAddKeyword} className="add-keyword-form">
                 <div className="form-fields">
                   <div className="form-group">
@@ -579,9 +593,10 @@ export default function KeywordsPage() {
                     <input
                       type="text"
                       className="form-input"
-                      placeholder="e.g., Rankora"
+                      placeholder="e.g., Oras"
                       value={newKeyword}
                       onChange={(e) => setNewKeyword(e.target.value)}
+                      disabled={atBrandLimit}
                     />
                   </div>
                   <div className="form-group">
@@ -592,11 +607,12 @@ export default function KeywordsPage() {
                       placeholder={formatDefaultVisibilitySources()}
                       value={newSubreddits}
                       onChange={(e) => setNewSubreddits(e.target.value)}
+                      disabled={atBrandLimit}
                     />
                     <SourcePresetPicker value={newSubreddits} onChange={setNewSubreddits} />
                   </div>
                 </div>
-                <button type="submit" className="primary-button">
+                <button type="submit" className="primary-button" disabled={atBrandLimit}>
                   <PlusIcon /> Add Brand
                 </button>
               </form>

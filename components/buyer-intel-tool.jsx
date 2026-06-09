@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowRightIcon, BriefcaseBusinessIcon, SearchIcon, UsersIcon } from "lucide-react";
+import { ArrowRightIcon, BriefcaseBusinessIcon, CheckIcon, SearchIcon, UsersIcon } from "lucide-react";
 
 const sourceOptions = ["Reddit", "X", "LinkedIn", "Communities"];
 
@@ -68,10 +68,42 @@ export function BuyerIntelTool() {
           <SearchIcon />
           AI buyer search
         </span>
-        <h2>Search one source at a time for potential buyers.</h2>
+        <h2>
+          Find <span className="buyer-intel-accent">ready-to-buy</span> people, one source at a time.
+        </h2>
         <p>
-          Enter a niche, choose Reddit, X, LinkedIn, or Communities, and get a buyer list with signals founders actually pay for.
+          Enter a niche, pick Reddit, X, LinkedIn, or Communities, and get a focused buyer list with intent signals founders actually pay for.
         </p>
+
+        <ul className="buyer-intel-points">
+          <li>
+            <CheckIcon />
+            Real buyers, not vanity lists
+          </li>
+          <li>
+            <CheckIcon />
+            Intent score on every result
+          </li>
+          <li>
+            <CheckIcon />
+            One tight source per search
+          </li>
+        </ul>
+
+        <div className="buyer-intel-stats">
+          <div>
+            <strong>4</strong>
+            <span>buyer sources</span>
+          </div>
+          <div>
+            <strong>74–92</strong>
+            <span>intent range</span>
+          </div>
+          <div>
+            <strong>&lt;5s</strong>
+            <span>to a list</span>
+          </div>
+        </div>
       </div>
 
       <div className="buyer-intel-panel">
@@ -110,12 +142,16 @@ export function BuyerIntelTool() {
 
         <div className="buyer-intel-meta">
           <div>
-            <UsersIcon />
+            <span className="buyer-intel-meta-icon">
+              <UsersIcon />
+            </span>
             <strong>{selectedSource} selected</strong>
             <span>One source at a time keeps the search tight and easier to act on.</span>
           </div>
           <div>
-            <BriefcaseBusinessIcon />
+            <span className="buyer-intel-meta-icon">
+              <BriefcaseBusinessIcon />
+            </span>
             <strong>Buyer list preview</strong>
             <span>Role, company type, source, and reason are generated from your niche.</span>
           </div>
@@ -125,18 +161,32 @@ export function BuyerIntelTool() {
           <div className="buyer-intel-results">
             {results.map((item) => (
               <article className="buyer-intel-card" key={`${item.role}-${item.source}-${item.name}`}>
-                <div>
-                  <strong>{item.name}</strong>
-                  <span>{item.role} · {item.company}</span>
-                </div>
-                <em>{item.source}</em>
+                <header className="buyer-intel-card-head">
+                  <span className="buyer-intel-avatar">{item.role.charAt(0)}</span>
+                  <div>
+                    <strong>{item.name}</strong>
+                    <span>{item.role} · {item.company}</span>
+                  </div>
+                  <em>{item.source}</em>
+                </header>
                 <p>{item.reason}</p>
-                <b>{item.score}/100 intent</b>
+                <div className="buyer-intel-score">
+                  <div className="buyer-intel-score-top">
+                    <span>Intent</span>
+                    <b>{item.score}/100</b>
+                  </div>
+                  <div className="buyer-intel-score-track">
+                    <span style={{ width: `${item.score}%` }} />
+                  </div>
+                </div>
               </article>
             ))}
           </div>
         ) : (
           <div className="buyer-intel-empty">
+            <span className="buyer-intel-empty-icon">
+              <SearchIcon />
+            </span>
             <p>Search one niche and the tool will return a focused buyer list from the selected source.</p>
           </div>
         )}

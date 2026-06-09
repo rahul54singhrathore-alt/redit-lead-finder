@@ -1,10 +1,23 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowRightIcon, BellRingIcon, CheckCircle2Icon, SearchIcon, SparklesIcon } from "lucide-react";
+import {
+  ArrowRightIcon,
+  BellRingIcon,
+  CheckCircle2Icon,
+  GlobeIcon,
+  Loader2Icon,
+  SearchIcon,
+  SparklesIcon,
+  WandSparklesIcon,
+} from "lucide-react";
 
 import { SourcePresetPicker } from "@/components/source-preset-picker";
-import { formatDefaultVisibilitySources, parseCommaSeparatedList } from "@/lib/workspace-profile";
+import {
+  INDUSTRY_OPTIONS,
+  formatDefaultVisibilitySources,
+  parseCommaSeparatedList,
+} from "@/lib/workspace-profile";
 
 const frequencyOptions = [
   {
@@ -24,26 +37,125 @@ const frequencyOptions = [
   },
 ];
 
+const DESCRIPTION_MAX = 180;
+
+function isValidUrl(value) {
+  const trimmed = String(value || "").trim();
+  if (!trimmed) return false;
+  try {
+    const withProtocol = /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+    const url = new URL(withProtocol);
+    return Boolean(url.hostname) && url.hostname.includes(".");
+  } catch {
+    return false;
+  }
+}
+
 export function DashboardOnboarding({ user, supabase, onComplete }) {
-  const [brandName, setBrandName] = useState("");
+  const [brandName, setBrandName] = useState("Oras");
+  const [websiteUrl, setWebsiteUrl] = useState("https://oras.com");
+  const [brandDescription, setBrandDescription] = useState(
+    "AI visibility, GEO audits, citation tracking, and white-label reports for brands and agencies.",
+  );
+  const [industry, setIndustry] = useState("SEO");
+  const [competitors, setCompetitors] = useState("");
   const [sources, setSources] = useState(formatDefaultVisibilitySources());
   const [digestFrequency, setDigestFrequency] = useState("daily");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isFetching, setIsFetching] = useState(false);
+  const [fetchNote, setFetchNote] = useState("");
+  const [errors, setErrors] = useState({});
   const [message, setMessage] = useState("");
+
+  const clearError = (field) =>
+    setErrors((prev) => {
+      if (!prev[field]) return prev;
+      const next = { ...prev };
+      delete next[field];
+      return next;
+    });
+
+  const handleAutoFill = async () => {
+    setFetchNote("");
+    setMessage("");
+
+    if (!isValidUrl(websiteUrl)) {
+      setErrors((prev) => ({ ...prev, websiteUrl: "Enter a valid website URL first." }));
+      return;
+    }
+
+    setIsFetching(true);
+    try {
+      const response = await fetch("/api/brand-lookup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: websiteUrl.trim() }),
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        setFetchNote(data?.error || "Could not read that website.");
+        return;
+      }
+
+      const filled = [];
+      if (data.brandName) {
+        setBrandName(data.brandName);
+        filled.push("name");
+      }
+      if (data.description) {
+        setBrandDescription(data.description.slice(0, DESCRIPTION_MAX));
+        filled.push("description");
+      }
+      if (data.industry) {
+        setIndustry(data.industry);
+        filled.push("industry");
+      }
+      if (data.websiteUrl) {
+        setWebsiteUrl(data.websiteUrl);
+      }
+      clearError("brandName");
+      clearError("websiteUrl");
+
+      setFetchNote(
+        filled.length
+          ? `Auto-filled ${filled.join(", ")} from your site. Review before continuing.`
+          : "We reached the site but found no brand metadata. Fill the fields manually.",
+      );
+    } catch {
+      setFetchNote("Something went wrong reaching that website. Try again.");
+    } finally {
+      setIsFetching(false);
+    }
+  };
+
+  const validate = (trimmedBrandName, trimmedWebsiteUrl, sourceList) => {
+    const nextErrors = {};
+    if (!trimmedBrandName) {
+      nextErrors.brandName = "Add the brand you want to track.";
+    }
+    if (trimmedWebsiteUrl && !isValidUrl(trimmedWebsiteUrl)) {
+      nextErrors.websiteUrl = "Enter a valid URL, e.g. https://oras.com";
+    }
+    if (sourceList.length === 0) {
+      nextErrors.sources = "Add at least one source or competitor.";
+    }
+    return nextErrors;
+  };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
 
     const trimmedBrandName = brandName.trim();
+    const trimmedWebsiteUrl = websiteUrl.trim();
+    const trimmedDescription = brandDescription.trim();
     const sourceList = parseCommaSeparatedList(sources);
+    const competitorList = parseCommaSeparatedList(competitors);
 
-    if (!trimmedBrandName) {
-      setMessage("Add the brand you want to track.");
-      return;
-    }
-
-    if (sourceList.length === 0) {
-      setMessage("Add at least one source or competitor.");
+    const nextErrors = validate(trimmedBrandName, trimmedWebsiteUrl, sourceList);
+    if (Object.keys(nextErrors).length > 0) {
+      setErrors(nextErrors);
+      setMessage("");
       return;
     }
 
@@ -52,6 +164,7 @@ export function DashboardOnboarding({ user, supabase, onComplete }) {
       return;
     }
 
+    setErrors({});
     setIsSubmitting(true);
     setMessage("");
 
@@ -60,6 +173,11 @@ export function DashboardOnboarding({ user, supabase, onComplete }) {
       .upsert({
         user_id: user.id,
         onboarding_completed: true,
+        product_name: trimmedBrandName,
+        product_url: trimmedWebsiteUrl,
+        brand_description: trimmedDescription,
+        industry,
+        competitors: competitorList,
         starter_keyword: trimmedBrandName,
         target_subreddits: sourceList,
         digest_frequency: digestFrequency,
@@ -94,6 +212,11 @@ export function DashboardOnboarding({ user, supabase, onComplete }) {
     }
 
     onComplete({
+      product_name: trimmedBrandName,
+      product_url: trimmedWebsiteUrl,
+      brand_description: trimmedDescription,
+      industry,
+      competitors: competitorList,
       starter_keyword: trimmedBrandName,
       target_subreddits: sourceList,
       digest_frequency: digestFrequency,
@@ -118,8 +241,8 @@ export function DashboardOnboarding({ user, supabase, onComplete }) {
           <div className="onboarding-step">
             <SearchIcon className="onboarding-step-icon" />
             <div>
-              <strong>Brand name</strong>
-              <span>Start with the brand you want to track across AI answers.</span>
+              <strong>Brand information</strong>
+              <span>Add your site and let us auto-fill the brand details.</span>
             </div>
           </div>
           <div className="onboarding-step">
@@ -139,26 +262,138 @@ export function DashboardOnboarding({ user, supabase, onComplete }) {
         </div>
       </div>
 
-      <form className="onboarding-card" onSubmit={handleSubmit}>
+      <form className="onboarding-card" onSubmit={handleSubmit} noValidate>
         <div className="card-header">
           <h2>Visibility setup</h2>
           <span className="onboarding-progress">Step 1 of 1</span>
         </div>
 
         <div className="settings-stack">
-          <div className="form-group">
-            <label className="form-label" htmlFor="onboarding-keyword">
-              Brand name
-            </label>
-            <input
-              id="onboarding-keyword"
-              className="form-input"
-              type="text"
-              placeholder="e.g., Rankora"
-              value={brandName}
-              onChange={(event) => setBrandName(event.target.value)}
-            />
-          </div>
+          <fieldset className="onboarding-fieldset">
+            <legend className="onboarding-legend">
+              <GlobeIcon className="onboarding-legend-icon" />
+              Brand information
+            </legend>
+
+            <div className="form-group">
+              <label className="form-label" htmlFor="onboarding-website">
+                Website URL
+              </label>
+              <div className="onboarding-url-row">
+                <input
+                  id="onboarding-website"
+                  className={`form-input${errors.websiteUrl ? " form-input-error" : ""}`}
+                  type="url"
+                  placeholder="https://oras.com"
+                  value={websiteUrl}
+                  onChange={(event) => {
+                    setWebsiteUrl(event.target.value);
+                    clearError("websiteUrl");
+                  }}
+                />
+                <button
+                  type="button"
+                  className="onboarding-autofill"
+                  onClick={handleAutoFill}
+                  disabled={isFetching}
+                >
+                  {isFetching ? (
+                    <Loader2Icon className="button-icon onboarding-spin" />
+                  ) : (
+                    <WandSparklesIcon className="button-icon" />
+                  )}
+                  {isFetching ? "Reading…" : "Auto-fill"}
+                </button>
+              </div>
+              {errors.websiteUrl ? (
+                <span className="onboarding-field-error">{errors.websiteUrl}</span>
+              ) : (
+                <span className="onboarding-field-hint">
+                  Paste your site and we’ll pull the brand name, description, and industry.
+                </span>
+              )}
+              {fetchNote ? <span className="onboarding-field-note">{fetchNote}</span> : null}
+            </div>
+
+            <div className="form-group">
+              <label className="form-label" htmlFor="onboarding-brand-name">
+                Brand name
+              </label>
+              <input
+                id="onboarding-brand-name"
+                className={`form-input${errors.brandName ? " form-input-error" : ""}`}
+                type="text"
+                placeholder="e.g., Oras"
+                value={brandName}
+                onChange={(event) => {
+                  setBrandName(event.target.value);
+                  clearError("brandName");
+                }}
+              />
+              {errors.brandName ? (
+                <span className="onboarding-field-error">{errors.brandName}</span>
+              ) : null}
+            </div>
+
+            <div className="form-group">
+              <div className="onboarding-label-row">
+                <label className="form-label" htmlFor="onboarding-description">
+                  Brand description
+                </label>
+                <span
+                  className={`onboarding-counter${
+                    brandDescription.length > DESCRIPTION_MAX ? " onboarding-counter-over" : ""
+                  }`}
+                >
+                  {brandDescription.length}/{DESCRIPTION_MAX}
+                </span>
+              </div>
+              <textarea
+                id="onboarding-description"
+                className="form-input"
+                rows={2}
+                maxLength={DESCRIPTION_MAX}
+                placeholder="1-2 lines describing what your brand does."
+                value={brandDescription}
+                onChange={(event) => setBrandDescription(event.target.value)}
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label" htmlFor="onboarding-industry">
+                Industry / niche
+              </label>
+              <select
+                id="onboarding-industry"
+                className="form-input"
+                value={industry}
+                onChange={(event) => setIndustry(event.target.value)}
+              >
+                {INDUSTRY_OPTIONS.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label className="form-label" htmlFor="onboarding-competitors">
+                Competitors <span className="onboarding-optional">optional</span>
+              </label>
+              <input
+                id="onboarding-competitors"
+                className="form-input"
+                type="text"
+                placeholder="e.g., Ahrefs, Semrush, Surfer"
+                value={competitors}
+                onChange={(event) => setCompetitors(event.target.value)}
+              />
+              <span className="onboarding-field-hint">
+                Comma-separated brands we should benchmark you against.
+              </span>
+            </div>
+          </fieldset>
 
           <div className="form-group">
             <label className="form-label" htmlFor="onboarding-subreddits">
@@ -166,12 +401,18 @@ export function DashboardOnboarding({ user, supabase, onComplete }) {
             </label>
             <input
               id="onboarding-subreddits"
-              className="form-input"
+              className={`form-input${errors.sources ? " form-input-error" : ""}`}
               type="text"
               placeholder={formatDefaultVisibilitySources()}
               value={sources}
-              onChange={(event) => setSources(event.target.value)}
+              onChange={(event) => {
+                setSources(event.target.value);
+                clearError("sources");
+              }}
             />
+            {errors.sources ? (
+              <span className="onboarding-field-error">{errors.sources}</span>
+            ) : null}
             <SourcePresetPicker value={sources} onChange={setSources} />
           </div>
 

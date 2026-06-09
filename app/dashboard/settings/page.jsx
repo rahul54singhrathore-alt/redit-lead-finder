@@ -3,24 +3,47 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import {
+  BellIcon,
+  Building2Icon,
+  CreditCardIcon,
+  DownloadIcon,
+  LogOutIcon,
+  SlidersHorizontalIcon,
+  UserIcon,
+} from "lucide-react";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SourcePresetPicker } from "@/components/source-preset-picker";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { createBrowserSupabaseClient } from "../../../lib/supabase";
+import { getTier } from "../../../lib/subscription";
 import {
+  INDUSTRY_OPTIONS,
   formatDefaultVisibilitySources,
   formatCommaSeparatedList,
   normalizeWorkspaceProfile,
   parseCommaSeparatedList,
 } from "../../../lib/workspace-profile";
 
-const DownloadIcon = () => (
-  <svg className="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-    <polyline points="7 10 12 15 17 10" />
-    <line x1="12" y1="15" x2="12" y2="3" />
-  </svg>
-);
+// Maps a normalized profile into the editable settings form shape.
+function settingsFromProfile(profile) {
+  return {
+    productName: profile.product_name || "",
+    productUrl: profile.product_url || "",
+    industry: profile.industry || "",
+    customerType: profile.customer_type || "both",
+    brandDescription: profile.brand_description || "",
+    emailDigest: profile.email_digest,
+    instantAlerts: profile.instant_alerts,
+    digestFrequency: profile.digest_frequency,
+    alertChannel: profile.alert_channel,
+    defaultSubreddits: formatCommaSeparatedList(profile.target_subreddits),
+    minScore: profile.min_score,
+    minComments: profile.min_comments,
+    ignoredTerms: profile.ignored_terms,
+    exportFormat: profile.export_format,
+  };
+}
 
 export default function SettingsPage() {
   const [user, setUser] = useState(null);
@@ -28,6 +51,11 @@ export default function SettingsPage() {
   const [saved, setSaved] = useState(false);
   const [message, setMessage] = useState("");
   const [settings, setSettings] = useState({
+    productName: "",
+    productUrl: "",
+    industry: "",
+    customerType: "both",
+    brandDescription: "",
     emailDigest: true,
     instantAlerts: true,
     digestFrequency: "daily",
@@ -63,17 +91,7 @@ export default function SettingsPage() {
       } else if (data) {
         const normalized = normalizeWorkspaceProfile(data);
         setProfile(normalized);
-        setSettings({
-          emailDigest: normalized.email_digest,
-          instantAlerts: normalized.instant_alerts,
-          digestFrequency: normalized.digest_frequency,
-          alertChannel: normalized.alert_channel,
-          defaultSubreddits: formatCommaSeparatedList(normalized.target_subreddits),
-          minScore: normalized.min_score,
-          minComments: normalized.min_comments,
-          ignoredTerms: normalized.ignored_terms,
-          exportFormat: normalized.export_format,
-        });
+        setSettings(settingsFromProfile(normalized));
         setMessage("");
       }
       setLoading(false);
@@ -92,21 +110,10 @@ export default function SettingsPage() {
           .eq("user_id", session.user.id)
           .maybeSingle()
           .then(({ data, error }) => {
-            if (error) return;
-            if (!data) return;
+            if (error || !data) return;
             const normalized = normalizeWorkspaceProfile(data);
             setProfile(normalized);
-            setSettings({
-              emailDigest: normalized.email_digest,
-              instantAlerts: normalized.instant_alerts,
-              digestFrequency: normalized.digest_frequency,
-              alertChannel: normalized.alert_channel,
-              defaultSubreddits: formatCommaSeparatedList(normalized.target_subreddits),
-              minScore: normalized.min_score,
-              minComments: normalized.min_comments,
-              ignoredTerms: normalized.ignored_terms,
-              exportFormat: normalized.export_format,
-            });
+            setSettings(settingsFromProfile(normalized));
           });
         setLoading(false);
       }
@@ -132,7 +139,12 @@ export default function SettingsPage() {
     const payload = {
       user_id: user.id,
       onboarding_completed: profile?.onboarding_completed ?? true,
-      starter_keyword: profile?.starter_keyword || "",
+      product_name: settings.productName.trim(),
+      product_url: settings.productUrl.trim(),
+      industry: settings.industry,
+      customer_type: settings.customerType,
+      brand_description: settings.brandDescription.trim(),
+      starter_keyword: profile?.starter_keyword || settings.productName.trim(),
       target_subreddits: parseCommaSeparatedList(settings.defaultSubreddits),
       digest_frequency: settings.digestFrequency,
       email_digest: settings.emailDigest,
@@ -169,6 +181,10 @@ export default function SettingsPage() {
     router.replace("/");
   };
 
+  const tierKey = profile?.subscription_tier || "free";
+  const tier = getTier(tierKey);
+  const isPaid = tierKey !== "free";
+
   if (loading) {
     return (
       <SidebarProvider>
@@ -183,14 +199,16 @@ export default function SettingsPage() {
 
   return (
     <SidebarProvider>
-      <AppSidebar user={user} onSignOut={handleSignOut} />
+      <AppSidebar user={user} onSignOut={handleSignOut} subscriptionTier={tierKey} />
       <SidebarInset>
         <main className="dashboard-main">
           <div className="dashboard-header">
             <div>
               <SidebarTrigger className="dashboard-sidebar-trigger" />
               <h1>Settings</h1>
-              <p style={{ color: "#71717a", margin: "4px 0 0 0" }}>Manage your account, visibility matching, and audit preferences</p>
+              <p style={{ color: "#71717a", margin: "4px 0 0 0" }}>
+                Manage your brand, account, and workspace preferences.
+              </p>
             </div>
           </div>
 
@@ -198,9 +216,79 @@ export default function SettingsPage() {
 
           <form className="dashboard-content" onSubmit={handleSave}>
             <div className="settings-grid">
+              <section className="dashboard-card dashboard-card-wide">
+                <div className="card-header">
+                  <div>
+                    <h2><Building2Icon className="settings-section-icon" /> Brand</h2>
+                    <p className="card-supporting-copy">
+                      This powers every AI check — Mention Opportunities, GEO Roadmap, Citations, and Reddit drafts.
+                    </p>
+                  </div>
+                </div>
+                <div className="settings-form-grid">
+                  <div className="form-group">
+                    <label className="form-label" htmlFor="product-name">Brand / product name</label>
+                    <input
+                      id="product-name"
+                      className="form-input"
+                      value={settings.productName}
+                      onChange={(event) => updateSetting("productName", event.target.value)}
+                      placeholder="e.g., Oras"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label" htmlFor="product-url">Website</label>
+                    <input
+                      id="product-url"
+                      className="form-input"
+                      value={settings.productUrl}
+                      onChange={(event) => updateSetting("productUrl", event.target.value)}
+                      placeholder="https://yourbrand.com"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label" htmlFor="industry">Industry</label>
+                    <select
+                      id="industry"
+                      className="form-input"
+                      value={settings.industry}
+                      onChange={(event) => updateSetting("industry", event.target.value)}
+                    >
+                      <option value="">Select industry…</option>
+                      {INDUSTRY_OPTIONS.map((option) => (
+                        <option key={option} value={option}>{option}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label" htmlFor="customer-type">Sells to</label>
+                    <select
+                      id="customer-type"
+                      className="form-input"
+                      value={settings.customerType}
+                      onChange={(event) => updateSetting("customerType", event.target.value)}
+                    >
+                      <option value="b2b">B2B (businesses)</option>
+                      <option value="b2c">B2C (consumers)</option>
+                      <option value="both">Both</option>
+                    </select>
+                  </div>
+                  <div className="form-group settings-span-2">
+                    <label className="form-label" htmlFor="brand-description">What does your brand do?</label>
+                    <textarea
+                      id="brand-description"
+                      className="form-input textarea-input"
+                      value={settings.brandDescription}
+                      onChange={(event) => updateSetting("brandDescription", event.target.value)}
+                      placeholder="One or two lines — used to make AI checks more accurate."
+                    />
+                  </div>
+                </div>
+              </section>
+
               <section className="dashboard-card">
                 <div className="card-header">
-                  <h2>Account</h2>
+                  <h2><UserIcon className="settings-section-icon" /> Account</h2>
                 </div>
                 <div className="settings-stack">
                   <div className="form-group">
@@ -239,7 +327,26 @@ export default function SettingsPage() {
 
               <section className="dashboard-card">
                 <div className="card-header">
-                  <h2>Alerts</h2>
+                  <h2><CreditCardIcon className="settings-section-icon" /> Plan</h2>
+                </div>
+                <div className="settings-stack">
+                  <div className="settings-plan-row">
+                    <div>
+                      <span className="settings-plan-name">{tier.name}</span>
+                      <span className={`settings-plan-tag${isPaid ? " settings-plan-tag-paid" : ""}`}>
+                        {isPaid ? "Active member" : "Free plan"}
+                      </span>
+                    </div>
+                  </div>
+                  <Link href="/pricing" className="action-button">
+                    {isPaid ? "Manage plan" : "Upgrade plan"}
+                  </Link>
+                </div>
+              </section>
+
+              <section className="dashboard-card">
+                <div className="card-header">
+                  <h2><BellIcon className="settings-section-icon" /> Alerts</h2>
                 </div>
                 <div className="settings-stack">
                   <div className="setting-row">
@@ -273,7 +380,10 @@ export default function SettingsPage() {
 
               <section className="dashboard-card dashboard-card-wide">
                 <div className="card-header">
-                  <h2>Visibility Matching</h2>
+                  <div>
+                    <h2><SlidersHorizontalIcon className="settings-section-icon" /> Signal Matching</h2>
+                    <p className="card-supporting-copy">Tune which sources and thresholds count as a signal.</p>
+                  </div>
                 </div>
                 <div className="settings-form-grid">
                   <div className="form-group">
@@ -326,7 +436,7 @@ export default function SettingsPage() {
 
               <section className="dashboard-card">
                 <div className="card-header">
-                  <h2>Exports</h2>
+                  <h2><DownloadIcon className="settings-section-icon" /> Exports</h2>
                 </div>
                 <div className="settings-stack">
                   <div className="form-group">
@@ -342,7 +452,7 @@ export default function SettingsPage() {
                     </select>
                   </div>
                   <button type="button" className="action-button">
-                    <DownloadIcon />
+                    <DownloadIcon className="button-icon" />
                     Export current signals
                   </button>
                 </div>
@@ -350,7 +460,7 @@ export default function SettingsPage() {
 
               <section className="dashboard-card">
                 <div className="card-header">
-                  <h2>Session</h2>
+                  <h2><LogOutIcon className="settings-section-icon" /> Session</h2>
                 </div>
                 <div className="settings-stack">
                   <button type="button" className="danger-button" onClick={handleSignOut}>

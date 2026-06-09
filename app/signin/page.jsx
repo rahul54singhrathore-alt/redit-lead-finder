@@ -155,18 +155,22 @@ export default function SignInPage() {
   }
 
   return (
-    <main className="rankora-auth-page">
+    <main className="oras-auth-page">
       <SiteNavbar />
 
-      <section className="rankora-auth-wrap" aria-label="Login">
-        <div className="rankora-login">
-          <div className="rankora-login-head">
-            <h1>Log in to Rankora</h1>
+      <section className="oras-auth-wrap" aria-label="Login">
+        <div className="oras-login">
+          <div className="oras-login-head">
+            <span className="oras-login-brand">
+              <img src="/logo.png" alt="Oras" />
+              <strong>Oras</strong>
+            </span>
+            <h1>Log in to Oras</h1>
             <p>AI visibility and GEO tracking for modern teams.</p>
           </div>
 
-          <form className="rankora-login-form" onSubmit={handleEmailSubmit}>
-            <label className="rankora-auth-input">
+          <form className="oras-login-form" onSubmit={handleEmailSubmit}>
+            <label className="oras-auth-input">
               <MailIcon aria-hidden="true" />
               <input
                 type="email"
@@ -179,7 +183,7 @@ export default function SignInPage() {
             </label>
 
             {otpSent ? (
-              <label className="rankora-auth-input">
+              <label className="oras-auth-input">
                 <input
                   type="text"
                   inputMode="numeric"
@@ -192,13 +196,13 @@ export default function SignInPage() {
               </label>
             ) : null}
 
-            <button className="rankora-auth-primary" type="submit" disabled={isSubmitting}>
+            <button className="oras-auth-primary" type="submit" disabled={isSubmitting}>
               {otpSent ? "Continue" : "Continue with OTP"}
             </button>
           </form>
 
           <button
-            className="rankora-auth-google"
+            className="oras-auth-google"
             type="button"
             onClick={signInWithGoogle}
             disabled={isSubmitting}
@@ -215,12 +219,12 @@ export default function SignInPage() {
           </button>
 
           {message ? (
-            <p className={`rankora-auth-note ${messageType}`}>{message}</p>
+            <p className={`oras-auth-note ${messageType}`}>{message}</p>
           ) : null}
         </div>
       </section>
 
-      <footer className="rankora-auth-footer">© 2026 · RANKORA INC.</footer>
+      <footer className="oras-auth-footer">© 2026 · ORAS INC.</footer>
     </main>
   );
 }

@@ -9,7 +9,7 @@ const inter = Inter({
 });
 
 export const metadata = {
-  title: "Rankora | AI Visibility and GEO Tracking",
+  title: "Oras | AI Visibility and GEO Tracking",
   description:
     "Track AI visibility, competitor mentions, prompt rankings, citations, GEO recommendations, and white-label client reports.",
   icons: {

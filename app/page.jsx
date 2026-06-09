@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { SiteNavbar } from "@/components/site-navbar";
+import { FreeVisibilityChecker } from "@/components/free-visibility-checker";
 import {
   ArrowUpRightIcon,
   BotIcon,
@@ -51,7 +52,7 @@ const features = [
   {
     icon: BoxIcon,
     title: "WHY NOT MENTIONED?",
-    copy: "Rankora explains why competitors appear, like high-authority citations, stronger entity coverage, or missing comparison pages.",
+    copy: "Oras explains why competitors appear, like high-authority citations, stronger entity coverage, or missing comparison pages.",
   },
   {
     icon: GlobeIcon,
@@ -99,6 +100,14 @@ export default function Home() {
             Track where ChatGPT, Gemini, Claude, and Perplexity mention your brand.
             Compare competitors, citations, prompts, and GEO actions in one place.
           </p>
+          <div className="autosend-hero-cta">
+            <Link className="autosend-button autosend-button-primary" href="#check">
+              Check your visibility free
+            </Link>
+            <Link className="autosend-button" href="/pricing">
+              View pricing
+            </Link>
+          </div>
         </div>
 
         <div className="autosend-hero-illustration">
@@ -108,6 +117,8 @@ export default function Home() {
           />
         </div>
       </section>
+
+      <FreeVisibilityChecker />
 
       <section className="autosend-docs-grid" id="solutions">
         {solutionCards.map((card) => (
@@ -263,8 +274,8 @@ Create author and entity pages`}</pre>
         </div>
       </section>
 
-      <section className="rankora-prompt-library" id="blog">
-        <div className="rankora-prompt-lead">
+      <section className="oras-prompt-library" id="blog">
+        <div className="oras-prompt-lead">
           <span>PROMPT LIBRARY</span>
           <h2>Track the prompts that decide who gets recommended.</h2>
         </div>
@@ -285,11 +296,11 @@ Create author and entity pages`}</pre>
         </Link>
       </section>
 
-      <footer className="rankora-footer">
-        <div className="rankora-footer-brand">
+      <footer className="oras-footer">
+        <div className="oras-footer-brand">
           <Link className="autosend-brand" href="/">
             <img src="/logo.png" alt="" />
-            <span>RANKORA</span>
+            <span>ORAS</span>
           </Link>
           <p>AI visibility, GEO audits, citation tracking, and white-label reports for brands and agencies.</p>
         </div>
@@ -299,7 +310,7 @@ Create author and entity pages`}</pre>
           ["RESOURCES", "Docs", "Blog", "Templates", "Status"],
           ["ACCOUNT", "Log in", "Dashboard", "Pricing", "Support"],
         ].map(([heading, ...items]) => (
-          <div className="rankora-footer-list" key={heading}>
+          <div className="oras-footer-list" key={heading}>
             <h2>{heading}</h2>
             {items.map((item) => (
               <a href={item === "Pricing" ? "/pricing" : item === "Log in" ? "/signin" : item === "Dashboard" ? "/dashboard" : "#"} key={item}>
@@ -308,7 +319,7 @@ Create author and entity pages`}</pre>
             ))}
           </div>
         ))}
-        <p className="rankora-footer-bottom">© 2026 · RANKORA INC.</p>
+        <p className="oras-footer-bottom">© 2026 · ORAS INC.</p>
       </footer>
     </main>
   );

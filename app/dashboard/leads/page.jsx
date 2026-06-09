@@ -7,7 +7,10 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { SourcePresetPicker } from "@/components/source-preset-picker";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { createBrowserSupabaseClient } from "../../../lib/supabase";
-import { formatDefaultVisibilitySources } from "../../../lib/workspace-profile";
+import { formatDefaultVisibilitySources, normalizeWorkspaceProfile } from "../../../lib/workspace-profile";
+import { getTier, hasFeature } from "../../../lib/subscription";
+import { RecommendedFixes } from "@/components/recommended-fixes";
+import { exportLeadsCsv, openWhiteLabelReport } from "@/lib/report-export";
 
 const SearchIcon = () => (
   <svg className="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -44,6 +47,7 @@ export default function LeadsPage() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [leads, setLeads] = useState([]);
+  const [profile, setProfile] = useState(null);
   const [message, setMessage] = useState("");
   const [newLead, setNewLead] = useState({
     title: "",
@@ -88,17 +92,24 @@ export default function LeadsPage() {
 
   const loadLeads = async () => {
     if (!supabase) return;
-    const { data, error } = await supabase
-      .from("reddit_leads")
-      .select("id, title, subreddit, author, keyword, intent, status, score, comments, url, posted_at")
-      .order("posted_at", { ascending: false });
+    const [leadsResult, profileResult] = await Promise.all([
+      supabase
+        .from("reddit_leads")
+        .select("id, title, subreddit, author, keyword, intent, status, score, comments, url, posted_at")
+        .order("posted_at", { ascending: false }),
+      supabase.from("user_profiles").select("*").maybeSingle(),
+    ]);
 
-    if (error) {
+    if (profileResult.data) {
+      setProfile(normalizeWorkspaceProfile(profileResult.data));
+    }
+
+    if (leadsResult.error) {
       setMessage("Could not load signals. Run supabase-schema.sql in Supabase first.");
       return;
     }
 
-    setLeads(data || []);
+    setLeads(leadsResult.data || []);
     setMessage("");
   };
 
@@ -162,6 +173,21 @@ export default function LeadsPage() {
     return `${days} day${days === 1 ? "" : "s"} ago`;
   };
 
+  const tierKey = profile?.subscription_tier || "free";
+  const canWhiteLabel = hasFeature(tierKey, "whiteLabelReports");
+
+  const handleWhiteLabel = () => {
+    if (!canWhiteLabel) {
+      setMessage(`White-label PDF reports are available on the ${getTier("agency").name} plan.`);
+      return;
+    }
+    openWhiteLabelReport({
+      brand: profile?.product_name || profile?.starter_keyword || "Your brand",
+      generatedOn: new Date().toLocaleDateString(),
+      leads: filteredLeads,
+    });
+  };
+
   const filteredLeads = leads.filter((lead) => {
     const matchesStatus = statusFilter === "All" || lead.status === statusFilter;
     const query = search.trim().toLowerCase();
@@ -183,7 +209,7 @@ export default function LeadsPage() {
 
   return (
     <SidebarProvider>
-      <AppSidebar user={user} onSignOut={handleSignOut} />
+      <AppSidebar user={user} onSignOut={handleSignOut} subscriptionTier={tierKey} />
       <SidebarInset>
         <main className="dashboard-main">
           <div className="dashboard-header">
@@ -218,6 +244,11 @@ export default function LeadsPage() {
                 <p className="stat-value">{leads.filter((lead) => lead.intent === "High").length}</p>
               </div>
             </div>
+
+            <RecommendedFixes
+              subscriptionTier={tierKey}
+              brand={profile?.product_name || profile?.starter_keyword || "your brand"}
+            />
 
             <section className="dashboard-card">
               <div className="card-header">
@@ -260,7 +291,7 @@ export default function LeadsPage() {
                       className="form-input"
                       value={newLead.keyword}
                       onChange={(event) => setNewLead((current) => ({ ...current, keyword: event.target.value }))}
-                      placeholder="Rankora"
+                      placeholder="Oras"
                     />
                   </div>
                   <div className="form-group">
@@ -314,7 +345,23 @@ export default function LeadsPage() {
                     <option value="Archived">Archived</option>
                   </select>
                 </div>
-                <button type="button" className="primary-button leads-export-button">Export signals</button>
+                <div className="leads-export-actions">
+                  <button
+                    type="button"
+                    className="secondary-button leads-export-button"
+                    onClick={() => exportLeadsCsv(filteredLeads)}
+                  >
+                    Export CSV
+                  </button>
+                  <button
+                    type="button"
+                    className={`primary-button leads-export-button${canWhiteLabel ? "" : " leads-export-locked"}`}
+                    onClick={handleWhiteLabel}
+                    title={canWhiteLabel ? "Generate a branded PDF report" : "Available on Agency"}
+                  >
+                    {canWhiteLabel ? "📄 White-label PDF" : "🔒 White-label PDF"}
+                  </button>
+                </div>
               </div>
 
               <div className="leads-list">
