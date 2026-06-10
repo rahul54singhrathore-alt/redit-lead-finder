@@ -66,6 +66,7 @@ export default function PromptsPage() {
   const [loading, setLoading] = useState(true);
   const [results, setResults] = useState({}); // by prompt id
   const [history, setHistory] = useState({}); // by lowercased prompt -> [snapshots desc]
+  const [engineStatus, setEngineStatus] = useState(null);
   const router = useRouter();
   const supabase = useMemo(() => createBrowserSupabaseClient(), []);
 
@@ -112,6 +113,20 @@ export default function PromptsPage() {
     },
     [brand, saveSnapshot],
   );
+
+  // Load which AI engines are live vs. falling back to Groq.
+  useEffect(() => {
+    let active = true;
+    fetch("/api/engines-status")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (active && data) setEngineStatus(data);
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (!supabase) {
@@ -226,6 +241,8 @@ export default function PromptsPage() {
           </div>
 
           <div className="dashboard-content">
+            <EngineStatusBar status={engineStatus} />
+
             <section className="dashboard-card">
               <div className="card-header">
                 <div>
@@ -331,6 +348,46 @@ function RankRow({ data, delta, lastChecked }) {
         <span className="rank-checked">Checked {timeAgo(lastChecked)}</span>
       </div>
     </div>
+  );
+}
+
+// Connection status for the four AI engines: which are wired to their own
+// provider key (live) vs. answered by the Groq fallback.
+function EngineStatusBar({ status }) {
+  if (!status?.engines) return null;
+  const liveCount = status.engines.filter((e) => e.live).length;
+  return (
+    <section className="engine-status">
+      <div className="engine-status-head">
+        <span className="engine-status-title">AI engines</span>
+        <span className="engine-status-count">
+          {liveCount}/{status.engines.length} live
+        </span>
+      </div>
+      <div className="engine-status-list">
+        {status.engines.map((e) => (
+          <div
+            key={e.key}
+            className={`engine-status-item${e.live ? " engine-status-item-live" : ""}`}
+            title={
+              e.live
+                ? `Live · ${e.provider} · ${e.model}`
+                : `Falling back to Groq. Add ${e.envVar} to go live.`
+            }
+          >
+            <span className={`engine-status-dot${e.live ? " engine-status-dot-live" : ""}`} />
+            <span className="engine-status-name">{e.label}</span>
+            <span className="engine-status-state">{e.live ? "live" : "fallback"}</span>
+          </div>
+        ))}
+      </div>
+      {liveCount === 0 ? (
+        <p className="engine-status-hint">
+          All engines are using the Groq fallback. Add a provider key (e.g.{" "}
+          <code>ANTHROPIC_API_KEY</code>) to make an engine genuinely live.
+        </p>
+      ) : null}
+    </section>
   );
 }
 

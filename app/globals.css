@@ -9409,6 +9409,99 @@ button {
   color: #8a8078;
 }
 
+/* Engine connection status bar (top of Prompt Rank Tracker) */
+.engine-status {
+  margin-bottom: 16px;
+  padding: 14px 16px;
+  border: 1px solid #e3e0dd;
+  border-radius: 12px;
+  background: #fbfbfa;
+}
+
+.engine-status-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.engine-status-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #211f1e;
+}
+
+.engine-status-count {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #6357ff;
+}
+
+.engine-status-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.engine-status-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 11px;
+  border: 1px solid #e3e0dd;
+  border-radius: 999px;
+  background: #fff;
+}
+
+.engine-status-item-live {
+  border-color: #cdbff0;
+  background: #f7f4ff;
+}
+
+.engine-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #c7c2bc;
+}
+
+.engine-status-dot-live {
+  background: #6357ff;
+  box-shadow: 0 0 0 3px rgba(99, 87, 255, 0.18);
+}
+
+.engine-status-name {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #211f1e;
+}
+
+.engine-status-state {
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #8a8078;
+}
+
+.engine-status-item-live .engine-status-state {
+  color: #6357ff;
+}
+
+.engine-status-hint {
+  margin: 10px 0 0 0;
+  font-size: 0.76rem;
+  color: #8a8078;
+}
+
+.engine-status-hint code {
+  padding: 1px 5px;
+  border-radius: 5px;
+  background: #efece8;
+  font-size: 0.72rem;
+}
+
 /* Per-engine breakdown: one chip per AI engine (ChatGPT, Gemini, Claude, Perplexity) */
 .engine-grid {
   display: grid;
