@@ -206,7 +206,8 @@ export default function OnboardingPage() {
     }
 
     setIsSubmitting(false);
-    router.replace("/dashboard");
+    // After onboarding, send the user to the subscription page to pick a plan.
+    router.replace("/pricing?welcome=1");
   };
 
   if (loading) {

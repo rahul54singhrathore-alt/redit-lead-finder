@@ -9,7 +9,10 @@ const serviceFeatures = [
   "Weekly GEO report",
 ];
 
-export default function PricingPage() {
+export default async function PricingPage({ searchParams }) {
+  const params = await searchParams;
+  const fromOnboarding = params?.welcome === "1";
+
   return (
     <main className="pricing-page">
       <header className="site-header">
@@ -20,9 +23,18 @@ export default function PricingPage() {
         <nav className="nav-links">
           <Link href="/">Home</Link>
           <Link href="/pricing">Pricing</Link>
-          <Link className="nav-cta" href="/signin">Sign In</Link>
+          <Link className="nav-cta" href={fromOnboarding ? "/dashboard" : "/signin"}>
+            {fromOnboarding ? "Skip for now" : "Sign In"}
+          </Link>
         </nav>
       </header>
+
+      {fromOnboarding ? (
+        <div className="pricing-welcome">
+          🎉 Your workspace is ready. Pick a plan to unlock more brands and prompt
+          coverage — or <Link href="/dashboard">continue on the free plan</Link>.
+        </div>
+      ) : null}
 
       <section className="pricing-hero">
         <p className="eyebrow">Subscription plans</p>
