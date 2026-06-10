@@ -13116,6 +13116,89 @@ button {
   }
 }
 
+/* FAQ section */
+.oras-faq {
+  width: min(100% - 40px, 820px);
+  margin: 40px auto 80px;
+  color: #2d2926;
+}
+
+.oras-faq-lead {
+  margin-bottom: 28px;
+  text-align: center;
+}
+
+.oras-faq-lead span {
+  display: inline-block;
+  margin-bottom: 12px;
+  color: #aaa49f;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+}
+
+.oras-faq-lead h2 {
+  margin: 0;
+  font-size: 32px;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+.oras-faq-list {
+  display: grid;
+  gap: 12px;
+}
+
+.oras-faq-list details {
+  padding: 4px 22px;
+  border: 1px solid #e3e0dd;
+  border-radius: 14px;
+  background: #fff;
+}
+
+.oras-faq-list summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 0;
+  cursor: pointer;
+  list-style: none;
+  font-size: 17px;
+  font-weight: 600;
+  color: #2d2926;
+}
+
+.oras-faq-list summary::-webkit-details-marker {
+  display: none;
+}
+
+.oras-faq-list summary svg {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  color: #8a847f;
+  transition: transform 0.18s ease;
+}
+
+.oras-faq-list details[open] summary svg {
+  transform: rotate(180deg);
+}
+
+.oras-faq-list p {
+  margin: 0;
+  padding: 0 0 20px;
+  color: #4a4540;
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+@media (max-width: 600px) {
+  .oras-faq-lead h2 {
+    font-size: 26px;
+  }
+}
+
 .oras-auth-page {
   display: grid;
   min-height: 100vh;

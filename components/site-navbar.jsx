@@ -15,6 +15,12 @@ export function SiteNavbar({ className = "" }) {
         <span>ORAS</span>
       </Link>
 
+      <nav className="autosend-links" aria-label="Primary">
+        <Link href="/#docs">How it works</Link>
+        <Link href="/pricing">Pricing</Link>
+        <Link href="/blog">Blog</Link>
+      </nav>
+
       <AuthNavActions primary />
     </header>
   );

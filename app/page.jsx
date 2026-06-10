@@ -77,6 +77,33 @@ const integrations = [
   ["News", PlusIcon],
 ];
 
+const faqs = [
+  {
+    q: "What is AI visibility tracking?",
+    a: "AI visibility tracking measures how often answer engines like ChatGPT, Gemini, Claude, and Perplexity mention your brand when people ask category and comparison questions. Oras runs those prompts across each engine and scores whether you're named, named first, or missing.",
+  },
+  {
+    q: "What is GEO (Generative Engine Optimization)?",
+    a: "GEO is the practice of getting your brand recommended inside AI-generated answers, the way SEO gets you ranked in search results. Instead of optimizing for a list of links, you optimize for being the brand the model names.",
+  },
+  {
+    q: "Which AI engines does Oras track?",
+    a: "Oras tracks ChatGPT, Gemini, Claude, and Perplexity, plus the citation sources behind their answers such as Reddit, Quora, blogs, news, and comparison pages.",
+  },
+  {
+    q: "How is this different from traditional SEO tools?",
+    a: "SEO tools track keyword rankings on search engines. Oras tracks whether AI answer engines mention you in their responses — a separate and growing channel where there is no second page, so if you aren't mentioned you're invisible.",
+  },
+  {
+    q: "Can I track competitors?",
+    a: "Yes. Oras compares your mentions against competitors across every engine, shows who gets recommended first, and explains why — from citation authority to missing comparison pages.",
+  },
+  {
+    q: "Do you offer reports for agencies?",
+    a: "Yes. Oras generates white-label GEO audit reports and lets agencies manage every client dashboard from one account.",
+  },
+];
+
 const trackedPrompts = [
   ["Best SEO tools", "ChatGPT mentions Competitor A. Gemini mentions your brand."],
   ["Best AI tools", "Claude does not mention you yet. Add comparison and citation pages."],
@@ -294,6 +321,38 @@ Create author and entity pages`}</pre>
         <Link className="autosend-button autosend-button-primary" href="/pricing">
           VIEW PRICING
         </Link>
+      </section>
+
+      <section className="oras-faq" id="faq">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "FAQPage",
+              mainEntity: faqs.map((item) => ({
+                "@type": "Question",
+                name: item.q,
+                acceptedAnswer: { "@type": "Answer", text: item.a },
+              })),
+            }),
+          }}
+        />
+        <div className="oras-faq-lead">
+          <span>FAQ</span>
+          <h2>Questions about AI visibility and GEO</h2>
+        </div>
+        <div className="oras-faq-list">
+          {faqs.map((item) => (
+            <details key={item.q}>
+              <summary>
+                {item.q}
+                <ChevronDownIcon aria-hidden="true" />
+              </summary>
+              <p>{item.a}</p>
+            </details>
+          ))}
+        </div>
       </section>
 
       <footer className="oras-footer">
