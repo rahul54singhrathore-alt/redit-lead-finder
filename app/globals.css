@@ -13694,11 +13694,13 @@ button {
 
 
 .oras-simple-nav {
-  grid-template-columns: minmax(190px, 1fr) auto;
+  grid-template-columns: auto 1fr auto;
 }
 
 .oras-simple-nav .autosend-actions {
-  grid-column: 2;
+  grid-row: 1;
+  grid-column: 3;
+  align-self: center;
 }
 
 .oras-prompt-library {
@@ -13848,11 +13850,42 @@ button {
   .autosend-hero-actions .autosend-actions .autosend-button {
     display: inline-flex;
   }
+
+  /* Mobile nav: brand left, login button right. No dead hamburger. */
+  .oras-simple-nav {
+    grid-template-columns: 1fr auto;
+    padding: 0 10px 0 16px;
+  }
+
+  .oras-simple-nav .autosend-links {
+    display: none;
+  }
+
+  .oras-simple-nav .autosend-actions {
+    grid-row: 1;
+    grid-column: 2;
+    align-self: center;
+  }
+
+  .oras-simple-nav .autosend-actions .autosend-button {
+    display: inline-flex;
+  }
+
+  .oras-simple-nav .autosend-menu {
+    display: none;
+  }
 }
 
 @media (max-width: 560px) {
   .oras-footer {
     grid-template-columns: 1fr;
+  }
+
+  /* Trim the nav button on very small screens so it never crowds the brand. */
+  .oras-simple-nav .autosend-button {
+    min-height: 34px;
+    padding: 0 14px;
+    font-size: 11px;
   }
 
   .oras-auth-page .autosend-brand span {
