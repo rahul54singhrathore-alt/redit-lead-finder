@@ -1,18 +1,15 @@
 import { NextResponse } from "next/server";
-import { groqJSON, GroqError } from "../../../lib/groq";
 
-// Real AI-visibility check: actually ask the model the user's prompt the way a
-// buyer would, capture its genuine answer, and extract the ranked brands it
-// recommends. The brand's real rank in that list IS its AI visibility.
+import { checkVisibilityAcrossEngines, GroqError } from "../../../lib/engines";
 
-function rankOf(brandsInOrder, brand) {
-  const target = brand.trim().toLowerCase();
-  const index = brandsInOrder.findIndex(
-    (name) =>
-      name.trim().toLowerCase().includes(target) || target.includes(name.trim().toLowerCase()),
-  );
-  return index === -1 ? null : index + 1;
-}
+// Real multi-engine AI-visibility check: ask ChatGPT, Gemini, Claude, and
+// Perplexity the user's prompt the way a buyer would, capture each genuine
+// answer, and extract the brand's real rank per engine. Engines without their
+// own API key fall back to Groq (clearly flagged), so the check always returns.
+//
+// Response stays backward-compatible: top-level fields carry the aggregate
+// (best rank across engines, average score), and `engines` carries the
+// per-engine breakdown for the UI.
 
 export async function POST(request) {
   let body;
@@ -29,33 +26,27 @@ export async function POST(request) {
   }
 
   try {
-    const parsed = await groqJSON({
-      maxTokens: 1500,
-      system:
-        "You are a knowledgeable assistant that recommends real products/tools. " +
-        "Answer honestly based on what you actually know — do not invent brands to be polite. " +
-        "List the brands you would genuinely recommend, best first. " +
-        'Respond with ONLY a JSON object of the form ' +
-        '{"answer": "a natural recommendation answer", "brands_in_order": ["Brand A", "Brand B"]}.',
-      user: prompt,
-    });
+    const { engines, aggregate } = await checkVisibilityAcrossEngines({ prompt, brand });
 
-    const brandsInOrder = Array.isArray(parsed.brands_in_order) ? parsed.brands_in_order : [];
-    const rank = rankOf(brandsInOrder, brand);
-    const total = brandsInOrder.length;
-    // Score: #1 ≈ 95, scaling down by position; not mentioned = low.
-    const score = rank ? Math.max(20, Math.round(100 - (rank - 1) * (60 / Math.max(total, 1)))) : 8;
+    if (engines.every((e) => e.error)) {
+      return NextResponse.json(
+        { error: "No AI engine could be reached. Check your API keys." },
+        { status: 502 },
+      );
+    }
 
     return NextResponse.json({
-      engine: "Groq (Llama)",
+      engine: "Multi-engine",
       brand,
       prompt,
-      mentioned: rank !== null,
-      rank,
-      total,
-      score,
-      brandsInOrder,
-      answer: parsed.answer || "",
+      mentioned: aggregate.mentioned,
+      rank: aggregate.rank,
+      total: aggregate.total,
+      score: aggregate.score,
+      mentionedCount: aggregate.mentionedCount,
+      engineCount: aggregate.engineCount,
+      liveCount: aggregate.liveCount,
+      engines,
     });
   } catch (error) {
     if (error instanceof GroqError) {

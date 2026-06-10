@@ -9409,6 +9409,63 @@ button {
   color: #8a8078;
 }
 
+/* Per-engine breakdown: one chip per AI engine (ChatGPT, Gemini, Claude, Perplexity) */
+.engine-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
+  gap: 8px;
+  margin: 14px 0 0 0;
+}
+
+.engine-chip {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px;
+  border: 1px solid #e3e0dd;
+  border-radius: 10px;
+  background: #fbfbfa;
+}
+
+.engine-chip-live {
+  border-color: #cdbff0;
+  background: #f7f4ff;
+}
+
+.engine-chip-down {
+  opacity: 0.6;
+}
+
+.engine-chip-name {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #211f1e;
+}
+
+.engine-chip-rank {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #2f7d4f;
+}
+
+.engine-chip-rank-none {
+  color: #8a8078;
+  font-weight: 600;
+  font-size: 0.8rem;
+}
+
+.engine-chip-tag {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #8a8078;
+}
+
+.engine-chip-live .engine-chip-tag {
+  color: #6357ff;
+}
+
 /* Real Claude result: ranked brand list + answer */
 .prompt-brand-list {
   list-style: none;

@@ -334,9 +334,34 @@ function RankRow({ data, delta, lastChecked }) {
   );
 }
 
+// Per-engine breakdown: real rank on each AI engine, with a live vs. fallback
+// indicator so it's clear which engines are wired to their own provider.
+function EngineBreakdown({ engines }) {
+  if (!Array.isArray(engines) || engines.length === 0) return null;
+  return (
+    <div className="engine-grid">
+      {engines.map((e) => (
+        <div
+          key={e.key}
+          className={`engine-chip${e.live ? " engine-chip-live" : ""}${e.error && !e.backend ? " engine-chip-down" : ""}`}
+          title={e.error ? `Error: ${e.error}` : e.backend ? `Source: ${e.backend}` : ""}
+        >
+          <span className="engine-chip-name">{e.label}</span>
+          <span className={`engine-chip-rank${e.mentioned ? "" : " engine-chip-rank-none"}`}>
+            {e.error && !e.backend ? "—" : e.mentioned ? `#${e.rank}` : "Not ranked"}
+          </span>
+          <span className="engine-chip-tag">{e.live ? "live" : e.backend ? "fallback" : "offline"}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function PromptDetail({ brand, data }) {
   return (
     <>
+      <EngineBreakdown engines={data.engines} />
+
       {Array.isArray(data.brandsInOrder) && data.brandsInOrder.length > 0 ? (
         <ol className="prompt-brand-list">
           {data.brandsInOrder.map((name, index) => {
