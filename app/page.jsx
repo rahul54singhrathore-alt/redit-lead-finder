@@ -309,16 +309,27 @@ Create author and entity pages`}</pre>
           ["AGENTS", "ChatGPT", "Codex", "Claude", "Cursor"],
           ["RESOURCES", "Docs", "Blog", "Templates", "Status"],
           ["ACCOUNT", "Log in", "Dashboard", "Pricing", "Support"],
-        ].map(([heading, ...items]) => (
-          <div className="oras-footer-list" key={heading}>
-            <h2>{heading}</h2>
-            {items.map((item) => (
-              <a href={item === "Pricing" ? "/pricing" : item === "Log in" ? "/signin" : item === "Dashboard" ? "/dashboard" : "#"} key={item}>
-                {item}
-              </a>
-            ))}
-          </div>
-        ))}
+          ["LEGAL", "Privacy Policy", "Terms of Service"],
+        ].map(([heading, ...items]) => {
+          const hrefFor = (item) =>
+            ({
+              Pricing: "/pricing",
+              "Log in": "/signin",
+              Dashboard: "/dashboard",
+              "Privacy Policy": "/privacy",
+              "Terms of Service": "/terms",
+            }[item] || "#");
+          return (
+            <div className="oras-footer-list" key={heading}>
+              <h2>{heading}</h2>
+              {items.map((item) => (
+                <a href={hrefFor(item)} key={item}>
+                  {item}
+                </a>
+              ))}
+            </div>
+          );
+        })}
         <p className="oras-footer-bottom">© 2026 · ORAS INC.</p>
       </footer>
     </main>

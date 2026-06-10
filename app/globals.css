@@ -12843,6 +12843,95 @@ button {
   letter-spacing: 0.08em;
 }
 
+.oras-legal {
+  width: min(100% - 40px, 760px);
+  margin: 40px auto 96px;
+  color: #2d2926;
+  line-height: 1.7;
+}
+
+.oras-legal-head {
+  margin-bottom: 36px;
+  padding-bottom: 28px;
+  border-bottom: 1px solid #e3e0dd;
+}
+
+.oras-legal-eyebrow {
+  display: inline-block;
+  margin-bottom: 14px;
+  color: #aaa49f;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+}
+
+.oras-legal-head h1 {
+  margin: 0 0 12px;
+  font-size: 40px;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.oras-legal-meta {
+  margin: 0;
+  color: #8a847f;
+  font-size: 14px;
+}
+
+.oras-legal section {
+  margin-bottom: 28px;
+}
+
+.oras-legal h2 {
+  margin: 0 0 12px;
+  font-size: 20px;
+  letter-spacing: -0.01em;
+}
+
+.oras-legal p {
+  margin: 0 0 14px;
+  color: #4a4540;
+  font-size: 16px;
+}
+
+.oras-legal ul {
+  margin: 0 0 14px;
+  padding-left: 22px;
+  color: #4a4540;
+  font-size: 16px;
+}
+
+.oras-legal li {
+  margin-bottom: 10px;
+}
+
+.oras-legal a {
+  color: #2d2926;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.oras-legal a:hover {
+  color: #000;
+}
+
+.oras-legal-foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 40px;
+  padding-top: 28px;
+  border-top: 1px solid #e3e0dd;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+@media (max-width: 600px) {
+  .oras-legal-head h1 {
+    font-size: 30px;
+  }
+}
+
 .oras-auth-page {
   display: grid;
   min-height: 100vh;
