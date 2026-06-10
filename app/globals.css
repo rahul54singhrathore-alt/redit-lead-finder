@@ -13491,6 +13491,55 @@ button {
   cursor: not-allowed;
 }
 
+/* "Check your inbox" confirmation after a magic link is sent */
+.oras-auth-sent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+  padding: 8px 0 4px;
+}
+
+.oras-auth-sent svg {
+  width: 34px;
+  height: 34px;
+  color: #6357ff;
+}
+
+.oras-auth-sent h2 {
+  margin: 4px 0 0 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #1b1a18;
+}
+
+.oras-auth-sent p {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: #6b6660;
+}
+
+.oras-auth-sent strong {
+  color: #1b1a18;
+}
+
+.oras-auth-resend {
+  margin-top: 6px;
+  padding: 6px 10px;
+  border: none;
+  background: none;
+  color: #6357ff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.oras-auth-resend:hover {
+  text-decoration: underline;
+}
+
 .oras-auth-primary,
 .oras-auth-google {
   display: inline-flex;
