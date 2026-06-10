@@ -306,19 +306,31 @@ Create author and entity pages`}</pre>
         </div>
         {[
           ["PRODUCT", "GEO Score", "Prompt Library", "Citation Sources", "Reports"],
-          ["AGENTS", "ChatGPT", "Codex", "Claude", "Cursor"],
-          ["RESOURCES", "Docs", "Blog", "Templates", "Status"],
+          ["ENGINES", "ChatGPT", "Gemini", "Claude", "Perplexity"],
+          ["COMPANY", "How it works", "Free check", "Pricing", "Blog"],
           ["ACCOUNT", "Log in", "Dashboard", "Pricing", "Support"],
           ["LEGAL", "Privacy Policy", "Terms of Service"],
         ].map(([heading, ...items]) => {
           const hrefFor = (item) =>
             ({
+              "GEO Score": "/#check",
+              "Prompt Library": "/#blog",
+              "Citation Sources": "/#agents",
+              Reports: "/#pricing",
+              ChatGPT: "/#agents",
+              Gemini: "/#agents",
+              Claude: "/#agents",
+              Perplexity: "/#agents",
+              "How it works": "/#docs",
+              "Free check": "/#check",
+              Blog: "/#blog",
               Pricing: "/pricing",
               "Log in": "/signin",
               Dashboard: "/dashboard",
+              Support: "mailto:support@tryoras.com",
               "Privacy Policy": "/privacy",
               "Terms of Service": "/terms",
-            }[item] || "#");
+            }[item] || "/");
           return (
             <div className="oras-footer-list" key={heading}>
               <h2>{heading}</h2>
