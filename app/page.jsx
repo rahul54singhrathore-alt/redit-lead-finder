@@ -323,7 +323,7 @@ Create author and entity pages`}</pre>
               Perplexity: "/#agents",
               "How it works": "/#docs",
               "Free check": "/#check",
-              Blog: "/#blog",
+              Blog: "/blog",
               Pricing: "/pricing",
               "Log in": "/signin",
               Dashboard: "/dashboard",
