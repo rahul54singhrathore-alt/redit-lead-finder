@@ -10,11 +10,6 @@ export function SiteNavbar({ className = "" }) {
 
   return (
     <header className={classNames}>
-      <Link className="autosend-brand" href="/">
-        <img src="/logo.png" alt="" />
-        <span>ORAS</span>
-      </Link>
-
       <nav className="autosend-links" aria-label="Primary">
         <Link href="/#docs">How it works</Link>
         <Link href="/pricing">Pricing</Link>
