@@ -1,41 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRightIcon, LockIcon, SparklesIcon } from "lucide-react";
-
-import { FEATURE_LABELS, firstTierWithFeature } from "@/lib/subscription";
-
-// Full lock card shown in place of a gated feature. Pass the feature key so the
-// copy and the "Upgrade to <tier>" target are derived from the tier config.
-export function FeatureLock({ feature, title, description }) {
-  const tier = firstTierWithFeature(feature);
-  const label = FEATURE_LABELS[feature] || "this feature";
-
-  return (
-    <section className="dashboard-card seo-brief-lock">
-      <div className="card-header">
-        <div>
-          <h2>{title || label}</h2>
-          <p className="card-supporting-copy">
-            Available on {tier?.name || "Pro"} and above.
-          </p>
-        </div>
-        <span className="pricing-badge">Locked</span>
-      </div>
-      <div className="seo-brief-locked">
-        <LockIcon />
-        <div>
-          <strong>Upgrade to unlock {label.toLowerCase()}</strong>
-          <p>{description}</p>
-        </div>
-        <Link className="primary-button seo-brief-upgrade" href="/pricing">
-          {tier ? `Get ${tier.name}` : "View plans"}
-          <ArrowRightIcon />
-        </Link>
-      </div>
-    </section>
-  );
-}
+import { ArrowRightIcon, SparklesIcon } from "lucide-react";
 
 // Compact inline banner shown when a usage limit (e.g. brand count) is reached.
 export function LimitNotice({ title, description, ctaTier }) {
