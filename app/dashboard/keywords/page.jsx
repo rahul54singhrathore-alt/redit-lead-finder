@@ -434,7 +434,7 @@ export default function KeywordsPage() {
     ]);
 
     if (profileResult.error) {
-      setMessage("Could not load keywords. Run supabase-schema.sql in Supabase first.");
+      setMessage("Could not load keywords. Run the SQL migrations in supabase/migrations first.");
       return;
     }
 

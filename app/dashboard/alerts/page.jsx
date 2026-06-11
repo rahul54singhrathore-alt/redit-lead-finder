@@ -96,7 +96,7 @@ export default function AlertsPage() {
     }
 
     if (error) {
-      setMessage("Could not load audit rules. Run supabase-schema.sql in Supabase first.");
+      setMessage("Could not load audit rules. Run the SQL migrations in supabase/migrations first.");
       return;
     }
 

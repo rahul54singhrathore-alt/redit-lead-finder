@@ -87,7 +87,7 @@ export default function SettingsPage() {
         .maybeSingle();
 
       if (error) {
-        setMessage("Could not load settings. Run supabase-schema.sql in Supabase first.");
+        setMessage("Could not load settings. Run the SQL migrations in supabase/migrations first.");
       } else if (data) {
         const normalized = normalizeWorkspaceProfile(data);
         setProfile(normalized);
