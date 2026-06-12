@@ -67,6 +67,7 @@ export default function SettingsPage() {
     exportFormat: "csv",
   });
   const [profile, setProfile] = useState(null);
+  const [digestTestStatus, setDigestTestStatus] = useState(null);
   const router = useRouter();
   const supabase = useMemo(() => createBrowserSupabaseClient(), []);
 
@@ -179,6 +180,33 @@ export default function SettingsPage() {
     if (!supabase) return;
     await supabase.auth.signOut();
     router.replace("/");
+  };
+
+  const sendTestDigest = async () => {
+    if (!supabase || !user) return;
+    setDigestTestStatus("sending");
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch("/api/digest/send", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session?.access_token || ""}`,
+        },
+        body: JSON.stringify({ test: true, userId: user.id }),
+      });
+      const json = await res.json();
+      if (!res.ok || json.error) {
+        setDigestTestStatus("error");
+      } else if (json.sent > 0) {
+        setDigestTestStatus("sent");
+      } else {
+        setDigestTestStatus("skipped");
+      }
+    } catch {
+      setDigestTestStatus("error");
+    }
+    setTimeout(() => setDigestTestStatus(null), 5000);
   };
 
   const tierKey = profile?.subscription_tier || "free";
@@ -321,6 +349,25 @@ export default function SettingsPage() {
                       <option value="weekly">Weekly</option>
                       <option value="off">Off</option>
                     </select>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                    <button
+                      type="button"
+                      className="action-button"
+                      onClick={sendTestDigest}
+                      disabled={digestTestStatus === "sending" || !settings.emailDigest}
+                    >
+                      {digestTestStatus === "sending" ? "Sending…" : "Send test digest"}
+                    </button>
+                    {digestTestStatus === "sent" && (
+                      <span style={{ fontSize: "13px", color: "#22c55e" }}>✓ Sent — check your inbox</span>
+                    )}
+                    {digestTestStatus === "skipped" && (
+                      <span style={{ fontSize: "13px", color: "#f59e0b" }}>No brand set — add your brand name first</span>
+                    )}
+                    {digestTestStatus === "error" && (
+                      <span style={{ fontSize: "13px", color: "#ef4444" }}>Failed to send — check server logs</span>
+                    )}
                   </div>
                 </div>
               </section>
