@@ -2,13 +2,12 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeftIcon, ArrowRightIcon, CheckIcon, SparklesIcon, WandSparklesIcon } from "lucide-react";
+import { ArrowLeftIcon, ArrowRightIcon, CheckIcon, GaugeIcon, MessageSquareIcon, SparklesIcon, WandSparklesIcon, ZapIcon } from "lucide-react";
 
 import { createBrowserSupabaseClient, isMissingSupabaseTableError } from "../../lib/supabase";
 import {
   DEFAULT_VISIBILITY_SOURCES,
   INDUSTRY_OPTIONS,
-  REFERRAL_SOURCE_OPTIONS,
   normalizeWorkspaceProfile,
 } from "../../lib/workspace-profile";
 
@@ -18,7 +17,7 @@ const customerOptions = [
   { label: "Both", value: "both", hint: "A mix of both" },
 ];
 
-const STEPS = ["Brand", "Audience", "Finish"];
+const STEPS = ["Brand", "Audience", "You're set"];
 
 function getFaviconUrl(rawUrl) {
   const value = String(rawUrl || "").trim();
@@ -53,8 +52,9 @@ export default function OnboardingPage() {
   const [productName, setProductName] = useState("");
   const [productUrl, setProductUrl] = useState("");
   const [industry, setIndustry] = useState("");
+  const [brandDescription, setBrandDescription] = useState("");
   const [customerType, setCustomerType] = useState("both");
-  const [referralSource, setReferralSource] = useState("");
+  const [competitors, setCompetitors] = useState("");
 
   const [isFetching, setIsFetching] = useState(false);
   const [fetchNote, setFetchNote] = useState("");
@@ -94,8 +94,10 @@ export default function OnboardingPage() {
       if (profile?.product_name) setProductName(profile.product_name);
       if (profile?.product_url) setProductUrl(profile.product_url);
       if (profile?.industry) setIndustry(profile.industry);
+      if (profile?.brand_description) setBrandDescription(profile.brand_description);
       if (profile?.customer_type) setCustomerType(profile.customer_type);
-      if (profile?.referral_source) setReferralSource(profile.referral_source);
+      if (Array.isArray(profile?.competitors) && profile.competitors.length)
+        setCompetitors(profile.competitors.join(", "));
 
       setLoading(false);
     };
@@ -150,6 +152,11 @@ export default function OnboardingPage() {
     setStep((s) => Math.min(3, s + 1));
   };
 
+  const competitorList = competitors
+    .split(",")
+    .map((c) => c.trim())
+    .filter(Boolean);
+
   const goBack = () => {
     setMessage("");
     setStep((s) => Math.max(1, s - 1));
@@ -157,10 +164,6 @@ export default function OnboardingPage() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    if (!referralSource) {
-      setMessage("Let us know where you came from.");
-      return;
-    }
     if (!supabase || !user) {
       setMessage("Supabase is not configured yet.");
       return;
@@ -177,8 +180,9 @@ export default function OnboardingPage() {
         product_name: productName.trim(),
         product_url: productUrl.trim(),
         industry,
+        brand_description: brandDescription.trim(),
         customer_type: customerType,
-        referral_source: referralSource,
+        competitors: competitorList,
         starter_keyword: productName.trim(),
         target_subreddits: DEFAULT_VISIBILITY_SOURCES,
         updated_at: new Date().toISOString(),
@@ -206,8 +210,7 @@ export default function OnboardingPage() {
     }
 
     setIsSubmitting(false);
-    // After onboarding, send the user to the subscription page to pick a plan.
-    router.replace("/pricing?welcome=1");
+    router.replace("/dashboard");
   };
 
   if (loading) {
@@ -250,9 +253,9 @@ export default function OnboardingPage() {
         {/* Step 1 — Brand */}
         {step === 1 ? (
           <div className="onb-panel">
-            <span className="onb-kicker"><SparklesIcon /> Welcome</span>
-            <h1>Tell us about your brand</h1>
-            <p className="onb-sub">Add your site and we&apos;ll auto-fill the rest in one click.</p>
+            <span className="onb-kicker"><SparklesIcon /> Welcome to Oras</span>
+            <h1>Set up your brand</h1>
+            <p className="onb-sub">Add your site URL and we&apos;ll auto-fill the rest in one click.</p>
 
             <label className="onb-field">
               <span>Website URL</span>
@@ -285,6 +288,17 @@ export default function OnboardingPage() {
             </label>
 
             <label className="onb-field">
+              <span>What does your brand do? <em>(optional)</em></span>
+              <textarea
+                className="onb-textarea"
+                value={brandDescription}
+                onChange={(e) => setBrandDescription(e.target.value)}
+                placeholder="One or two lines — makes your AI visibility checks more accurate."
+                rows={2}
+              />
+            </label>
+
+            <label className="onb-field">
               <span>Industry <em>(optional)</em></span>
               <select value={industry} onChange={(e) => setIndustry(e.target.value)}>
                 <option value="">Select industry</option>
@@ -300,8 +314,8 @@ export default function OnboardingPage() {
         {step === 2 ? (
           <div className="onb-panel">
             <span className="onb-kicker"><SparklesIcon /> Audience</span>
-            <h1>Who are your customers?</h1>
-            <p className="onb-sub">This helps us tune which AI prompts and sources matter for you.</p>
+            <h1>Who do you sell to?</h1>
+            <p className="onb-sub">This tunes which AI prompts and Reddit signals we track for you.</p>
 
             <div className="onb-cards">
               {customerOptions.map((option) => (
@@ -317,32 +331,59 @@ export default function OnboardingPage() {
                 </button>
               ))}
             </div>
+
+            <label className="onb-field" style={{ marginTop: "20px" }}>
+              <span>Top competitors <em>(optional)</em></span>
+              <input
+                type="text"
+                value={competitors}
+                onChange={(e) => setCompetitors(e.target.value)}
+                placeholder="Competitor A, Competitor B, Competitor C"
+              />
+              <small className="onb-note">Comma-separated — we&apos;ll track their AI mentions alongside yours.</small>
+            </label>
           </div>
         ) : null}
 
-        {/* Step 3 — Finish */}
+        {/* Step 3 — All set */}
         {step === 3 ? (
-          <div className="onb-panel">
-            <span className="onb-kicker"><SparklesIcon /> Almost there</span>
-            <h1>One last thing</h1>
-            <p className="onb-sub">Where did you hear about Oras?</p>
+          <div className="onb-panel onb-finish">
+            <div className="onb-finish-icon"><SparklesIcon /></div>
+            <h1>Your workspace is ready</h1>
+            <p className="onb-sub">Here&apos;s what&apos;s waiting for you in the dashboard.</p>
 
-            <label className="onb-field">
-              <span>How did you find us?</span>
-              <select value={referralSource} onChange={(e) => setReferralSource(e.target.value)}>
-                <option value="" disabled>Select an option</option>
-                {REFERRAL_SOURCE_OPTIONS.map((opt) => (
-                  <option key={opt} value={opt}>{opt}</option>
-                ))}
-              </select>
-            </label>
+            <div className="onb-feature-list">
+              <div className="onb-feature-item">
+                <span className="onb-feature-icon"><GaugeIcon /></span>
+                <div>
+                  <strong>GEO Score</strong>
+                  <p>See how often AI engines mention {productName || "your brand"} right now.</p>
+                </div>
+              </div>
+              <div className="onb-feature-item">
+                <span className="onb-feature-icon"><ZapIcon /></span>
+                <div>
+                  <strong>Recommendations</strong>
+                  <p>Concrete actions to improve your AI visibility this week.</p>
+                </div>
+              </div>
+              <div className="onb-feature-item">
+                <span className="onb-feature-icon"><MessageSquareIcon /></span>
+                <div>
+                  <strong>Reddit Engine</strong>
+                  <p>Find real conversations where people are looking for what you offer.</p>
+                </div>
+              </div>
+            </div>
 
             <div className="onb-recap">
-              <h3>Your workspace</h3>
               <div className="onb-recap-row"><span>Brand</span><strong>{productName || "—"}</strong></div>
               <div className="onb-recap-row"><span>Website</span><strong>{productUrl || "—"}</strong></div>
               {industry ? <div className="onb-recap-row"><span>Industry</span><strong>{industry}</strong></div> : null}
               <div className="onb-recap-row"><span>Audience</span><strong>{customerType.toUpperCase()}</strong></div>
+              {competitorList.length > 0 ? (
+                <div className="onb-recap-row"><span>Competitors</span><strong>{competitorList.join(", ")}</strong></div>
+              ) : null}
             </div>
           </div>
         ) : null}
@@ -362,7 +403,7 @@ export default function OnboardingPage() {
             </button>
           ) : (
             <button type="button" className="onb-next" onClick={handleSubmit} disabled={isSubmitting}>
-              {isSubmitting ? "Setting up…" : "Complete setup"} {!isSubmitting ? <ArrowRightIcon /> : null}
+              {isSubmitting ? "Setting up…" : "Go to dashboard"} {!isSubmitting ? <ArrowRightIcon /> : null}
             </button>
           )}
         </div>
