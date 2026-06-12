@@ -2,6 +2,19 @@ import Link from "next/link";
 
 import { PricingPlans } from "@/components/pricing-plans";
 
+export const metadata = {
+  title: "Pricing | Oras — AI Visibility & GEO Tracking Plans",
+  description:
+    "Simple plans for tracking your brand's visibility across ChatGPT, Gemini, Claude, and Perplexity. Start free — upgrade as you grow.",
+  alternates: { canonical: "https://www.tryoras.com/pricing" },
+  openGraph: {
+    title: "Pricing | Oras — AI Visibility & GEO Tracking Plans",
+    description:
+      "Simple plans for tracking your brand's visibility across ChatGPT, Gemini, Claude, and Perplexity. Start free — upgrade as you grow.",
+    url: "https://www.tryoras.com/pricing",
+  },
+};
+
 const serviceFeatures = [
   "Daily visibility checks",
   "Mentions delivered to Slack/Email",
