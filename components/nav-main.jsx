@@ -13,15 +13,17 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 
-export function NavMain({ items, label = "Workspace", badge }) {
+export function NavMain({ items, label, badge }) {
   const pathname = usePathname();
 
   return (
     <SidebarGroup>
-      <SidebarGroupLabel className="sidebar-group-label">
-        <span>{label}</span>
-        {badge ? <span className="sidebar-group-badge">{badge}</span> : null}
-      </SidebarGroupLabel>
+      {label ? (
+        <SidebarGroupLabel className="sidebar-group-label">
+          <span>{label}</span>
+          {badge ? <span className="sidebar-group-badge">{badge}</span> : null}
+        </SidebarGroupLabel>
+      ) : null}
       <SidebarMenu>
         {items.map((item) => {
           const Icon = item.icon;
