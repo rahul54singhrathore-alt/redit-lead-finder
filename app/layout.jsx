@@ -1,5 +1,7 @@
 import "./globals.css";
 import { Inter } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 const inter = Inter({
@@ -61,6 +63,8 @@ export default function RootLayout({ children }) {
     <html lang="en" className={inter.variable}>
       <body>
         <TooltipProvider>{children}</TooltipProvider>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );

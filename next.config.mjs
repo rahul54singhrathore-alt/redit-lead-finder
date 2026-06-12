@@ -1,5 +1,6 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { withSentryConfig } from "@sentry/nextjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -8,4 +9,11 @@ const nextConfig = {
   outputFileTracingRoot: __dirname,
 };
 
-export default nextConfig;
+// Wraps the build for Sentry. Source-map upload only runs when SENTRY_ORG/
+// SENTRY_PROJECT/SENTRY_AUTH_TOKEN are set; otherwise it's a harmless no-op.
+export default withSentryConfig(nextConfig, {
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+  silent: !process.env.CI,
+  disableLogger: true,
+});
