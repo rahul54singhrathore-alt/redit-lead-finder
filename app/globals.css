@@ -6682,6 +6682,75 @@ button {
   }
 }
 
+/* Brand Memory */
+.memory-completeness-card {
+  padding: 20px 24px;
+}
+
+.memory-completeness-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.memory-completeness-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #52525b;
+  margin-right: 10px;
+}
+
+.memory-completeness-pct {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #a1a1aa;
+}
+
+.memory-completeness-pct-done {
+  color: #15803d;
+}
+
+.memory-progress-track {
+  height: 7px;
+  border-radius: 999px;
+  background: #f4f4f5;
+  overflow: hidden;
+}
+
+.memory-progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #f97316, #fb923c);
+  transition: width 0.5s ease;
+}
+
+.memory-completeness-missing {
+  margin: 8px 0 0;
+  font-size: 0.8rem;
+  color: #a1a1aa;
+}
+
+.memory-completeness-done-msg {
+  margin: 8px 0 0;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #15803d;
+}
+
+.memory-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+@media (max-width: 860px) {
+  .memory-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* Brand Memory facts */
 .memory-facts {
   margin: 8px 0 0;
@@ -6722,6 +6791,54 @@ button {
     grid-template-columns: 1fr;
     gap: 4px;
   }
+}
+
+.memory-url-link {
+  color: #6366f1;
+  text-decoration: none;
+  font-weight: 500;
+  word-break: break-all;
+}
+
+.memory-url-link:hover {
+  color: #4f46e5;
+  text-decoration: underline;
+}
+
+.memory-fact-empty {
+  color: #d4d4d8;
+  font-style: italic;
+  font-size: 0.875rem;
+}
+
+.memory-ai-preview {
+  margin: 4px 0 0;
+  padding: 16px 18px;
+  border-radius: 12px;
+  background: #18181b;
+  color: #a1efba;
+  font-family: "Berkeley Mono", "Fira Code", "Cascadia Code", ui-monospace, monospace;
+  font-size: 0.82rem;
+  line-height: 1.75;
+  white-space: pre-wrap;
+  word-break: break-word;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+.memory-ai-empty {
+  padding: 24px 16px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.memory-ai-empty p {
+  margin: 0 0 8px;
+}
+
+.memory-notes-hint {
+  font-size: 0.78rem;
+  color: #a1a1aa;
 }
 
 .textarea-input {
