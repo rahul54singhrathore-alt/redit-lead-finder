@@ -2,31 +2,16 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { AppSidebar } from "@/components/app-sidebar";
 import { DashboardOnboarding } from "@/components/dashboard-onboarding";
 import { GeoScore } from "@/components/geo-score";
-import { MembershipBanner } from "@/components/membership-banner";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { createBrowserSupabaseClient } from "../../lib/supabase";
 import { normalizeWorkspaceProfile } from "../../lib/workspace-profile";
-import { SparklesIcon } from "lucide-react";
-
-// SVG icons
-const BellIcon = () => (
-  <svg className="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-    <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-  </svg>
-);
 
 export default function DashboardPage() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [dashboardLeads, setDashboardLeads] = useState([]);
-  const [keywordCount, setKeywordCount] = useState(0);
-  const [sourceCount, setSourceCount] = useState(0);
-  const [alertCount, setAlertCount] = useState(0);
   const [profile, setProfile] = useState(null);
   const [message, setMessage] = useState("");
   const router = useRouter();
@@ -75,47 +60,22 @@ export default function DashboardPage() {
   const loadDashboardData = async (userId) => {
     if (!supabase) return false;
 
-    const [profileResult, leadsResult, keywordsResult, alertsResult] = await Promise.all([
-      supabase
-        .from("user_profiles")
-        .select("*")
-        .eq("user_id", userId)
-        .maybeSingle(),
-      supabase
-        .from("reddit_leads")
-        .select("id, subreddit, title, author, posted_at, score, comments, intent, keyword, url")
-        .order("posted_at", { ascending: false })
-        .limit(5),
-      supabase
-        .from("tracked_keywords")
-        .select("id, subreddits"),
-      supabase
-        .from("alert_rules")
-        .select("id")
-        .eq("active", true),
-    ]);
+    const { data: profileData } = await supabase
+      .from("user_profiles")
+      .select("*")
+      .eq("user_id", userId)
+      .maybeSingle();
 
-    // Check if profile exists and onboarding is completed
-    const profile = profileResult.data ? normalizeWorkspaceProfile(profileResult.data) : null;
-    if (!profile || !profile.onboarding_completed) {
-      // Redirect to onboarding if not completed
-      return true;
-    }
+    const profile = profileData ? normalizeWorkspaceProfile(profileData) : null;
+    if (!profile || !profile.onboarding_completed) return true;
 
     setProfile(profile);
-    const keywords = keywordsResult.error ? [] : keywordsResult.data || [];
-    const sources = new Set(keywords.flatMap((item) => item.subreddits || []));
-    setDashboardLeads(leadsResult.error ? [] : leadsResult.data || []);
-    setKeywordCount(keywords.length);
-    setSourceCount(sources.size);
-    setAlertCount(alertsResult.error ? 0 : (alertsResult.data || []).length);
     setMessage("");
     return false;
   };
 
   const handleOnboardingComplete = async () => {
     if (!user) return;
-
     await loadDashboardData(user.id);
   };
 
@@ -127,13 +87,11 @@ export default function DashboardPage() {
 
   const getInitials = (email) => {
     if (!email) return "U";
-    const name = email.split("@")[0];
-    return name.charAt(0).toUpperCase();
+    return email.split("@")[0].charAt(0).toUpperCase();
   };
 
-  const latestLeadCount = dashboardLeads.length;
+  const latestLeadCount = 0;
   const isOnboarding = !profile?.onboarding_completed;
-  const supabaseStatus = supabase ? "Supabase connected" : "Supabase not configured";
 
   if (loading) {
     return (
@@ -194,31 +152,17 @@ export default function DashboardPage() {
       <SidebarInset>
         <main className="dashboard-main dashboard-main-shadcn">
           <div className="dashboard-header">
-              <div>
-                <SidebarTrigger className="dashboard-sidebar-trigger" />
-                <h1>Overview</h1>
-              <p style={{ color: "#71717a", margin: "4px 0 0 0" }}>Your AI visibility and latest signals in one place.</p>
+            <div>
+              <SidebarTrigger className="dashboard-sidebar-trigger" />
+              <h1>GEO Score</h1>
+              <p style={{ color: "#71717a", margin: "4px 0 0 0" }}>
+                How often AI engines mention {profile?.product_name || "your brand"} — and what to improve.
+              </p>
             </div>
-            <div className="user-menu">
-              <span className={`header-status-pill${supabase ? " header-status-pill-ready" : " header-status-pill-warn"}`}>
-                <span />
-                {supabaseStatus}
-              </span>
-              <Link href="/dashboard/alerts" className="header-action-button">
-                <BellIcon />
-                Audits
-              </Link>
-              <Link href="/onboarding" className="header-action-button">
-                <SparklesIcon />
-                Onboarding
-              </Link>
-              <div className="user-avatar">{getInitials(user?.email)}</div>
-            </div>
+            <div className="user-avatar">{getInitials(user?.email)}</div>
           </div>
 
           <div className="dashboard-content">
-            <MembershipBanner subscriptionTier={profile?.subscription_tier || "free"} />
-
             <GeoScore
               brand={profile?.product_name || profile?.starter_keyword || "Your brand"}
               category={profile?.industry || profile?.brand_description || profile?.starter_keyword || ""}

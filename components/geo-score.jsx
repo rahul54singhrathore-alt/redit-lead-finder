@@ -2,10 +2,14 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { AlertCircleIcon, ArrowRightIcon, GaugeIcon, RefreshCwIcon } from "lucide-react";
+import { AlertCircleIcon, ArrowRightIcon, CheckCircle2Icon, GaugeIcon, RefreshCwIcon } from "lucide-react";
 
-// GEO Score: the brand's estimated AI-visibility score, why it isn't higher, and
-// the score it could reach if the gaps are fixed. Powered by /api/geo-score.
+function scoreLabel(score) {
+  if (score >= 80) return { grade: "Strong", color: "#22c55e", ring: "#22c55e", ringFade: "rgba(34,197,94,0.12)" };
+  if (score >= 55) return { grade: "Growing", color: "#f59e0b", ring: "#f59e0b", ringFade: "rgba(245,158,11,0.12)" };
+  return { grade: "Needs work", color: "#ef4444", ring: "#ef4444", ringFade: "rgba(239,68,68,0.12)" };
+}
+
 export function GeoScore({ brand, category }) {
   const cleanBrand = (brand || "Your brand").trim();
   const [scan, setScan] = useState({ status: "idle" });
@@ -26,33 +30,26 @@ export function GeoScore({ brand, category }) {
     }
   };
 
-  // Auto-run once on mount so the GEO Score is the first thing the user sees.
   useEffect(() => {
     runScan();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cleanBrand]);
 
   const data = scan.data;
-  // Ring fill: score as a fraction of 100.
+  const meta = data ? scoreLabel(data.score) : null;
   const ringAngle = data ? (data.score / 100) * 360 : 0;
+  const isStrong = data?.score >= 80;
 
   return (
     <section className="dashboard-card geo-score-card">
       <div className="card-header">
         <div>
-          <h2>
-            <GaugeIcon className="geo-score-title-icon" /> GEO Score
-          </h2>
+          <h2><GaugeIcon className="geo-score-title-icon" /> GEO Score</h2>
           <p className="card-supporting-copy">
-            How often AI assistants would recommend {cleanBrand} — and what’s holding it back.
+            How often AI assistants mention {cleanBrand} — and what to improve.
           </p>
         </div>
-        <button
-          type="button"
-          className="action-button"
-          onClick={runScan}
-          disabled={scan.status === "loading"}
-        >
+        <button type="button" className="action-button" onClick={runScan} disabled={scan.status === "loading"}>
           <RefreshCwIcon className={scan.status === "loading" ? "button-icon spin" : "button-icon"} />
           Refresh
         </button>
@@ -61,27 +58,26 @@ export function GeoScore({ brand, category }) {
       {scan.status === "error" ? (
         <div className="geo-score-empty">
           <p>{scan.error}</p>
-          <button type="button" className="primary-button" onClick={runScan} style={{ marginTop: 12 }}>
-            Try again
-          </button>
+          <button type="button" className="primary-button" onClick={runScan} style={{ marginTop: 12 }}>Try again</button>
         </div>
       ) : scan.status !== "done" ? (
         <div className="geo-score-empty">
           <RefreshCwIcon className="spin" />
-          <p>Calculating {cleanBrand}’s GEO score…</p>
+          <p>Calculating {cleanBrand}&apos;s GEO score…</p>
         </div>
       ) : (
         <div className="geo-score-body">
           <div className="geo-score-ringwrap">
             <div
               className="geo-score-ring"
-              style={{ background: `conic-gradient(#f97316 ${ringAngle}deg, rgba(249,115,22,0.14) 0deg)` }}
+              style={{ background: `conic-gradient(${meta.ring} ${ringAngle}deg, ${meta.ringFade} 0deg)` }}
             >
               <div className="geo-score-ring-inner">
                 <strong>{data.score}</strong>
                 <span>/ 100</span>
               </div>
             </div>
+            <span className="geo-score-grade" style={{ color: meta.color }}>{meta.grade}</span>
             {data.impact > 0 ? (
               <div className="geo-score-potential">
                 <span className="geo-score-arrow">→ {data.potential}</span>
@@ -93,26 +89,35 @@ export function GeoScore({ brand, category }) {
           <div className="geo-score-detail">
             {data.reasons.length ? (
               <>
-                <h3 className="geo-score-reasons-title">Reasons you’re missing</h3>
+                <h3 className="geo-score-reasons-title">
+                  {isStrong ? "What’s working" : "Gaps to close"}
+                </h3>
                 <ul className="geo-score-reasons">
                   {data.reasons.map((reason, index) => (
                     <li key={index}>
-                      <AlertCircleIcon /> {reason}
+                      {isStrong ? <CheckCircle2Icon className="geo-reason-check" /> : <AlertCircleIcon />}
+                      {reason}
                     </li>
                   ))}
                 </ul>
               </>
             ) : null}
 
-            <div className="geo-score-impact">
-              <div>
-                <span className="geo-score-impact-plus">+{data.impact}</span>
-                <span className="geo-score-impact-label">estimated score if fixed</span>
+            {data.impact > 0 ? (
+              <div className="geo-score-impact">
+                <div>
+                  <span className="geo-score-impact-plus">+{data.impact}</span>
+                  <span className="geo-score-impact-label">pts available</span>
+                </div>
+                <Link href="/dashboard/recommendations" className="primary-button">
+                  See recommendations <ArrowRightIcon className="button-icon" />
+                </Link>
               </div>
-              <Link href="/dashboard/recommendations" className="primary-button">
-                Fix these <ArrowRightIcon className="button-icon" />
+            ) : (
+              <Link href="/dashboard/recommendations" className="action-button" style={{ alignSelf: "flex-start" }}>
+                View recommendations <ArrowRightIcon className="button-icon" />
               </Link>
-            </div>
+            )}
 
             <p className="geo-score-disclaimer">Score is an informed AI estimate, not live-tracked data.</p>
           </div>
