@@ -59,7 +59,10 @@ export async function POST(request) {
       case "customer.subscription.updated": {
         const sub = event.data.object;
         const priceId = sub.items?.data?.[0]?.price?.id;
-        const tier = tierForPriceId(priceId);
+        // Prefer the price->tier mapping, but fall back to the tier we stored
+        // on the subscription at checkout so a misconfigured/unknown price ID
+        // never silently downgrades a paying customer to "free".
+        const tier = tierForPriceId(priceId) || sub.metadata?.tier || null;
         const active = sub.status === "active" || sub.status === "trialing";
         await setTierByCustomer(admin, sub.customer, {
           subscription_tier: active && tier ? tier : "free",
