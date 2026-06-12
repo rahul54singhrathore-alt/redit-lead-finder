@@ -24,32 +24,36 @@ export async function POST(request) {
 
   try {
     const parsed = await groqJSON({
-      maxTokens: 2800,
+      maxTokens: 3600,
       system:
         "You are a Reddit growth strategist. AI assistants cite Reddit heavily, so a genuinely " +
         "helpful reply on a relevant thread can earn a brand an AI citation. Generate realistic, " +
-        "buyer-intent Reddit threads where the brand could add value. For each: the subreddit, a " +
-        "realistic post title (a real question a buyer would ask), a `score` 1-10 for how strong " +
-        "the opportunity is, `citation` potential as \"High\"|\"Medium\"|\"Low\", and a `draft` — a " +
-        "genuinely helpful, non-spammy reply (2-4 sentences) that answers the question and mentions " +
-        "the brand naturally alongside real options, NOT as an ad. " +
-        'Respond with ONLY a JSON object of the form ' +
-        '{"opportunities": [{"post":"...","subreddit":"r/SEO","score":9,"citation":"High","draft":"..."}]}.',
+        "buyer-intent Reddit threads where the brand could add value. For each thread return: " +
+        "the `subreddit` (specific, e.g. r/SaaS — not generic), a realistic `post` title (the exact " +
+        "question a real buyer would ask), `type` as one of \"Question\"|\"Recommendation\"|\"Comparison\"|\"Complaint\", " +
+        "a `score` 1-10 for opportunity strength, `citation` potential as \"High\"|\"Medium\"|\"Low\", " +
+        "and a `draft` — a genuinely helpful, non-spammy reply (2-4 sentences) that answers the question " +
+        "and mentions the brand naturally alongside real alternatives, NOT as an ad. " +
+        'Respond with ONLY a JSON object: ' +
+        '{"opportunities": [{"post":"...","subreddit":"r/SaaS","type":"Recommendation","score":9,"citation":"High","draft":"..."}]}.',
       user:
-        `Brand: "${brand}"${categoryLine}. Give 6 Reddit threads worth replying to, best opportunities ` +
+        `Brand: "${brand}"${categoryLine}. Give 8 Reddit threads worth replying to, best opportunities ` +
         `first, each with a ready-to-post reply draft that naturally works "${brand}" in.`,
     });
 
-    const allowed = new Set(["High", "Medium", "Low"]);
+    const allowedCitation = new Set(["High", "Medium", "Low"]);
+    const allowedType = new Set(["Question", "Recommendation", "Comparison", "Complaint"]);
     const opportunities = Array.isArray(parsed.opportunities)
       ? parsed.opportunities
           .map((o) => {
             const citation = String(o?.citation || "").trim();
+            const type = String(o?.type || "").trim();
             return {
               post: String(o?.post || "").trim(),
               subreddit: String(o?.subreddit || "").trim(),
+              type: allowedType.has(type) ? type : "Question",
               score: Math.max(1, Math.min(10, Math.round(Number(o?.score) || 1))),
-              citation: allowed.has(citation) ? citation : "Medium",
+              citation: allowedCitation.has(citation) ? citation : "Medium",
               draft: String(o?.draft || "").trim(),
             };
           })

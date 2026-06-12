@@ -2,12 +2,22 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { CheckIcon, CopyIcon, MessageSquareIcon, RefreshCwIcon, TargetIcon } from "lucide-react";
+import {
+  BookmarkIcon,
+  CheckIcon,
+  CopyIcon,
+  ExternalLinkIcon,
+  MessageSquareIcon,
+  RefreshCwIcon,
+  TargetIcon,
+} from "lucide-react";
 
 import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { createBrowserSupabaseClient } from "../../../lib/supabase";
 import { normalizeWorkspaceProfile } from "../../../lib/workspace-profile";
+
+const CITATION_FILTERS = ["All", "High", "Medium", "Low"];
 
 export default function RedditPage() {
   const [user, setUser] = useState(null);
@@ -15,6 +25,9 @@ export default function RedditPage() {
   const [loading, setLoading] = useState(true);
   const [scan, setScan] = useState({ status: "idle" });
   const [copied, setCopied] = useState(null);
+  const [savedLeads, setSavedLeads] = useState(new Set());
+  const [savingIndex, setSavingIndex] = useState(null);
+  const [citationFilter, setCitationFilter] = useState("All");
   const router = useRouter();
   const supabase = useMemo(() => createBrowserSupabaseClient(), []);
 
@@ -50,6 +63,8 @@ export default function RedditPage() {
 
   const runScan = async () => {
     setScan({ status: "loading" });
+    setSavedLeads(new Set());
+    setCitationFilter("All");
     try {
       const response = await fetch("/api/reddit-opportunities", {
         method: "POST",
@@ -74,6 +89,38 @@ export default function RedditPage() {
     }
   };
 
+  const saveLead = async (item, index) => {
+    if (!supabase || !user || savedLeads.has(index) || savingIndex === index) return;
+    setSavingIndex(index);
+    try {
+      const { error } = await supabase.from("reddit_leads").insert({
+        user_id: user.id,
+        title: item.post,
+        subreddit: item.subreddit || "",
+        keyword: category || brand,
+        intent: item.citation,
+        url: `https://www.reddit.com/search/?q=${encodeURIComponent(item.post)}`,
+        author: "opportunity-engine",
+        score: item.score,
+        comments: 0,
+        status: "New",
+      });
+      if (!error) {
+        setSavedLeads((prev) => new Set([...prev, index]));
+      }
+    } finally {
+      setSavingIndex(null);
+    }
+  };
+
+  const openOnReddit = (post) => {
+    window.open(
+      `https://www.reddit.com/search/?q=${encodeURIComponent(post)}&sort=relevance&t=year`,
+      "_blank",
+      "noopener,noreferrer"
+    );
+  };
+
   if (loading) {
     return (
       <SidebarProvider>
@@ -86,7 +133,11 @@ export default function RedditPage() {
     );
   }
 
-  const opportunities = scan.data?.opportunities || [];
+  const allOpportunities = scan.data?.opportunities || [];
+  const opportunities =
+    citationFilter === "All"
+      ? allOpportunities
+      : allOpportunities.filter((o) => o.citation === citationFilter);
 
   return (
     <SidebarProvider>
@@ -136,6 +187,26 @@ export default function RedditPage() {
                 </button>
               </div>
 
+              {scan.status === "done" && allOpportunities.length > 0 && (
+                <div className="reddit-filters">
+                  {CITATION_FILTERS.map((f) => (
+                    <button
+                      key={f}
+                      type="button"
+                      className={`reddit-filter-pill${citationFilter === f ? " reddit-filter-pill-active" : ""}`}
+                      onClick={() => setCitationFilter(f)}
+                    >
+                      {f === "All" ? "All" : `${f} citation`}
+                      {f !== "All" && (
+                        <span className="reddit-filter-count">
+                          {allOpportunities.filter((o) => o.citation === f).length}
+                        </span>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
+
               {scan.status === "idle" ? (
                 <div className="reddit-empty">
                   <MessageSquareIcon />
@@ -155,48 +226,100 @@ export default function RedditPage() {
                 </div>
               ) : (
                 <div className="reddit-list">
-                  {opportunities.map((item, index) => (
-                    <article key={`${item.post}-${index}`} className="reddit-card">
-                      <div className="reddit-card-head">
-                        <div>
-                          {item.subreddit ? <span className="reddit-sub">{item.subreddit}</span> : null}
-                          <h3 className="reddit-post">{item.post}</h3>
-                        </div>
-                        <div className="reddit-badges">
-                          <span className="reddit-score">{item.score}/10</span>
-                          <span className={`reddit-citation reddit-citation-${item.citation.toLowerCase()}`}>
-                            {item.citation} citation
-                          </span>
-                        </div>
-                      </div>
+                  {opportunities.length === 0 ? (
+                    <div className="reddit-empty">
+                      <p>No {citationFilter.toLowerCase()} citation opportunities found.</p>
+                    </div>
+                  ) : (
+                    opportunities.map((item) => {
+                      const globalIndex = allOpportunities.indexOf(item);
+                      const isSaved = savedLeads.has(globalIndex);
+                      const isSaving = savingIndex === globalIndex;
+                      return (
+                        <article key={`${item.post}-${globalIndex}`} className="reddit-card">
+                          <div className="reddit-card-head">
+                            <div>
+                              <div className="reddit-card-meta">
+                                {item.subreddit ? <span className="reddit-sub">{item.subreddit}</span> : null}
+                                {item.type ? (
+                                  <span className={`reddit-type reddit-type-${item.type.toLowerCase()}`}>
+                                    {item.type}
+                                  </span>
+                                ) : null}
+                              </div>
+                              <h3 className="reddit-post">{item.post}</h3>
+                            </div>
+                            <div className="reddit-badges">
+                              <span className="reddit-score">{item.score}/10</span>
+                              <span className={`reddit-citation reddit-citation-${item.citation.toLowerCase()}`}>
+                                {item.citation} citation
+                              </span>
+                            </div>
+                          </div>
 
-                      {item.draft ? (
-                        <div className="reddit-draft">
-                          <div className="reddit-draft-top">
-                            <span>Reply draft</span>
-                            <button type="button" className="reddit-copy" onClick={() => copyDraft(item.draft, index)}>
-                              {copied === index ? (
+                          {item.draft ? (
+                            <div className="reddit-draft">
+                              <div className="reddit-draft-top">
+                                <span>Reply draft</span>
+                                <button
+                                  type="button"
+                                  className="reddit-copy"
+                                  onClick={() => copyDraft(item.draft, globalIndex)}
+                                >
+                                  {copied === globalIndex ? (
+                                    <>
+                                      <CheckIcon /> Copied
+                                    </>
+                                  ) : (
+                                    <>
+                                      <CopyIcon /> Copy
+                                    </>
+                                  )}
+                                </button>
+                              </div>
+                              <p>{item.draft}</p>
+                            </div>
+                          ) : null}
+
+                          <div className="reddit-actions">
+                            <button
+                              type="button"
+                              className="reddit-action-btn reddit-search-btn"
+                              onClick={() => openOnReddit(item.post)}
+                            >
+                              <ExternalLinkIcon /> Search on Reddit
+                            </button>
+                            <button
+                              type="button"
+                              className={`reddit-action-btn reddit-save-btn${isSaved ? " reddit-save-btn-saved" : ""}`}
+                              onClick={() => saveLead(item, globalIndex)}
+                              disabled={isSaved || isSaving}
+                            >
+                              {isSaved ? (
                                 <>
-                                  <CheckIcon /> Copied
+                                  <CheckIcon /> Saved to leads
+                                </>
+                              ) : isSaving ? (
+                                <>
+                                  <RefreshCwIcon className="spin" /> Saving…
                                 </>
                               ) : (
                                 <>
-                                  <CopyIcon /> Copy
+                                  <BookmarkIcon /> Save lead
                                 </>
                               )}
                             </button>
                           </div>
-                          <p>{item.draft}</p>
-                        </div>
-                      ) : null}
-                    </article>
-                  ))}
+                        </article>
+                      );
+                    })
+                  )}
                 </div>
               )}
 
               {scan.status === "done" ? (
                 <p className="reddit-disclaimer">
-                  Threads are AI-generated examples — search Reddit for the live version and reply genuinely.
+                  Threads are AI-generated examples — use "Search on Reddit" to find the live version and reply genuinely.
                 </p>
               ) : null}
             </section>
