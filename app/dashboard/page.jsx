@@ -90,7 +90,6 @@ export default function DashboardPage() {
     return email.split("@")[0].charAt(0).toUpperCase();
   };
 
-  const latestLeadCount = 0;
   const isOnboarding = !profile?.onboarding_completed;
 
   if (loading) {
@@ -114,8 +113,6 @@ export default function DashboardPage() {
         <AppSidebar
           user={user}
           onSignOut={handleSignOut}
-          leadCount={latestLeadCount}
-          alertCount={alertCount}
         />
         <SidebarInset>
           <main className="dashboard-main dashboard-main-shadcn">
@@ -145,8 +142,6 @@ export default function DashboardPage() {
       <AppSidebar
         user={user}
         onSignOut={handleSignOut}
-        leadCount={latestLeadCount}
-        alertCount={alertCount}
         subscriptionTier={profile?.subscription_tier || "free"}
       />
       <SidebarInset>
