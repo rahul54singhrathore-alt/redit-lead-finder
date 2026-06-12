@@ -5,6 +5,11 @@ import { useRouter } from "next/navigation";
 
 import { createBrowserSupabaseClient } from "@/lib/supabase";
 
+// Payments are gated behind a public flag so the app can launch free-only:
+// while it's off, paid plans show "Coming soon" instead of a dead checkout.
+// Set NEXT_PUBLIC_PAYMENTS_ENABLED=true once Stripe is configured to go live.
+const paymentsEnabled = process.env.NEXT_PUBLIC_PAYMENTS_ENABLED === "true";
+
 // Pricing CTA. Free continues into the app; a paid plan starts a real Stripe
 // Checkout session (card entry happens on Stripe's secure hosted page — we
 // never touch card data). On success the Stripe webhook flips the tier.
@@ -12,6 +17,16 @@ export function PlanButton({ tierKey, label, className, billingCycle = "monthly"
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+
+  // Free launch: paid plans aren't purchasable yet — show a clear "Coming soon"
+  // instead of letting the user click through to a 503 from /api/checkout.
+  if (!paymentsEnabled && tierKey !== "free") {
+    return (
+      <button type="button" className={className} disabled aria-disabled="true">
+        Coming soon
+      </button>
+    );
+  }
 
   const handleClick = async () => {
     setError("");
