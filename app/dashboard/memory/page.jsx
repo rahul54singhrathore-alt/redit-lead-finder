@@ -66,8 +66,7 @@ export default function BrandMemoryPage() {
     setNotesSaving(true);
     const { error } = await supabase
       .from("user_profiles")
-      .update({ brand_notes: notes })
-      .eq("user_id", user.id);
+      .upsert({ user_id: user.id, brand_notes: notes }, { onConflict: "user_id" });
     setNotesSaving(false);
     if (!error) {
       setNotesSaved(true);
@@ -81,7 +80,9 @@ export default function BrandMemoryPage() {
   const competitors = profile?.competitors || [];
   const { filled, total, pct, missing } = calcCompleteness(profile);
 
-  const customerLabel = { b2b: "B2B (businesses)", b2c: "B2C (consumers)", both: "B2B & B2C" }[profile?.customer_type || "both"];
+  const customerLabel = profile
+    ? ({ b2b: "B2B (businesses)", b2c: "B2C (consumers)", both: "B2B & B2C" }[profile.customer_type] ?? "B2B & B2C")
+    : "";
 
   const facts = [
     { label: "Brand name", value: profile?.product_name || "" },
