@@ -3,12 +3,14 @@ import Link from "next/link";
 import { PricingPlans } from "@/components/pricing-plans";
 
 export const metadata = {
-  title: "Pricing | Oras — AI Visibility & GEO Tracking Plans",
+  // Root layout applies the "%s | Oras" template, so the title here omits the
+  // brand suffix to avoid duplicating it.
+  title: "Pricing — AI Visibility & GEO Tracking Plans",
   description:
     "Simple plans for tracking your brand's visibility across ChatGPT, Gemini, Claude, and Perplexity. Start free — upgrade as you grow.",
   alternates: { canonical: "https://www.tryoras.com/pricing" },
   openGraph: {
-    title: "Pricing | Oras — AI Visibility & GEO Tracking Plans",
+    title: "Pricing — AI Visibility & GEO Tracking Plans | Oras",
     description:
       "Simple plans for tracking your brand's visibility across ChatGPT, Gemini, Claude, and Perplexity. Start free — upgrade as you grow.",
     url: "https://www.tryoras.com/pricing",
