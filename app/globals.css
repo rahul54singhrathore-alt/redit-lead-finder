@@ -8916,19 +8916,19 @@ button {
 .sidebar-group-badge {
   padding: 1px 7px;
   border-radius: 999px;
-  background: linear-gradient(135deg, #ede9fe, #ddd6fe);
-  color: #6d28d9;
+  background: #e4e4e7;
+  color: #52525b;
   font-size: 0.5625rem;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
 
-/* Branded active nav item */
+/* Active nav item */
 [data-sidebar="menu-button"][data-active="true"] {
   position: relative;
-  background: linear-gradient(135deg, #fff7ed, #ffedd5) !important;
-  color: #9a3412 !important;
+  background: #f4f4f5 !important;
+  color: #18181b !important;
   font-weight: 700;
 }
 
@@ -8941,11 +8941,11 @@ button {
   width: 3px;
   height: 18px;
   border-radius: 0 3px 3px 0;
-  background: linear-gradient(180deg, #f97316, #ea580c);
+  background: #18181b;
 }
 
 [data-sidebar="menu-button"][data-active="true"] svg {
-  color: #ea580c;
+  color: #18181b;
 }
 
 /* Membership banner — celebration */
@@ -11182,7 +11182,7 @@ button {
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.04em;
-  color: #6357ff;
+  color: #18181b;
 }
 
 .engine-status-list {
@@ -11202,8 +11202,8 @@ button {
 }
 
 .engine-status-item-live {
-  border-color: #cdbff0;
-  background: #f7f4ff;
+  border-color: #bbf7d0;
+  background: #f0fdf4;
 }
 
 .engine-status-dot {
@@ -11214,8 +11214,8 @@ button {
 }
 
 .engine-status-dot-live {
-  background: #6357ff;
-  box-shadow: 0 0 0 3px rgba(99, 87, 255, 0.18);
+  background: #16a34a;
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.18);
 }
 
 .engine-status-name {
@@ -11233,7 +11233,7 @@ button {
 }
 
 .engine-status-item-live .engine-status-state {
-  color: #6357ff;
+  color: #18181b;
 }
 
 .engine-status-hint {
@@ -11303,7 +11303,7 @@ button {
 }
 
 .engine-chip-live .engine-chip-tag {
-  color: #6357ff;
+  color: #18181b;
 }
 
 /* Real Claude result: ranked brand list + answer */
@@ -13095,17 +13095,17 @@ button {
 [data-slot="sidebar-wrapper"] {
   --background: #fbfbfa;
   --foreground: #24201d;
-  --primary: #6357ff;
+  --primary: #18181b;
   --primary-foreground: #ffffff;
-  --ring: #6357ff;
+  --ring: #d4d4d8;
   --sidebar: #ffffff;
   --sidebar-foreground: #2d2926;
-  --sidebar-primary: #6357ff;
+  --sidebar-primary: #18181b;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #efeefe;
-  --sidebar-accent-foreground: #6357ff;
+  --sidebar-accent: #f4f4f5;
+  --sidebar-accent-foreground: #18181b;
   --sidebar-border: #ece9e6;
-  --sidebar-ring: #6357ff;
+  --sidebar-ring: #d4d4d8;
   font-family: var(--font-sans);
   background: #f5f4f2;
 }
@@ -13147,15 +13147,15 @@ button {
 }
 
 [data-sidebar="menu-button"][data-active="true"] {
-  color: #6357ff;
-  background: #efeefe;
-  box-shadow: inset 3px 0 0 #6357ff;
+  color: #18181b;
+  background: #f4f4f5;
+  box-shadow: none;
 }
 
 [data-sidebar="menu-badge"] {
   right: 8px;
   color: #fff;
-  background: #6357ff;
+  background: #18181b;
   border-radius: 999px;
 }
 
@@ -13164,18 +13164,16 @@ button {
 }
 
 .dashboard-main {
-  color: #24201d;
-  background:
-    radial-gradient(circle at 78% 0%, rgba(251, 146, 60, 0.18), transparent 30%),
-    linear-gradient(180deg, #fffaf3 0%, #fff7ed 42%, #ffffff 100%);
+  color: #18181b;
+  background: #f7f7f8;
 }
 
 .dashboard-header {
   padding: 20px 24px;
-  border: 1px solid rgba(154, 52, 18, 0.12);
+  border: 1px solid #e4e4e7;
   border-radius: 18px;
-  background: rgba(255, 255, 255, 0.74);
-  box-shadow: 0 14px 36px rgba(154, 52, 18, 0.08);
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 4px 16px rgba(9, 9, 11, 0.06);
   backdrop-filter: blur(16px);
 }
 
@@ -13787,9 +13785,9 @@ button {
 }
 
 .autosend-button-primary {
-  border-color: #5a4bff;
+  border-color: #18181b;
   color: #fff;
-  background: #6357ff;
+  background: #18181b;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.24);
 }
 
@@ -15194,7 +15192,7 @@ button {
 }
 
 .oras-auth-input:focus-within {
-  border-color: #6357ff;
+  border-color: #18181b;
   background: #fff;
   box-shadow: 0 0 0 3px rgba(99, 87, 255, 0.14);
 }
@@ -15237,7 +15235,7 @@ button {
 .oras-auth-sent svg {
   width: 34px;
   height: 34px;
-  color: #6357ff;
+  color: #18181b;
 }
 
 .oras-auth-sent h2 {
@@ -15263,7 +15261,7 @@ button {
   padding: 6px 10px;
   border: none;
   background: none;
-  color: #6357ff;
+  color: #18181b;
   font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
@@ -15289,7 +15287,7 @@ button {
 
 .oras-auth-primary {
   color: #fff;
-  background: #6357ff;
+  background: #18181b;
 }
 
 .oras-auth-primary:hover:not(:disabled) {
@@ -15418,9 +15416,9 @@ button {
 }
 
 .oras-choice.active {
-  border-color: #6357ff;
-  color: #6357ff;
-  background: #efeefe;
+  border-color: #18181b;
+  color: #18181b;
+  background: #f4f4f5;
 }
 
 /* Live favicon preview on the right of the Product URL field. */
@@ -15557,7 +15555,7 @@ button {
   border: 0;
   border-radius: 10px;
   color: #fff;
-  background: #6357ff;
+  background: #18181b;
 }
 
 .oras-simulator-prompt svg {
