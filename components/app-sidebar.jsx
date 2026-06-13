@@ -50,7 +50,7 @@ export function AppSidebar({
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">Oras</span>
                   <span className="truncate text-xs text-sidebar-foreground/60">
-                    AI visibility tracker
+                    Online Reputation & AI Search
                   </span>
                 </div>
               </Link>
