@@ -2,12 +2,14 @@
 
 import Link from "next/link";
 import {
+  BellIcon,
   BrainIcon,
   GaugeIcon,
   LightbulbIcon,
   MessageSquareIcon,
   SettingsIcon,
   SignalIcon,
+  UsersIcon,
 } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
@@ -32,8 +34,10 @@ export function AppSidebar({
     { title: "GEO Score", url: "/dashboard", icon: GaugeIcon },
     { title: "Visibility", url: "/dashboard/visibility", icon: SignalIcon },
     { title: "Reddit Engine", url: "/dashboard/reddit", icon: MessageSquareIcon },
+    { title: "Competitors", url: "/dashboard/competitors", icon: UsersIcon },
     { title: "Recommendations", url: "/dashboard/recommendations", icon: LightbulbIcon },
     { title: "Brand Memory", url: "/dashboard/memory", icon: BrainIcon },
+    { title: "Alerts", url: "/dashboard/alerts", icon: BellIcon },
     { title: "Settings", url: "/dashboard/settings", icon: SettingsIcon },
   ];
 

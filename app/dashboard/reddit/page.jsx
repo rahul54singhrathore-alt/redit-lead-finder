@@ -6,6 +6,7 @@ import {
   BookmarkIcon,
   CheckIcon,
   CopyIcon,
+  DownloadIcon,
   ExternalLinkIcon,
   MessageSquareIcon,
   RefreshCwIcon,
@@ -93,7 +94,7 @@ export default function RedditPage() {
     if (!supabase || !user || savedLeads.has(index) || savingIndex === index) return;
     setSavingIndex(index);
     try {
-      const { error } = await supabase.from("reddit_leads").insert({
+      const lead = {
         user_id: user.id,
         title: item.post,
         subreddit: item.subreddit || "",
@@ -104,13 +105,40 @@ export default function RedditPage() {
         score: item.score,
         comments: 0,
         status: "New",
-      });
+      };
+      const { error } = await supabase.from("reddit_leads").insert(lead);
       if (!error) {
         setSavedLeads((prev) => new Set([...prev, index]));
+        // Fire-and-forget: notify if user has active alert rules + email alerts enabled
+        fetch("/api/alerts/notify", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId: user.id,
+            lead: { title: item.post, subreddit: item.subreddit, intent: item.citation, score: item.score, draft: item.draft },
+          }),
+        }).catch(() => {});
       }
     } finally {
       setSavingIndex(null);
     }
+  };
+
+  const exportLeads = async () => {
+    if (!supabase) return;
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+    const res = await fetch("/api/export-leads", {
+      headers: { Authorization: `Bearer ${session.access_token}` },
+    });
+    if (!res.ok) return;
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "oras-signals.csv";
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   const openOnReddit = (post) => {
@@ -152,6 +180,9 @@ export default function RedditPage() {
                 AI models cite Reddit heavily — reply on these threads to get {brand} cited.
               </p>
             </div>
+            <button type="button" className="action-button" onClick={exportLeads} title="Export saved signals as CSV">
+              <DownloadIcon style={{ width: 14, height: 14 }} /> Export CSV
+            </button>
           </div>
 
           <div className="dashboard-content">
