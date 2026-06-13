@@ -160,7 +160,7 @@ export default function DashboardPage() {
           <div className="dashboard-content">
             <GeoScore
               brand={profile?.product_name || profile?.starter_keyword || "Your brand"}
-              category={profile?.industry || profile?.brand_description || profile?.starter_keyword || ""}
+              category={profile?.industry || profile?.brand_description || ""}
             />
 
             {message ? <p className="signin-message" style={{ textAlign: "left" }}>{message}</p> : null}

@@ -7,25 +7,22 @@ import {
   BellIcon,
   Building2Icon,
   CreditCardIcon,
-  DownloadIcon,
   LogOutIcon,
   SlidersHorizontalIcon,
-  UserIcon,
+  WandSparklesIcon,
 } from "lucide-react";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SourcePresetPicker } from "@/components/source-preset-picker";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { createBrowserSupabaseClient } from "../../../lib/supabase";
-import { getTier } from "../../../lib/subscription";
+import { getTier, formatLimit } from "../../../lib/subscription";
 import {
   INDUSTRY_OPTIONS,
-  formatDefaultVisibilitySources,
   formatCommaSeparatedList,
   normalizeWorkspaceProfile,
   parseCommaSeparatedList,
 } from "../../../lib/workspace-profile";
 
-// Maps a normalized profile into the editable settings form shape.
 function settingsFromProfile(profile) {
   return {
     productName: profile.product_name || "",
@@ -68,6 +65,8 @@ export default function SettingsPage() {
   });
   const [profile, setProfile] = useState(null);
   const [digestTestStatus, setDigestTestStatus] = useState(null);
+  const [autoFillStatus, setAutoFillStatus] = useState("idle");
+  const [autoFillMessage, setAutoFillMessage] = useState("");
   const router = useRouter();
   const supabase = useMemo(() => createBrowserSupabaseClient(), []);
 
@@ -76,17 +75,10 @@ export default function SettingsPage() {
 
     const checkUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        router.replace("/signin");
-        return;
-      }
+      if (!session) { router.replace("/signin"); return; }
       setUser(session.user);
       const { data, error } = await supabase
-        .from("user_profiles")
-        .select("*")
-        .eq("user_id", session.user.id)
-        .maybeSingle();
-
+        .from("user_profiles").select("*").eq("user_id", session.user.id).maybeSingle();
       if (error) {
         setMessage("Could not load settings. Run supabase-schema.sql in Supabase first.");
       } else if (data) {
@@ -100,16 +92,12 @@ export default function SettingsPage() {
 
     checkUser();
 
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
       if (!session) {
         router.replace("/signin");
       } else {
         setUser(session.user);
-        supabase
-          .from("user_profiles")
-          .select("*")
-          .eq("user_id", session.user.id)
-          .maybeSingle()
+        supabase.from("user_profiles").select("*").eq("user_id", session.user.id).maybeSingle()
           .then(({ data, error }) => {
             if (error || !data) return;
             const normalized = normalizeWorkspaceProfile(data);
@@ -120,9 +108,7 @@ export default function SettingsPage() {
       }
     });
 
-    return () => {
-      authListener?.subscription?.unsubscribe();
-    };
+    return () => authListener?.subscription?.unsubscribe();
   }, [router, supabase]);
 
   const updateSetting = (key, value) => {
@@ -130,12 +116,58 @@ export default function SettingsPage() {
     setSaved(false);
   };
 
-  const handleSave = async (event) => {
-    event.preventDefault();
-    if (!supabase || !user) {
-      setMessage("Supabase is not configured yet.");
+  const isValidUrl = (value) => {
+    const trimmed = String(value || "").trim();
+    if (!trimmed) return false;
+    try {
+      const url = new URL(/^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`);
+      return url.hostname.includes(".");
+    } catch { return false; }
+  };
+
+  const handleAutoFill = async () => {
+    setAutoFillMessage("");
+    setSaved(false);
+    if (!isValidUrl(settings.productUrl)) {
+      setAutoFillStatus("error");
+      setAutoFillMessage("Enter a valid website URL first.");
       return;
     }
+    setAutoFillStatus("loading");
+    try {
+      const response = await fetch("/api/brand-lookup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: settings.productUrl.trim() }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        setAutoFillStatus("error");
+        setAutoFillMessage(data?.error || "Could not read that website.");
+        return;
+      }
+      const filled = [];
+      setSettings((current) => {
+        const next = { ...current };
+        if (data.brandName) { next.productName = data.brandName; filled.push("name"); }
+        if (data.description) { next.brandDescription = data.description.slice(0, 220); filled.push("description"); }
+        if (data.industry) { next.industry = data.industry; filled.push("industry"); }
+        if (data.websiteUrl) next.productUrl = data.websiteUrl;
+        return next;
+      });
+      setAutoFillStatus("success");
+      setAutoFillMessage(
+        filled.length ? `Auto-filled ${filled.join(", ")}. Review and save.` : "Reached the site but found no brand metadata.",
+      );
+    } catch {
+      setAutoFillStatus("error");
+      setAutoFillMessage("Something went wrong reaching that website.");
+    }
+  };
+
+  const handleSave = async (event) => {
+    event.preventDefault();
+    if (!supabase || !user) { setMessage("Supabase is not configured yet."); return; }
 
     const payload = {
       user_id: user.id,
@@ -158,20 +190,9 @@ export default function SettingsPage() {
       updated_at: new Date().toISOString(),
     };
 
-    const { error, data } = await supabase
-      .from("user_profiles")
-      .upsert(payload)
-      .select("*")
-      .single();
-
-    if (error) {
-      setMessage(error.message || "Could not save settings.");
-      return;
-    }
-
-    if (data) {
-      setProfile(normalizeWorkspaceProfile(data));
-    }
+    const { error, data } = await supabase.from("user_profiles").upsert(payload).select("*").single();
+    if (error) { setMessage(error.message || "Could not save settings."); return; }
+    if (data) setProfile(normalizeWorkspaceProfile(data));
     setSaved(true);
     setMessage("");
   };
@@ -189,23 +210,14 @@ export default function SettingsPage() {
       const { data: { session } } = await supabase.auth.getSession();
       const res = await fetch("/api/digest/send", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session?.access_token || ""}`,
-        },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${session?.access_token || ""}` },
         body: JSON.stringify({ test: true, userId: user.id }),
       });
       const json = await res.json();
-      if (!res.ok || json.error) {
-        setDigestTestStatus("error");
-      } else if (json.sent > 0) {
-        setDigestTestStatus("sent");
-      } else {
-        setDigestTestStatus("skipped");
-      }
-    } catch {
-      setDigestTestStatus("error");
-    }
+      if (!res.ok || json.error) setDigestTestStatus("error");
+      else if (json.sent > 0) setDigestTestStatus("sent");
+      else setDigestTestStatus("skipped");
+    } catch { setDigestTestStatus("error"); }
     setTimeout(() => setDigestTestStatus(null), 5000);
   };
 
@@ -235,7 +247,7 @@ export default function SettingsPage() {
               <SidebarTrigger className="dashboard-sidebar-trigger" />
               <h1>Settings</h1>
               <p style={{ color: "#71717a", margin: "4px 0 0 0" }}>
-                Manage your brand, account, and workspace preferences.
+                Manage your brand, notifications, and workspace preferences.
               </p>
             </div>
           </div>
@@ -244,35 +256,57 @@ export default function SettingsPage() {
 
           <form className="dashboard-content" onSubmit={handleSave}>
             <div className="settings-grid">
+
+              {/* Brand — full width */}
               <section className="dashboard-card dashboard-card-wide">
                 <div className="card-header">
                   <div>
                     <h2><Building2Icon className="settings-section-icon" /> Brand</h2>
                     <p className="card-supporting-copy">
-                      This powers every AI check — Mention Opportunities, GEO Roadmap, Citations, and Reddit drafts.
+                      Powers every AI check — GEO Roadmap, Visibility, and Reddit drafts.
                     </p>
                   </div>
                 </div>
                 <div className="settings-form-grid">
                   <div className="form-group">
-                    <label className="form-label" htmlFor="product-name">Brand / product name</label>
+                    <label className="form-label" htmlFor="product-name">Brand name</label>
                     <input
                       id="product-name"
                       className="form-input"
                       value={settings.productName}
-                      onChange={(event) => updateSetting("productName", event.target.value)}
+                      onChange={(e) => updateSetting("productName", e.target.value)}
                       placeholder="e.g., Oras"
                     />
                   </div>
                   <div className="form-group">
                     <label className="form-label" htmlFor="product-url">Website</label>
-                    <input
-                      id="product-url"
-                      className="form-input"
-                      value={settings.productUrl}
-                      onChange={(event) => updateSetting("productUrl", event.target.value)}
-                      placeholder="https://yourbrand.com"
-                    />
+                    <div className="settings-autofill-row">
+                      <input
+                        id="product-url"
+                        className="form-input"
+                        value={settings.productUrl}
+                        onChange={(e) => {
+                          updateSetting("productUrl", e.target.value);
+                          setAutoFillMessage("");
+                          setAutoFillStatus("idle");
+                        }}
+                        placeholder="https://yourbrand.com"
+                      />
+                      <button
+                        type="button"
+                        className="settings-autofill-button"
+                        onClick={handleAutoFill}
+                        disabled={autoFillStatus === "loading"}
+                      >
+                        <WandSparklesIcon className={autoFillStatus === "loading" ? "onboarding-spin" : ""} />
+                        {autoFillStatus === "loading" ? "Reading…" : "Auto-fill"}
+                      </button>
+                    </div>
+                    {autoFillMessage ? (
+                      <span className={`settings-autofill-note settings-autofill-note-${autoFillStatus}`}>
+                        {autoFillMessage}
+                      </span>
+                    ) : null}
                   </div>
                   <div className="form-group">
                     <label className="form-label" htmlFor="industry">Industry</label>
@@ -280,11 +314,11 @@ export default function SettingsPage() {
                       id="industry"
                       className="form-input"
                       value={settings.industry}
-                      onChange={(event) => updateSetting("industry", event.target.value)}
+                      onChange={(e) => updateSetting("industry", e.target.value)}
                     >
                       <option value="">Select industry…</option>
-                      {INDUSTRY_OPTIONS.map((option) => (
-                        <option key={option} value={option}>{option}</option>
+                      {INDUSTRY_OPTIONS.map((opt) => (
+                        <option key={opt} value={opt}>{opt}</option>
                       ))}
                     </select>
                   </div>
@@ -294,10 +328,10 @@ export default function SettingsPage() {
                       id="customer-type"
                       className="form-input"
                       value={settings.customerType}
-                      onChange={(event) => updateSetting("customerType", event.target.value)}
+                      onChange={(e) => updateSetting("customerType", e.target.value)}
                     >
-                      <option value="b2b">B2B (businesses)</option>
-                      <option value="b2c">B2C (consumers)</option>
+                      <option value="b2b">B2B — businesses</option>
+                      <option value="b2c">B2C — consumers</option>
                       <option value="both">Both</option>
                     </select>
                   </div>
@@ -307,16 +341,17 @@ export default function SettingsPage() {
                       id="brand-description"
                       className="form-input textarea-input"
                       value={settings.brandDescription}
-                      onChange={(event) => updateSetting("brandDescription", event.target.value)}
-                      placeholder="One or two lines — used to make AI checks more accurate."
+                      onChange={(e) => updateSetting("brandDescription", e.target.value)}
+                      placeholder="One or two lines — makes AI checks more accurate."
                     />
                   </div>
                 </div>
               </section>
 
+              {/* Notifications — Account + Alerts merged */}
               <section className="dashboard-card">
                 <div className="card-header">
-                  <h2><UserIcon className="settings-section-icon" /> Account</h2>
+                  <h2><BellIcon className="settings-section-icon" /> Notifications</h2>
                 </div>
                 <div className="settings-stack">
                   <div className="form-group">
@@ -326,13 +361,13 @@ export default function SettingsPage() {
                   <div className="setting-row">
                     <div>
                       <h3>Email digest</h3>
-                      <p>Receive a summary of new matching visibility signals.</p>
+                      <p>Summarize new visibility signals on a schedule.</p>
                     </div>
                     <label className="switch">
                       <input
                         type="checkbox"
                         checked={settings.emailDigest}
-                        onChange={(event) => updateSetting("emailDigest", event.target.checked)}
+                        onChange={(e) => updateSetting("emailDigest", e.target.checked)}
                       />
                       <span />
                     </label>
@@ -343,183 +378,101 @@ export default function SettingsPage() {
                       id="digest-frequency"
                       className="form-input"
                       value={settings.digestFrequency}
-                      onChange={(event) => updateSetting("digestFrequency", event.target.value)}
+                      disabled={!settings.emailDigest}
+                      onChange={(e) => updateSetting("digestFrequency", e.target.value)}
                     >
                       <option value="daily">Daily</option>
                       <option value="weekly">Weekly</option>
                       <option value="off">Off</option>
                     </select>
                   </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                  <div className="settings-test-row">
                     <button
                       type="button"
-                      className="action-button"
+                      className="action-button settings-test-btn"
                       onClick={sendTestDigest}
                       disabled={digestTestStatus === "sending" || !settings.emailDigest}
                     >
                       {digestTestStatus === "sending" ? "Sending…" : "Send test digest"}
                     </button>
                     {digestTestStatus === "sent" && (
-                      <span style={{ fontSize: "13px", color: "#22c55e" }}>✓ Sent — check your inbox</span>
+                      <span className="settings-test-status settings-test-ok">✓ Sent — check your inbox</span>
                     )}
                     {digestTestStatus === "skipped" && (
-                      <span style={{ fontSize: "13px", color: "#f59e0b" }}>No brand set — add your brand name first</span>
+                      <span className="settings-test-status settings-test-warn">No brand set yet</span>
                     )}
                     {digestTestStatus === "error" && (
-                      <span style={{ fontSize: "13px", color: "#ef4444" }}>Failed to send — check server logs</span>
+                      <span className="settings-test-status settings-test-err">Failed — check server logs</span>
                     )}
                   </div>
+                  <div className="settings-divider" />
+                  <button type="button" className="danger-button" onClick={handleSignOut}>
+                    <LogOutIcon className="button-icon" />
+                    Sign out
+                  </button>
                 </div>
               </section>
 
+              {/* Plan */}
               <section className="dashboard-card">
                 <div className="card-header">
                   <h2><CreditCardIcon className="settings-section-icon" /> Plan</h2>
                 </div>
                 <div className="settings-stack">
                   <div className="settings-plan-row">
-                    <div>
-                      <span className="settings-plan-name">{tier.name}</span>
-                      <span className={`settings-plan-tag${isPaid ? " settings-plan-tag-paid" : ""}`}>
-                        {isPaid ? "Active member" : "Free plan"}
+                    <span className="settings-plan-name">{tier.name}</span>
+                    <span className={`settings-plan-tag${isPaid ? " settings-plan-tag-paid" : ""}`}>
+                      {isPaid ? "Active" : "Free"}
+                    </span>
+                  </div>
+                  <div className="settings-plan-limits">
+                    <div className="settings-plan-limit">
+                      <span className="settings-plan-limit-val">{formatLimit(tier.limits.brands)}</span>
+                      <span className="settings-plan-limit-label">brand{tier.limits.brands !== 1 ? "s" : ""}</span>
+                    </div>
+                    <div className="settings-plan-limit">
+                      <span className="settings-plan-limit-val">{formatLimit(tier.limits.promptRuns)}</span>
+                      <span className="settings-plan-limit-label">AI checks / mo</span>
+                    </div>
+                    <div className="settings-plan-limit">
+                      <span className="settings-plan-limit-val">
+                        {tier.limits.historyDays === Infinity ? "∞" : `${tier.limits.historyDays}d`}
                       </span>
+                      <span className="settings-plan-limit-label">history</span>
                     </div>
                   </div>
+                  <div className="settings-engines">
+                    {tier.limits.engines.map((e) => (
+                      <span key={e} className="settings-engine-chip">{e}</span>
+                    ))}
+                  </div>
                   <Link href="/pricing" className="action-button">
-                    {isPaid ? "Manage plan" : "Upgrade plan"}
+                    {isPaid ? "Manage plan" : "Upgrade plan →"}
                   </Link>
                 </div>
               </section>
 
-              <section className="dashboard-card">
-                <div className="card-header">
-                  <h2><BellIcon className="settings-section-icon" /> Alerts</h2>
-                </div>
-                <div className="settings-stack">
-                  <div className="setting-row">
-                    <div>
-                      <h3>Instant alerts</h3>
-                      <p>Notify me when a high-confidence signal appears.</p>
-                    </div>
-                    <label className="switch">
-                      <input
-                        type="checkbox"
-                        checked={settings.instantAlerts}
-                        onChange={(event) => updateSetting("instantAlerts", event.target.checked)}
-                      />
-                      <span />
-                    </label>
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label" htmlFor="alert-channel">Alert channel</label>
-                    <select
-                      id="alert-channel"
-                      className="form-input"
-                      value={settings.alertChannel}
-                      onChange={(event) => updateSetting("alertChannel", event.target.value)}
-                    >
-                      <option value="email">Email</option>
-                      <option value="dashboard">Dashboard only</option>
-                    </select>
-                  </div>
-                </div>
-              </section>
-
+              {/* Signal Matching — full width */}
               <section className="dashboard-card dashboard-card-wide">
                 <div className="card-header">
                   <div>
-                    <h2><SlidersHorizontalIcon className="settings-section-icon" /> Signal Matching</h2>
-                    <p className="card-supporting-copy">Tune which sources and thresholds count as a signal.</p>
+                    <h2><SlidersHorizontalIcon className="settings-section-icon" /> AI Platforms</h2>
+                    <p className="card-supporting-copy">Choose which AI platforms to include in your visibility checks.</p>
                   </div>
                 </div>
-                <div className="settings-form-grid">
-                  <div className="form-group">
-                    <label className="form-label" htmlFor="default-subreddits">Default sources</label>
-                    <textarea
-                      id="default-subreddits"
-                      className="form-input textarea-input"
-                      value={settings.defaultSubreddits}
-                      onChange={(event) => updateSetting("defaultSubreddits", event.target.value)}
-                      placeholder={formatDefaultVisibilitySources()}
-                    />
-                    <SourcePresetPicker
-                      value={settings.defaultSubreddits}
-                      onChange={(value) => updateSetting("defaultSubreddits", value)}
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label" htmlFor="ignored-terms">Ignored terms</label>
-                    <textarea
-                      id="ignored-terms"
-                      className="form-input textarea-input"
-                      value={settings.ignoredTerms}
-                      onChange={(event) => updateSetting("ignoredTerms", event.target.value)}
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label" htmlFor="min-score">Minimum score</label>
-                    <input
-                      id="min-score"
-                      className="form-input"
-                      type="number"
-                      min="0"
-                      value={settings.minScore}
-                      onChange={(event) => updateSetting("minScore", event.target.value)}
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label" htmlFor="min-comments">Minimum comments</label>
-                    <input
-                      id="min-comments"
-                      className="form-input"
-                      type="number"
-                      min="0"
-                      value={settings.minComments}
-                      onChange={(event) => updateSetting("minComments", event.target.value)}
-                    />
-                  </div>
-                </div>
+                <SourcePresetPicker
+                  value={settings.defaultSubreddits}
+                  onChange={(value) => updateSetting("defaultSubreddits", value)}
+                />
               </section>
 
-              <section className="dashboard-card">
-                <div className="card-header">
-                  <h2><DownloadIcon className="settings-section-icon" /> Exports</h2>
-                </div>
-                <div className="settings-stack">
-                  <div className="form-group">
-                    <label className="form-label" htmlFor="export-format">Default format</label>
-                    <select
-                      id="export-format"
-                      className="form-input"
-                      value={settings.exportFormat}
-                      onChange={(event) => updateSetting("exportFormat", event.target.value)}
-                    >
-                      <option value="csv">CSV</option>
-                      <option value="json">JSON</option>
-                    </select>
-                  </div>
-                  <button type="button" className="action-button">
-                    <DownloadIcon className="button-icon" />
-                    Export current signals
-                  </button>
-                </div>
-              </section>
-
-              <section className="dashboard-card">
-                <div className="card-header">
-                  <h2><LogOutIcon className="settings-section-icon" /> Session</h2>
-                </div>
-                <div className="settings-stack">
-                  <button type="button" className="danger-button" onClick={handleSignOut}>
-                    Sign out
-                  </button>
-                </div>
-              </section>
             </div>
 
             <div className="settings-actions">
-              {saved && <span className="settings-saved">✓ Settings saved</span>}
-              <button type="submit" className="primary-button settings-save-button">Save settings</button>
+              {saved && <span className="settings-saved">✓ Saved</span>}
+              <button type="submit" className="primary-button settings-save-button">
+                Save settings
+              </button>
             </div>
           </form>
         </main>

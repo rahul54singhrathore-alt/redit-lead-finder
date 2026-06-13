@@ -2,13 +2,16 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeftIcon, ArrowRightIcon, CheckIcon, GaugeIcon, MessageSquareIcon, SparklesIcon, WandSparklesIcon, ZapIcon } from "lucide-react";
+import { ArrowLeftIcon, ArrowRightIcon, BellRingIcon, CheckIcon, GaugeIcon, SearchIcon, SparklesIcon, WandSparklesIcon, ZapIcon } from "lucide-react";
 
+import { SourcePresetPicker } from "../../components/source-preset-picker";
 import { createBrowserSupabaseClient, isMissingSupabaseTableError } from "../../lib/supabase";
 import {
   DEFAULT_VISIBILITY_SOURCES,
   INDUSTRY_OPTIONS,
+  formatDefaultVisibilitySources,
   normalizeWorkspaceProfile,
+  parseCommaSeparatedList,
 } from "../../lib/workspace-profile";
 
 const customerOptions = [
@@ -18,6 +21,25 @@ const customerOptions = [
 ];
 
 const STEPS = ["Brand", "Audience", "You're set"];
+const DESCRIPTION_MAX = 180;
+
+const frequencyOptions = [
+  {
+    value: "daily",
+    label: "Daily",
+    hint: "Best while you are tuning visibility.",
+  },
+  {
+    value: "weekly",
+    label: "Weekly",
+    hint: "A digest when you prefer fewer alerts.",
+  },
+  {
+    value: "off",
+    label: "Off",
+    hint: "Keep updates inside the dashboard.",
+  },
+];
 
 function getFaviconUrl(rawUrl) {
   const value = String(rawUrl || "").trim();
@@ -55,6 +77,8 @@ export default function OnboardingPage() {
   const [brandDescription, setBrandDescription] = useState("");
   const [customerType, setCustomerType] = useState("both");
   const [competitors, setCompetitors] = useState("");
+  const [sources, setSources] = useState(formatDefaultVisibilitySources());
+  const [digestFrequency, setDigestFrequency] = useState("daily");
 
   const [isFetching, setIsFetching] = useState(false);
   const [fetchNote, setFetchNote] = useState("");
@@ -94,10 +118,13 @@ export default function OnboardingPage() {
       if (profile?.product_name) setProductName(profile.product_name);
       if (profile?.product_url) setProductUrl(profile.product_url);
       if (profile?.industry) setIndustry(profile.industry);
-      if (profile?.brand_description) setBrandDescription(profile.brand_description);
+      if (profile?.brand_description) setBrandDescription(profile.brand_description.slice(0, DESCRIPTION_MAX));
       if (profile?.customer_type) setCustomerType(profile.customer_type);
       if (Array.isArray(profile?.competitors) && profile.competitors.length)
         setCompetitors(profile.competitors.join(", "));
+      if (Array.isArray(profile?.target_subreddits) && profile.target_subreddits.length)
+        setSources(profile.target_subreddits.join(", "));
+      if (profile?.digest_frequency) setDigestFrequency(profile.digest_frequency);
 
       setLoading(false);
     };
@@ -133,9 +160,10 @@ export default function OnboardingPage() {
       }
       const filled = [];
       if (data.brandName) { setProductName(data.brandName); filled.push("name"); }
+      if (data.description) { setBrandDescription(data.description.slice(0, DESCRIPTION_MAX)); filled.push("description"); }
       if (data.industry) { setIndustry(data.industry); filled.push("industry"); }
       if (data.websiteUrl) setProductUrl(data.websiteUrl);
-      setFetchNote(filled.length ? `Auto-filled ${filled.join(" & ")} from your site.` : "Reached the site, but found no brand info.");
+      setFetchNote(filled.length ? `Auto-filled ${filled.join(", ")} from your site.` : "Reached the site, but found no brand info.");
     } catch {
       setFetchNote("Something went wrong reaching that website.");
     } finally {
@@ -149,6 +177,9 @@ export default function OnboardingPage() {
       if (!productName.trim()) return setMessage("Add your brand name.");
       if (!productUrl.trim() || !isValidUrl(productUrl)) return setMessage("Add a valid website URL.");
     }
+    if (step === 2 && sourceList.length === 0) {
+      return setMessage("Choose at least one source to monitor.");
+    }
     setStep((s) => Math.min(3, s + 1));
   };
 
@@ -156,6 +187,8 @@ export default function OnboardingPage() {
     .split(",")
     .map((c) => c.trim())
     .filter(Boolean);
+  const sourceList = parseCommaSeparatedList(sources);
+  const selectedFrequency = frequencyOptions.find((option) => option.value === digestFrequency) || frequencyOptions[0];
 
   const goBack = () => {
     setMessage("");
@@ -184,7 +217,8 @@ export default function OnboardingPage() {
         customer_type: customerType,
         competitors: competitorList,
         starter_keyword: productName.trim(),
-        target_subreddits: DEFAULT_VISIBILITY_SOURCES,
+        target_subreddits: sourceList.length ? sourceList : DEFAULT_VISIBILITY_SOURCES,
+        digest_frequency: digestFrequency,
         updated_at: new Date().toISOString(),
       })
       .select("*")
@@ -203,7 +237,7 @@ export default function OnboardingPage() {
     const { error: keywordError } = await supabase.from("tracked_keywords").insert({
       user_id: user.id,
       keyword: productName.trim(),
-      subreddits: DEFAULT_VISIBILITY_SOURCES,
+      subreddits: sourceList.length ? sourceList : DEFAULT_VISIBILITY_SOURCES,
     });
     if (keywordError && !isMissingSupabaseTableError(keywordError, "tracked_keywords")) {
       console.error("Failed to create initial tracked keyword:", keywordError);
@@ -292,10 +326,12 @@ export default function OnboardingPage() {
               <textarea
                 className="onb-textarea"
                 value={brandDescription}
+                maxLength={DESCRIPTION_MAX}
                 onChange={(e) => setBrandDescription(e.target.value)}
                 placeholder="One or two lines — makes your AI visibility checks more accurate."
                 rows={2}
               />
+              <small className="onb-field-count">{brandDescription.length}/{DESCRIPTION_MAX}</small>
             </label>
 
             <label className="onb-field">
@@ -313,11 +349,11 @@ export default function OnboardingPage() {
         {/* Step 2 — Audience */}
         {step === 2 ? (
           <div className="onb-panel">
-            <span className="onb-kicker"><SparklesIcon /> Audience</span>
+            <span className="onb-kicker"><SparklesIcon /> Audience &amp; Sources</span>
             <h1>Who do you sell to?</h1>
-            <p className="onb-sub">This tunes which AI prompts and Reddit signals we track for you.</p>
+            <p className="onb-sub">This tunes which AI prompts and signals we track for you.</p>
 
-            <div className="onb-cards">
+            <div className="onb-cards onb-frequency-grid">
               {customerOptions.map((option) => (
                 <button
                   key={option.value}
@@ -342,6 +378,30 @@ export default function OnboardingPage() {
               />
               <small className="onb-note">Comma-separated — we&apos;ll track their AI mentions alongside yours.</small>
             </label>
+
+            <div className="onb-field" style={{ gap: "10px" }}>
+              <span>Platforms to monitor <em>({sourceList.length} selected)</em></span>
+              <SourcePresetPicker value={sources} onChange={setSources} />
+              <small className="onb-field-hint">Add custom sources in Settings after setup.</small>
+            </div>
+
+            <div className="onb-frequency">
+              <span className="onb-field-title">Digest rhythm</span>
+              <div className="onb-cards onb-frequency-grid">
+                {frequencyOptions.map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    className={`onb-choice-card${digestFrequency === option.value ? " onb-choice-active" : ""}`}
+                    onClick={() => setDigestFrequency(option.value)}
+                  >
+                    <strong>{option.label}</strong>
+                    <span>{option.hint}</span>
+                    {digestFrequency === option.value ? <CheckIcon className="onb-choice-check" /> : null}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         ) : null}
 
@@ -349,29 +409,36 @@ export default function OnboardingPage() {
         {step === 3 ? (
           <div className="onb-panel onb-finish">
             <div className="onb-finish-icon"><SparklesIcon /></div>
-            <h1>Your workspace is ready</h1>
-            <p className="onb-sub">Here&apos;s what&apos;s waiting for you in the dashboard.</p>
+            <h1>{productName ? `${productName} is ready` : "Your workspace is ready"}</h1>
+            <p className="onb-sub">Here&apos;s what&apos;s set up and waiting for you in the dashboard.</p>
 
             <div className="onb-feature-list">
               <div className="onb-feature-item">
                 <span className="onb-feature-icon"><GaugeIcon /></span>
                 <div>
                   <strong>GEO Score</strong>
-                  <p>See how often AI engines mention {productName || "your brand"} right now.</p>
+                  <p>Track {productName || "your brand"} across {sourceList.length || DEFAULT_VISIBILITY_SOURCES.length} selected sources.</p>
+                </div>
+              </div>
+              <div className="onb-feature-item">
+                <span className="onb-feature-icon"><BellRingIcon /></span>
+                <div>
+                  <strong>{selectedFrequency.label} digest</strong>
+                  <p>{selectedFrequency.value === "off" ? "You can review signals in the dashboard." : "Visibility changes will be summarized for review."}</p>
+                </div>
+              </div>
+              <div className="onb-feature-item">
+                <span className="onb-feature-icon"><SearchIcon /></span>
+                <div>
+                  <strong>Competitor context</strong>
+                  <p>{competitorList.length ? `Benchmark against ${competitorList.slice(0, 2).join(" and ")}.` : "Add competitors later when you want benchmarking."}</p>
                 </div>
               </div>
               <div className="onb-feature-item">
                 <span className="onb-feature-icon"><ZapIcon /></span>
                 <div>
                   <strong>Recommendations</strong>
-                  <p>Concrete actions to improve your AI visibility this week.</p>
-                </div>
-              </div>
-              <div className="onb-feature-item">
-                <span className="onb-feature-icon"><MessageSquareIcon /></span>
-                <div>
-                  <strong>Reddit Engine</strong>
-                  <p>Find real conversations where people are looking for what you offer.</p>
+                  <p>Use the setup to generate concrete actions for improving AI visibility.</p>
                 </div>
               </div>
             </div>
@@ -381,6 +448,8 @@ export default function OnboardingPage() {
               <div className="onb-recap-row"><span>Website</span><strong>{productUrl || "—"}</strong></div>
               {industry ? <div className="onb-recap-row"><span>Industry</span><strong>{industry}</strong></div> : null}
               <div className="onb-recap-row"><span>Audience</span><strong>{customerType.toUpperCase()}</strong></div>
+              <div className="onb-recap-row"><span>Sources</span><strong>{sourceList.join(", ") || "—"}</strong></div>
+              <div className="onb-recap-row"><span>Digest</span><strong>{selectedFrequency.label}</strong></div>
               {competitorList.length > 0 ? (
                 <div className="onb-recap-row"><span>Competitors</span><strong>{competitorList.join(", ")}</strong></div>
               ) : null}

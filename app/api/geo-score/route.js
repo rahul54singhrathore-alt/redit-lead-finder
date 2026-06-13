@@ -1,55 +1,145 @@
 import { NextResponse } from "next/server";
-import { groqJSON, GroqError } from "../../../lib/groq";
+import { checkVisibilityAcrossEngines, GroqError, ENGINES } from "../../../lib/engines";
+import { getCachedResult, putCachedResult } from "../../../lib/visibility-guard";
 
-// GEO Score: estimate how visible the brand is to AI assistants today (0-100),
-// the concrete reasons it isn't higher, and the score it could reach if those
-// gaps are fixed. Estimates, not live-crawled metrics.
+// Real GEO Score: runs the brand through multiple natural AI queries across
+// all configured engines and measures the actual mention rate. Score =
+// (mentions / possible mentions) × 100, weighted by rank.
+//
+// 4 query types × up to 4 engines = up to 16 real AI calls. Results for
+// each individual prompt are cached by the visibility guard so repeated
+// scans within the cache window are fast.
+
+function buildPrompts(brand, category) {
+  const cat = (category || "").trim();
+  return [
+    cat ? `Best ${cat} tools and software` : `Best AI and productivity tools`,
+    `What is ${brand} and what does it do?`,
+    cat ? `Top ${cat} software compared` : `Most popular SaaS tools compared`,
+    `${brand} pricing features and alternatives`,
+  ];
+}
+
+// Rank score: #1 = 100, scaling down; unmentioned = 0.
+function rankScore(rank, total) {
+  if (!rank) return 0;
+  return Math.max(10, Math.round(100 - (rank - 1) * (75 / Math.max(total, 1))));
+}
 
 export async function POST(request) {
   let body;
-  try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
-  }
+  try { body = await request.json(); }
+  catch { return NextResponse.json({ error: "Invalid request body." }, { status: 400 }); }
 
   const brand = String(body?.brand || "").trim();
   const category = String(body?.category || "").trim();
-  if (!brand) {
-    return NextResponse.json({ error: "brand is required." }, { status: 400 });
-  }
+  if (!brand) return NextResponse.json({ error: "brand is required." }, { status: 400 });
 
-  const categoryLine = category ? ` in the "${category}" space` : "";
+  const prompts = buildPrompts(brand, category);
 
   try {
-    const parsed = await groqJSON({
-      maxTokens: 1000,
-      system:
-        "You are a GEO (generative engine optimization) analyst. Estimate how visible a brand is " +
-        "to AI assistants today as a `score` from 0-100 (how often AI would recommend/cite it). " +
-        "Be realistic — niche brands usually score 40-70. Give 3-5 concrete `reasons` it is not " +
-        "higher, quantified where possible and phrased like \"Not listed on G2\", " +
-        "\"Only ~3 Reddit mentions\", \"No comparison pages\". Give `impact` = the estimated number " +
-        "of points the score would rise if those gaps were fixed. " +
-        'Respond with ONLY a JSON object of the form ' +
-        '{"score": 62, "reasons": ["...","..."], "impact": 14}.',
-      user:
-        `Brand: "${brand}"${categoryLine}. Estimate its current GEO score, the reasons it is missing ` +
-        `from AI answers, and how many points it could gain by fixing them.`,
+    // Run all prompts in parallel; use per-prompt cache when available.
+    const promptResults = await Promise.all(
+      prompts.map(async (prompt) => {
+        const cacheKey = `geo:${prompt}`;
+        const cached = await getCachedResult(cacheKey, brand).catch(() => null);
+        if (cached?.result) return { prompt, ...cached.result, fromCache: true };
+
+        const { engines, aggregate } = await checkVisibilityAcrossEngines({ prompt, brand });
+        const result = { prompt, engines, aggregate };
+        await putCachedResult(cacheKey, brand, result).catch(() => null);
+        return result;
+      })
+    );
+
+    // Per-engine aggregation across all prompts.
+    const engineStats = ENGINES.map(({ key, label }) => {
+      const perPrompt = promptResults.map((pr) => {
+        const eng = pr.engines?.find((e) => e.key === key);
+        return eng ?? null;
+      }).filter(Boolean);
+
+      const mentioned = perPrompt.filter((e) => e.mentioned);
+      const mentionCount = mentioned.length;
+      const totalPrompts = perPrompt.length;
+      const mentionRate = totalPrompts > 0 ? Math.round((mentionCount / totalPrompts) * 100) : 0;
+      const avgRank = mentionCount > 0
+        ? Math.round(mentioned.reduce((s, e) => s + (e.rank ?? 1), 0) / mentionCount)
+        : null;
+      const avgRankScore = mentionCount > 0
+        ? Math.round(mentioned.reduce((s, e) => s + rankScore(e.rank, e.total ?? 5), 0) / mentionCount)
+        : 0;
+      const isLive = perPrompt.some((e) => e.live);
+
+      // Engine score: 60% mention rate + 40% rank quality (when mentioned).
+      const score = Math.round(mentionRate * 0.6 + avgRankScore * 0.4);
+
+      return { key, label, mentionCount, totalPrompts, mentionRate, avgRank, score, live: isLive };
     });
 
-    const score = Math.max(0, Math.min(100, Math.round(Number(parsed.score) || 0)));
-    const reasons = Array.isArray(parsed.reasons)
-      ? parsed.reasons.map((r) => String(r || "").trim()).filter(Boolean).slice(0, 6)
-      : [];
-    // Cap the projected score at 100.
-    const impact = Math.max(0, Math.min(100 - score, Math.round(Number(parsed.impact) || 0)));
+    // Overall score = average across engines (all count equally).
+    const overallScore = Math.round(
+      engineStats.reduce((s, e) => s + e.score, 0) / engineStats.length
+    );
 
-    return NextResponse.json({ brand, score, reasons, impact, potential: score + impact });
+    // Impact: how many points are available if every missed query had a mention.
+    const missedSlots = promptResults.reduce((s, pr) => {
+      const missed = ENGINES.length - (pr.aggregate?.mentionedCount ?? 0);
+      return s + missed;
+    }, 0);
+    const totalSlots = prompts.length * ENGINES.length;
+    const missedFraction = totalSlots > 0 ? missedSlots / totalSlots : 0;
+    const impact = Math.round(missedFraction * (100 - overallScore) * 0.8);
+
+    // Reasons from real data.
+    const reasons = [];
+    engineStats.forEach((e) => {
+      if (e.mentionRate === 0) {
+        reasons.push(`Not found by ${e.label} in any of the ${e.totalPrompts} test queries`);
+      } else if (e.mentionRate < 50) {
+        reasons.push(`Only in ${e.mentionCount}/${e.totalPrompts} ${e.label} queries — missing from category searches`);
+      } else if (e.avgRank && e.avgRank > 3) {
+        reasons.push(`${e.label} ranks ${brand} at #${e.avgRank} — content depth could move it higher`);
+      }
+    });
+
+    const neverMentioned = promptResults.filter((pr) => !pr.aggregate?.mentioned);
+    if (neverMentioned.length > 0) {
+      reasons.push(`No engine mentioned ${brand} for: "${neverMentioned[0].prompt}"`);
+    }
+
+    // Per-prompt summary for the UI.
+    const promptSummaries = promptResults.map((pr) => ({
+      prompt: pr.prompt,
+      mentioned: pr.aggregate?.mentioned ?? false,
+      mentionedCount: pr.aggregate?.mentionedCount ?? 0,
+      engineCount: ENGINES.length,
+      engines: ENGINES.map(({ key }) => {
+        const eng = pr.engines?.find((e) => e.key === key);
+        return {
+          key,
+          mentioned: eng?.mentioned ?? false,
+          rank: eng?.rank ?? null,
+          answer: eng?.answer ?? "",
+        };
+      }),
+    }));
+
+    return NextResponse.json({
+      brand,
+      score: Math.max(0, Math.min(100, overallScore)),
+      impact: Math.max(0, Math.min(40, impact)),
+      potential: Math.min(100, overallScore + Math.max(0, Math.min(40, impact))),
+      engines: engineStats,
+      prompts: promptSummaries,
+      reasons: reasons.slice(0, 5),
+      totalChecks: totalSlots,
+      liveChecks: engineStats.filter((e) => e.live).length,
+    });
   } catch (error) {
     if (error instanceof GroqError) {
       return NextResponse.json({ error: error.message }, { status: error.status });
     }
-    return NextResponse.json({ error: "AI request failed." }, { status: 502 });
+    return NextResponse.json({ error: "Score calculation failed." }, { status: 502 });
   }
 }

@@ -67,7 +67,7 @@ export default function RecommendationsPage() {
               <SidebarTrigger className="dashboard-sidebar-trigger" />
               <h1>Recommendations</h1>
               <p style={{ color: "#71717a", margin: "4px 0 0 0" }}>
-                A prioritized action plan to raise your AI visibility — check tasks off as you go.
+                AI-generated action plan for <strong style={{ color: "#18181b" }}>{brand}</strong> — ranked by GEO impact.
               </p>
             </div>
           </div>
