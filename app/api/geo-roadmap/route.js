@@ -1,10 +1,6 @@
 import { NextResponse } from "next/server";
 import { groqJSON, GroqError } from "../../../lib/groq";
 
-// GEO Tasks (Auto Roadmap): instead of just a score, generate a prioritized,
-// checkable to-do list that moves the brand's AI visibility (GEO) up by a
-// concrete number of points. Each task carries its own estimated point gain.
-
 export async function POST(request) {
   let body;
   try {
@@ -27,29 +23,36 @@ export async function POST(request) {
 
   try {
     const parsed = await groqJSON({
-      maxTokens: 1200,
+      maxTokens: 1800,
       system:
         "You are a GEO/AEO (generative engine optimization) strategist. Given a brand, produce a " +
-        "prioritized roadmap of concrete tasks that will increase how often AI assistants " +
-        "recommend and cite it (its GEO score). 4 to 6 tasks, ordered easiest/highest-impact " +
-        "first. Each task is one short imperative phrase like \"Get listed on G2\", \"Create a " +
-        "comparison page\", \"Answer 10 Reddit threads\", \"Publish 5 authority blogs\", with an " +
-        "integer `points` (1-6) for its estimated GEO point gain. " +
-        'Respond with ONLY a JSON object of the form ' +
-        '{"tasks": [{"task": "Get listed on G2", "points": 4}]}.',
+        "prioritized roadmap of concrete tasks that will increase how often AI assistants recommend " +
+        "and cite it. Return 8 to 10 tasks ordered highest-impact first. " +
+        "Each task must have: " +
+        '"task" (short imperative phrase like "Get listed on G2" — max 8 words), ' +
+        '"why" (one sentence explaining why this moves the GEO score — be specific), ' +
+        '"effort" (one of: "quick", "medium", "high"), ' +
+        '"category" (one of: "Content", "Citations", "Presence", "Technical"), ' +
+        '"points" (integer 1-8 for estimated GEO point gain). ' +
+        'Respond with ONLY a JSON object: {"tasks": [...]}.',
       user:
         `Brand: "${brand}"${categoryLine}.${scoreLine} ` +
-        `Give the GEO roadmap — the specific tasks that would raise its AI visibility the most.`,
+        `Generate the GEO roadmap — specific tasks ranked by AI visibility impact.`,
     });
 
     const tasks = Array.isArray(parsed.tasks)
       ? parsed.tasks
           .map((t) => ({
             task: String(t?.task || "").trim(),
-            points: Math.max(1, Math.min(10, Math.round(Number(t?.points) || 1))),
+            why: String(t?.why || "").trim(),
+            effort: ["quick", "medium", "high"].includes(t?.effort) ? t.effort : "medium",
+            category: ["Content", "Citations", "Presence", "Technical"].includes(t?.category)
+              ? t.category
+              : "Content",
+            points: Math.max(1, Math.min(8, Math.round(Number(t?.points) || 1))),
           }))
           .filter((t) => t.task)
-          .slice(0, 6)
+          .slice(0, 10)
       : [];
 
     const totalGain = tasks.reduce((sum, t) => sum + t.points, 0);

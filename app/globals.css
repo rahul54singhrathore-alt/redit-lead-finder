@@ -10056,21 +10056,75 @@ button {
   gap: 10px;
 }
 
-.geo-task {
+/* Category groups */
+.geo-category-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-top: 20px;
+}
+
+.geo-category-group {}
+
+.geo-category-header {
   display: flex;
   align-items: center;
+  gap: 9px;
+  margin-bottom: 10px;
+}
+
+.geo-category-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.geo-category-icon svg { width: 14px; height: 14px; }
+
+.geo-category-label {
+  font-size: 0.8125rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #52525b;
+  flex: 1;
+}
+
+.geo-category-count {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #a1a1aa;
+}
+
+/* Task items */
+.geo-tasks {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.geo-task {
+  display: flex;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
   padding: 14px 16px;
   border-radius: 12px;
-  border: 1px solid rgba(154, 52, 18, 0.12);
+  border: 1px solid #e4e4e7;
   background: #fff;
   transition: background 0.16s ease, border-color 0.16s ease;
 }
 
 .geo-task label {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 12px;
   cursor: pointer;
   flex: 1;
@@ -10091,8 +10145,9 @@ button {
   width: 22px;
   height: 22px;
   flex-shrink: 0;
+  margin-top: 1px;
   border-radius: 7px;
-  border: 2px solid rgba(154, 52, 18, 0.25);
+  border: 2px solid #d4d4d8;
   background: #fff;
   transition: background 0.16s ease, border-color 0.16s ease;
 }
@@ -10107,11 +10162,46 @@ button {
   transition: opacity 0.16s ease, transform 0.16s ease;
 }
 
-.geo-task-text {
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: #24201d;
+.geo-task-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
 }
+
+.geo-task-text {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #18181b;
+  line-height: 1.35;
+}
+
+.geo-task-why {
+  font-size: 0.8rem;
+  color: #71717a;
+  line-height: 1.45;
+}
+
+.geo-task-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.geo-task-effort {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.geo-task-effort svg { width: 11px; height: 11px; }
 
 .geo-task-points {
   flex-shrink: 0;
@@ -10122,11 +10212,12 @@ button {
   font-size: 0.82rem;
   font-weight: 800;
   border: 1px solid rgba(249, 115, 22, 0.2);
+  white-space: nowrap;
 }
 
 .geo-task-done {
-  background: rgba(34, 197, 94, 0.07);
-  border-color: rgba(34, 197, 94, 0.22);
+  background: rgba(34, 197, 94, 0.06);
+  border-color: rgba(34, 197, 94, 0.2);
 }
 
 .geo-task-done .geo-task-box {
@@ -10140,8 +10231,12 @@ button {
 }
 
 .geo-task-done .geo-task-text {
-  color: #57514a;
+  color: #71717a;
   text-decoration: line-through;
+}
+
+.geo-task-done .geo-task-why {
+  opacity: 0.5;
 }
 
 .geo-task-done .geo-task-points {
@@ -10150,11 +10245,22 @@ button {
   border-color: rgba(34, 197, 94, 0.25);
 }
 
+/* All done message */
+.geo-all-done {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 10px 0 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #16a34a;
+}
+
+.geo-all-done svg { width: 15px; height: 15px; flex-shrink: 0; }
+
 @media (max-width: 720px) {
-  .geo-headline {
-    flex-direction: column;
-    align-items: stretch;
-  }
+  .geo-headline { flex-direction: column; align-items: stretch; }
+  .geo-task-meta { flex-direction: row; align-items: center; }
 }
 
 /* GEO Roadmap — idle empty state hero */
@@ -10194,6 +10300,14 @@ button {
   border-radius: 7px;
   border: 2px dashed rgba(249, 115, 22, 0.35);
   background: rgba(249, 115, 22, 0.06);
+}
+
+.geo-preview-cat-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  flex-shrink: 0;
+  opacity: 0.5;
 }
 
 .geo-preview-bar {
