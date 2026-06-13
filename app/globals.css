@@ -1340,7 +1340,7 @@
   border: 1px solid rgba(154, 52, 18, 0.1);
   border-radius: 16px;
   background: #fff;
-  box-shadow: 0 2px 6px rgba(154, 52, 18, 0.04);
+  box-shadow: 0 2px 6px rgba(9, 9, 11, 0.04);
   transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
 }
 
@@ -4835,9 +4835,7 @@ button {
   max-width: none;
   padding: 28px 32px 48px;
   min-height: 100vh;
-  background:
-    linear-gradient(180deg, rgba(248, 250, 252, 0.92) 0%, rgba(255, 255, 255, 1) 16%),
-    linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(16, 185, 129, 0.03) 55%, rgba(245, 158, 11, 0.04));
+  background: #f7f7f8;
 }
 
 .dashboard-main-shadcn {
@@ -4872,12 +4870,10 @@ button {
   justify-content: space-between;
   gap: 20px;
   padding: 24px 26px;
-  border: 1px solid rgba(154, 52, 18, 0.12);
+  border: 1px solid #e4e4e7;
   border-radius: 18px;
-  background:
-    radial-gradient(circle at 88% 8%, rgba(251, 146, 60, 0.18), transparent 30%),
-    linear-gradient(135deg, rgba(255, 247, 237, 0.92), rgba(255, 255, 255, 0.96));
-  box-shadow: 0 14px 36px rgba(154, 52, 18, 0.08);
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(9, 9, 11, 0.05), 0 6px 16px rgba(9, 9, 11, 0.04);
 }
 
 .dashboard-setup-hub-copy {
@@ -4915,10 +4911,10 @@ button {
   display: grid;
   gap: 12px;
   padding: 18px;
-  border: 1px solid rgba(154, 52, 18, 0.12);
+  border: 1px solid #e4e4e7;
   border-radius: 14px;
-  background: rgba(255, 255, 255, 0.9);
-  box-shadow: 0 10px 26px rgba(154, 52, 18, 0.06);
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(9, 9, 11, 0.04);
 }
 
 .dashboard-setup-card-top {
@@ -4929,9 +4925,9 @@ button {
 }
 
 .dashboard-setup-step {
-  color: #9a3412;
-  font-size: 0.78rem;
-  font-weight: 900;
+  color: #71717a;
+  font-size: 0.75rem;
+  font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -4956,21 +4952,20 @@ button {
   display: grid;
   gap: 8px;
   padding: 16px;
-  border: 1px solid rgba(154, 52, 18, 0.12);
+  border: 1px solid #e4e4e7;
   border-radius: 14px;
-  background: #fffaf3;
-  box-shadow: 0 10px 26px rgba(154, 52, 18, 0.06);
-  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(9, 9, 11, 0.04);
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
 }
 
 .quick-access-card:hover {
-  transform: translateY(-1px);
-  border-color: rgba(249, 115, 22, 0.28);
-  box-shadow: 0 14px 32px rgba(154, 52, 18, 0.1);
+  border-color: #d4d4d8;
+  box-shadow: 0 2px 8px rgba(9, 9, 11, 0.06);
 }
 
 .quick-access-card strong {
-  color: #24201d;
+  color: #09090b;
   font-size: 0.95rem;
 }
 
@@ -5083,12 +5078,12 @@ button {
 }
 
 .header-status-pill-warn {
-  color: #9a3412;
+  color: #71717a;
 }
 
 .header-status-pill-warn span {
-  background: #f97316;
-  box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.14);
+  background: #18181b;
+  box-shadow: 0 0 0 4px rgba(9, 9, 11, 0.06);
 }
 
 .dashboard-content {
@@ -5175,12 +5170,11 @@ button {
   justify-content: space-between;
   gap: 24px;
   padding: 28px;
-  border: 1px solid #d6d3d1;
+  border: 1px solid #e4e4e7;
   border-radius: 14px;
   background:
-    linear-gradient(135deg, rgba(255, 247, 237, 0.98), rgba(255, 255, 255, 0.96)),
-    #fff7ed;
-  box-shadow: 0 12px 28px rgba(154, 52, 18, 0.08);
+    #ffffff;
+  box-shadow: 0 12px 28px rgba(9, 9, 11, 0.05);
 }
 
 .dashboard-hero-card > div:first-child {
@@ -5188,7 +5182,7 @@ button {
 }
 
 .dashboard-kicker {
-  color: #9a3412;
+  color: #71717a;
   font-size: 0.8125rem;
   font-weight: 800;
   text-transform: uppercase;
@@ -5206,7 +5200,7 @@ button {
 .dashboard-hero-card p {
   max-width: 620px;
   margin: 10px 0 0;
-  color: #57534e;
+  color: #52525b;
   line-height: 1.55;
 }
 
@@ -5232,9 +5226,9 @@ button {
   border-radius: 22px;
   background:
     radial-gradient(120% 120% at 30% 20%, rgba(255, 255, 255, 0.55), transparent 60%),
-    linear-gradient(150deg, #f97316 0%, #ea580c 55%, #c2410c 100%);
+    linear-gradient(150deg, #18181b 0%, #27272a 55%, #09090b 100%);
   box-shadow:
-    0 14px 30px rgba(194, 65, 12, 0.32),
+    0 14px 30px rgba(9, 9, 11, 0.20),
     inset 0 1px 0 rgba(255, 255, 255, 0.35);
   color: #fff;
   overflow: hidden;
@@ -5712,23 +5706,34 @@ button {
 }
 
 .action-button {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 12px;
-  width: 100%;
-  padding: 14px 16px;
+  gap: 7px;
+  width: auto;
+  padding: 8px 14px;
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: 8px;
   background: #fff;
-  font-size: 0.9375rem;
+  font-size: 0.875rem;
   font-weight: 500;
+  color: #3f3f46;
+  white-space: nowrap;
   text-align: left;
-  transition: background 0.2s, border-color 0.2s;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
 }
 
 .action-button:hover {
   background: var(--surface);
   border-color: #d4d4d8;
+  color: var(--ink);
+}
+
+/* In quick-action lists, restore full width */
+.quick-actions .action-button {
+  width: 100%;
+  padding: 13px 16px;
+  gap: 12px;
+  font-size: 0.9375rem;
 }
 
 /* Add Keyword Form */
@@ -6474,18 +6479,18 @@ button {
   padding: 0 16px;
   border: 0;
   border-radius: 12px;
-  background: linear-gradient(135deg, #f97316, #ea580c);
+  background: #18181b;
   color: #fff;
   font-size: 0.875rem;
   font-weight: 800;
   white-space: nowrap;
   cursor: pointer;
   transition: opacity 0.15s;
-  box-shadow: 0 4px 14px rgba(234, 88, 12, 0.22);
+  box-shadow: 0 4px 14px rgba(9, 9, 11, 0.14);
 }
 
 .settings-autofill-button:hover { opacity: 0.9; }
-.settings-autofill-button:focus-visible { outline: 0; box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.4); }
+.settings-autofill-button:focus-visible { outline: 0; box-shadow: 0 0 0 3px rgba(9, 9, 11, 0.2); }
 .settings-autofill-button:disabled { cursor: progress; opacity: 0.6; }
 .settings-autofill-button svg { width: 16px; height: 16px; }
 
@@ -6514,7 +6519,7 @@ button {
   height: 18px;
   vertical-align: -3px;
   margin-right: 7px;
-  color: #f97316;
+  color: #18181b;
 }
 
 .settings-plan-row {
@@ -6526,7 +6531,7 @@ button {
 .settings-plan-name {
   font-size: 1.15rem;
   font-weight: 800;
-  color: #24201d;
+  color: #09090b;
   margin-right: 10px;
 }
 
@@ -6587,11 +6592,11 @@ button {
 .settings-engine-chip {
   padding: 4px 11px;
   border-radius: 999px;
-  border: 1px solid rgba(249, 115, 22, 0.2);
-  background: rgba(249, 115, 22, 0.06);
+  border: 1px solid rgba(9, 9, 11, 0.10);
+  background: rgba(9, 9, 11, 0.04);
   font-size: 0.78rem;
   font-weight: 700;
-  color: #c2410c;
+  color: #09090b;
 }
 
 .settings-test-row {
@@ -6646,7 +6651,7 @@ button {
   height: 20px;
   vertical-align: -4px;
   margin-right: 6px;
-  color: #f97316;
+  color: #18181b;
 }
 
 .geo-score-empty {
@@ -6661,7 +6666,7 @@ button {
 .geo-score-empty svg {
   width: 28px;
   height: 28px;
-  color: #f97316;
+  color: #a1a1aa;
 }
 
 .geo-score-body {
@@ -6694,19 +6699,19 @@ button {
   display: grid;
   place-items: center;
   align-content: center;
-  box-shadow: inset 0 2px 8px rgba(154, 52, 18, 0.08);
+  box-shadow: inset 0 1px 4px rgba(9, 9, 11, 0.06);
 }
 
 .geo-score-ring-inner strong {
   font-size: 2.6rem;
   font-weight: 800;
   line-height: 1;
-  color: #c2410c;
+  color: #09090b;
 }
 
 .geo-score-ring-inner span {
   font-size: 0.8rem;
-  color: #8a8078;
+  color: #71717a;
 }
 
 .geo-score-potential {
@@ -6722,7 +6727,7 @@ button {
 
 .geo-score-potential span:last-child {
   font-size: 0.74rem;
-  color: #8a8078;
+  color: #71717a;
 }
 
 .geo-score-detail {
@@ -6732,11 +6737,11 @@ button {
 
 .geo-score-reasons-title {
   margin: 0 0 10px;
-  font-size: 0.8rem;
-  font-weight: 800;
+  font-size: 0.75rem;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: #c2410c;
+  letter-spacing: 0.06em;
+  color: #71717a;
 }
 
 .geo-score-reasons {
@@ -6751,8 +6756,8 @@ button {
   display: flex;
   align-items: flex-start;
   gap: 9px;
-  font-size: 0.95rem;
-  color: #3f3a35;
+  font-size: 0.9375rem;
+  color: #3f3f46;
 }
 
 .geo-score-reasons li svg {
@@ -6760,7 +6765,7 @@ button {
   height: 15px;
   flex-shrink: 0;
   margin-top: 2px;
-  color: #f97316;
+  color: #16a34a;
 }
 
 .geo-score-impact {
@@ -6784,15 +6789,15 @@ button {
 }
 
 .geo-score-impact-label {
-  font-size: 0.88rem;
-  color: #57514a;
+  font-size: 0.875rem;
+  color: #52525b;
 }
 
 .geo-score-disclaimer {
   margin: 14px 0 0;
   font-size: 0.78rem;
   font-style: italic;
-  color: #a89c8e;
+  color: #a1a1aa;
 }
 
 .geo-score-checks-note {
@@ -6816,10 +6821,10 @@ button {
   width: 52px;
   height: 52px;
   border-radius: 999px;
-  background: linear-gradient(135deg, rgba(249,115,22,0.12), rgba(249,115,22,0.04));
+  background: #f4f4f5;
   display: grid;
   place-items: center;
-  color: #f97316;
+  color: #18181b;
 }
 
 .geo-loading-ring svg { width: 24px; height: 24px; }
@@ -6918,12 +6923,12 @@ button {
 
 /* Impact button */
 .geo-impact-btn {
-  background: linear-gradient(135deg, #f97316, #ea580c);
-  box-shadow: 0 4px 14px rgba(234, 88, 12, 0.22);
+  background: #18181b;
+  box-shadow: 0 2px 8px rgba(9, 9, 11, 0.16);
   font-size: 0.875rem;
   padding: 10px 18px;
 }
-.geo-impact-btn:hover { opacity: 0.9; background: linear-gradient(135deg, #f97316, #ea580c); }
+.geo-impact-btn:hover { background: #27272a; }
 
 /* Query breakdown */
 .geo-prompt-section {
@@ -7102,7 +7107,7 @@ button {
   height: 19px;
   vertical-align: -4px;
   margin-right: 6px;
-  color: #f97316;
+  color: #18181b;
 }
 
 .vis-empty {
@@ -7117,7 +7122,7 @@ button {
 .vis-empty svg {
   width: 28px;
   height: 28px;
-  color: #f97316;
+  color: #a1a1aa;
 }
 
 .vis-hero {
@@ -7137,12 +7142,12 @@ button {
   font-size: 3.4rem;
   font-weight: 800;
   line-height: 1;
-  color: #c2410c;
+  color: #09090b;
 }
 
 .vis-hero-score span {
   font-size: 1.1rem;
-  color: #8a8078;
+  color: #71717a;
 }
 
 .vis-trend {
@@ -7190,14 +7195,14 @@ button {
 }
 
 .vis-engine-label strong {
-  font-size: 0.95rem;
-  color: #24201d;
+  font-size: 0.9375rem;
+  color: #09090b;
 }
 
 .vis-engine-label span {
-  font-size: 0.95rem;
-  font-weight: 800;
-  color: #57514a;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: #3f3f46;
 }
 
 .vis-engine-track {
@@ -7230,27 +7235,27 @@ button {
   gap: 4px;
   padding: 18px;
   border-radius: 14px;
-  background: #fffaf3;
-  border: 1px solid rgba(154, 52, 18, 0.1);
+  background: #f9fafb;
+  border: 1px solid #e4e4e7;
 }
 
 .vis-stat-value {
   font-size: 1.8rem;
   font-weight: 800;
-  color: #c2410c;
+  color: #09090b;
   line-height: 1;
 }
 
 .vis-stat-label {
   font-size: 0.82rem;
-  color: #8a8078;
+  color: #71717a;
 }
 
 .vis-disclaimer {
   margin: 4px 0 0;
   font-size: 0.78rem;
   font-style: italic;
-  color: #a89c8e;
+  color: #a1a1aa;
 }
 
 /* GeoScore grade label */
@@ -7429,7 +7434,7 @@ button {
   height: 16px;
   vertical-align: -3px;
   margin-right: 6px;
-  color: #f97316;
+  color: #18181b;
 }
 
 .vis-prompt-list {
@@ -7563,10 +7568,10 @@ button {
   width: 52px;
   height: 52px;
   border-radius: 999px;
-  background: linear-gradient(135deg, rgba(249,115,22,0.12), rgba(249,115,22,0.04));
+  background: linear-gradient(135deg, rgba(9,9,11,0.06), rgba(9,9,11,0.03));
   display: grid;
   place-items: center;
-  color: #f97316;
+  color: #18181b;
 }
 
 .vis-loading-ring svg { width: 24px; height: 24px; }
@@ -7726,7 +7731,7 @@ button {
 .memory-progress-fill {
   height: 100%;
   border-radius: 999px;
-  background: linear-gradient(90deg, #f97316, #fb923c);
+  background: linear-gradient(90deg, #22c55e, #16a34a);
   transition: width 0.5s ease;
 }
 
@@ -7767,7 +7772,7 @@ button {
   grid-template-columns: 160px 1fr;
   gap: 16px;
   padding: 14px 4px;
-  border-bottom: 1px solid rgba(154, 52, 18, 0.08);
+  border-bottom: 1px solid rgba(9, 9, 11, 0.05);
 }
 
 .memory-fact:last-child {
@@ -7777,7 +7782,7 @@ button {
 .memory-fact dt {
   font-size: 0.85rem;
   font-weight: 700;
-  color: #8a8078;
+  color: #71717a;
   text-transform: uppercase;
   letter-spacing: 0.03em;
 }
@@ -7785,7 +7790,7 @@ button {
 .memory-fact dd {
   margin: 0;
   font-size: 0.95rem;
-  color: #24201d;
+  color: #09090b;
   line-height: 1.5;
   word-break: break-word;
 }
@@ -7866,12 +7871,12 @@ button {
   min-height: 48px;
   font-size: 1rem;
   padding: 12px 28px;
-  background: linear-gradient(135deg, #f97316, #ea580c);
-  box-shadow: 0 6px 18px rgba(234, 88, 12, 0.26);
+  background: #18181b;
+  box-shadow: 0 2px 8px rgba(9, 9, 11, 0.14);
 }
 
-.settings-save-button:hover { background: linear-gradient(135deg, #f97316, #dc4f0b); opacity: 1; }
-.settings-save-button:focus-visible { outline: 0; box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.4); }
+.settings-save-button:hover { background: #27272a; }
+.settings-save-button:focus-visible { outline: 0; box-shadow: 0 0 0 3px rgba(9, 9, 11, 0.2); }
 
 .settings-saved {
   color: #059669;
@@ -8341,7 +8346,7 @@ button {
 }
 
 .usage-meter-fill-full {
-  background: linear-gradient(90deg, #ef4444 0%, #f97316 100%);
+  background: linear-gradient(90deg, #ef4444 0%, #18181b 100%);
 }
 
 /* AI recommendation simulator */
@@ -8354,7 +8359,7 @@ button {
   width: 18px;
   height: 18px;
   vertical-align: -3px;
-  color: #ea580c;
+  color: #27272a;
   margin-right: 4px;
 }
 
@@ -8365,15 +8370,15 @@ button {
   min-width: 92px;
   padding: 10px 14px;
   border-radius: 14px;
-  background: linear-gradient(150deg, #fff7ed, #ffedd5);
-  border: 1px solid #fed7aa;
+  background: #f9fafb;
+  border: 1px solid #e4e4e7;
 }
 
 .sim-score-value {
   font-size: 1.875rem;
   font-weight: 800;
   line-height: 1;
-  color: #9a3412;
+  color: #71717a;
 }
 
 .sim-score-label {
@@ -8381,7 +8386,7 @@ button {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: #c2410c;
+  color: #09090b;
 }
 
 .sim-form {
@@ -8529,7 +8534,7 @@ button {
 
 .sim-row-brand .sim-row-name {
   font-weight: 800;
-  color: #9a3412;
+  color: #71717a;
 }
 
 .sim-row-bar {
@@ -8547,7 +8552,7 @@ button {
 }
 
 .sim-row-brand .sim-row-fill {
-  background: linear-gradient(90deg, #f97316, #ea580c);
+  background: #18181b;
 }
 
 .sim-row-score {
@@ -8702,7 +8707,7 @@ button {
 .fixes-lock-overlay svg {
   width: 28px;
   height: 28px;
-  color: #ea580c;
+  color: #27272a;
 }
 
 .fixes-lock-overlay strong {
@@ -8854,7 +8859,7 @@ button {
   width: 32px;
   height: 32px;
   border-radius: 9px;
-  background: linear-gradient(150deg, #f97316, #ea580c);
+  background: #18181b;
   box-shadow: 0 4px 12px rgba(234, 88, 12, 0.3);
 }
 
@@ -8958,7 +8963,7 @@ button {
   border: 1px solid #fcd34d;
   background:
     radial-gradient(120% 140% at 0% 0%, #fffbeb, transparent 55%),
-    linear-gradient(135deg, #fff7ed 0%, #fef3c7 100%);
+    #f9fafb;
   box-shadow: 0 16px 40px rgba(202, 138, 4, 0.16);
 }
 
@@ -9269,7 +9274,7 @@ button {
 .competitor-suggest {
   margin-top: 18px;
   padding-top: 16px;
-  border-top: 1px dashed rgba(154, 52, 18, 0.16);
+  border-top: 1px dashed rgba(9, 9, 11, 0.08);
 }
 
 .competitor-suggest-label {
@@ -9278,13 +9283,13 @@ button {
   gap: 7px;
   font-size: 0.82rem;
   font-weight: 700;
-  color: #9a3412;
+  color: #71717a;
 }
 
 .competitor-suggest-label svg {
   width: 15px;
   height: 15px;
-  color: #f97316;
+  color: #18181b;
 }
 
 .competitor-suggest-row {
@@ -9301,8 +9306,8 @@ button {
   padding: 7px 13px;
   border-radius: 999px;
   border: 1px solid rgba(249, 115, 22, 0.28);
-  background: #fff7ed;
-  color: #c2410c;
+  background: #f9fafb;
+  color: #09090b;
   font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
@@ -9310,7 +9315,7 @@ button {
 }
 
 .competitor-suggest-chip:hover {
-  background: linear-gradient(135deg, #fb923c, #f97316);
+  background: #18181b;
   border-color: transparent;
   color: #fff;
   transform: translateY(-1px);
@@ -9327,7 +9332,7 @@ button {
   height: 20px;
   vertical-align: -4px;
   margin-right: 6px;
-  color: #f97316;
+  color: #18181b;
 }
 
 .mention-opp-empty {
@@ -9342,7 +9347,7 @@ button {
 .mention-opp-empty svg {
   width: 30px;
   height: 30px;
-  color: #f97316;
+  color: #18181b;
 }
 
 .mention-opp-empty p {
@@ -9361,7 +9366,7 @@ button {
   padding: 22px;
   margin-top: 6px;
   border-radius: 16px;
-  background: linear-gradient(135deg, #fff7ed, #fffaf3);
+  background: #f9fafb;
   border: 1px solid rgba(249, 115, 22, 0.18);
 }
 
@@ -9371,7 +9376,7 @@ button {
   min-width: 96px;
   padding: 14px;
   border-radius: 14px;
-  background: linear-gradient(135deg, #fb923c, #f97316);
+  background: #18181b;
   color: #fff;
   box-shadow: 0 12px 26px rgba(249, 115, 22, 0.28);
 }
@@ -9397,7 +9402,7 @@ button {
   margin: 0;
   font-size: 1.2rem;
   font-weight: 700;
-  color: #24201d;
+  color: #09090b;
 }
 
 .mention-opp-headline-copy p {
@@ -9437,7 +9442,7 @@ button {
 }
 
 .mention-opp-list-title-miss {
-  color: #c2410c;
+  color: #09090b;
 }
 
 .mention-opp-list-title-win {
@@ -9461,28 +9466,28 @@ button {
   gap: 3px;
   padding: 10px 13px;
   border-radius: 10px;
-  border: 1px solid rgba(154, 52, 18, 0.1);
+  border: 1px solid rgba(9, 9, 11, 0.04);
   background: #fff;
   font-size: 0.9rem;
 }
 
 .mention-opp-row-miss {
-  border-left: 3px solid #f97316;
+  border-left: 3px solid #18181b;
 }
 
 .mention-opp-row-win {
   border-left: 3px solid #22c55e;
-  color: #57514a;
+  color: #52525b;
 }
 
 .mention-opp-prompt {
   font-weight: 600;
-  color: #24201d;
+  color: #09090b;
 }
 
 .mention-opp-rec {
   font-size: 0.8rem;
-  color: #8a8078;
+  color: #71717a;
 }
 
 .mention-opp-fix {
@@ -9516,7 +9521,7 @@ button {
   height: 20px;
   vertical-align: -4px;
   margin-right: 6px;
-  color: #f97316;
+  color: #18181b;
 }
 
 .edge-list {
@@ -9528,9 +9533,9 @@ button {
 
 .edge-item {
   padding: 16px 18px;
-  border: 1px solid rgba(154, 52, 18, 0.12);
+  border: 1px solid rgba(9, 9, 11, 0.06);
   border-radius: 16px;
-  background: #fffaf3;
+  background: #f9fafb;
 }
 
 .edge-item-head {
@@ -9542,7 +9547,7 @@ button {
 
 .edge-item-head strong {
   font-size: 1.05rem;
-  color: #24201d;
+  color: #09090b;
 }
 
 .edge-error {
@@ -9569,7 +9574,7 @@ button {
   padding: 14px;
   border-radius: 14px;
   background: #fff;
-  border: 1px solid rgba(154, 52, 18, 0.1);
+  border: 1px solid rgba(9, 9, 11, 0.04);
 }
 
 .edge-mention strong {
@@ -9580,15 +9585,15 @@ button {
 
 .edge-mention-win {
   border-color: rgba(249, 115, 22, 0.3);
-  background: linear-gradient(135deg, #fff7ed, #fffaf3);
+  background: #f9fafb;
 }
 
 .edge-mention-win strong {
-  color: #c2410c;
+  color: #09090b;
 }
 
 .edge-mention-you strong {
-  color: #57514a;
+  color: #52525b;
 }
 
 .edge-mention-label {
@@ -9597,7 +9602,7 @@ button {
   gap: 5px;
   font-size: 0.85rem;
   font-weight: 700;
-  color: #24201d;
+  color: #09090b;
 }
 
 .edge-mention-label svg {
@@ -9608,7 +9613,7 @@ button {
 
 .edge-mention-sub {
   font-size: 0.75rem;
-  color: #8a8078;
+  color: #71717a;
 }
 
 .edge-vs {
@@ -9628,7 +9633,7 @@ button {
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: #c2410c;
+  color: #09090b;
 }
 
 .edge-reasons ul {
@@ -9644,7 +9649,7 @@ button {
   align-items: flex-start;
   gap: 9px;
   font-size: 0.92rem;
-  color: #3f3a35;
+  color: #3f3f46;
 }
 
 .edge-reasons li svg {
@@ -9655,7 +9660,7 @@ button {
   padding: 3px;
   border-radius: 999px;
   color: #fff;
-  background: linear-gradient(135deg, #fb923c, #f97316);
+  background: #18181b;
 }
 
 .edge-actions {
@@ -9717,7 +9722,7 @@ button {
   margin: 14px 0 0;
   font-size: 0.78rem;
   font-style: italic;
-  color: #a89c8e;
+  color: #a1a1aa;
 }
 
 /* AI Citation Tracker */
@@ -9726,7 +9731,7 @@ button {
   height: 19px;
   vertical-align: -4px;
   margin-right: 6px;
-  color: #f97316;
+  color: #18181b;
 }
 
 .cite-empty {
@@ -9741,7 +9746,7 @@ button {
 .cite-empty svg {
   width: 30px;
   height: 30px;
-  color: #f97316;
+  color: #18181b;
 }
 
 .cite-empty p {
@@ -9791,7 +9796,7 @@ button {
   gap: 10px;
   padding: 12px 13px;
   border-radius: 12px;
-  border: 1px solid rgba(154, 52, 18, 0.1);
+  border: 1px solid rgba(9, 9, 11, 0.04);
   background: #fff;
 }
 
@@ -9803,12 +9808,12 @@ button {
 
 .cite-row strong {
   font-size: 0.95rem;
-  color: #24201d;
+  color: #09090b;
 }
 
 .cite-row span {
   font-size: 0.82rem;
-  color: #8a8078;
+  color: #71717a;
   line-height: 1.4;
 }
 
@@ -9940,7 +9945,7 @@ button {
   margin: 16px 0 0;
   font-size: 0.78rem;
   font-style: italic;
-  color: #a89c8e;
+  color: #a1a1aa;
 }
 
 @media (max-width: 720px) {
@@ -9955,7 +9960,7 @@ button {
   height: 20px;
   vertical-align: -4px;
   margin-right: 6px;
-  color: #f97316;
+  color: #18181b;
 }
 
 .geo-empty {
@@ -9970,7 +9975,7 @@ button {
 .geo-empty svg {
   width: 30px;
   height: 30px;
-  color: #f97316;
+  color: #18181b;
 }
 
 .geo-empty p {
@@ -9985,7 +9990,7 @@ button {
   padding: 20px 22px;
   margin-top: 6px;
   border-radius: 16px;
-  background: linear-gradient(135deg, #fff7ed, #fffaf3);
+  background: #f9fafb;
   border: 1px solid rgba(249, 115, 22, 0.18);
 }
 
@@ -10208,10 +10213,10 @@ button {
   padding: 4px 10px;
   border-radius: 999px;
   background: #fff2e6;
-  color: #c2410c;
+  color: #09090b;
   font-size: 0.82rem;
   font-weight: 800;
-  border: 1px solid rgba(249, 115, 22, 0.2);
+  border: 1px solid rgba(9, 9, 11, 0.10);
   white-space: nowrap;
 }
 
@@ -10289,7 +10294,7 @@ button {
   gap: 12px;
   padding: 13px 16px;
   border-radius: 12px;
-  border: 1px solid rgba(249, 115, 22, 0.12);
+  border: 1px solid rgba(9, 9, 11, 0.06);
   background: linear-gradient(135deg, rgba(255, 247, 237, 0.6), rgba(255, 255, 255, 0.8));
 }
 
@@ -10299,7 +10304,7 @@ button {
   flex-shrink: 0;
   border-radius: 7px;
   border: 2px dashed rgba(249, 115, 22, 0.35);
-  background: rgba(249, 115, 22, 0.06);
+  background: rgba(9, 9, 11, 0.04);
 }
 
 .geo-preview-cat-dot {
@@ -10361,7 +10366,7 @@ button {
   padding: 13px 26px;
   border: 0;
   border-radius: 11px;
-  background: linear-gradient(135deg, #f97316, #ea580c);
+  background: #18181b;
   color: #fff;
   font-size: 0.9375rem;
   font-weight: 800;
@@ -10372,7 +10377,7 @@ button {
 
 .geo-build-cta:hover { opacity: 0.92; box-shadow: 0 12px 28px rgba(234, 88, 12, 0.34); }
 .geo-build-cta:active { transform: translateY(1px); }
-.geo-build-cta:focus-visible { outline: 0; box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.4); }
+.geo-build-cta:focus-visible { outline: 0; box-shadow: 0 0 0 3px rgba(9, 9, 11, 0.2); }
 .geo-build-cta svg { width: 16px; height: 16px; }
 
 /* GEO Coverage areas section */
@@ -10411,7 +10416,7 @@ button {
   width: 32px;
   height: 32px;
   border-radius: 9px;
-  background: linear-gradient(135deg, #f97316, #ea580c);
+  background: #18181b;
   color: #fff;
   margin-bottom: 4px;
 }
@@ -10439,7 +10444,7 @@ button {
   height: 19px;
   vertical-align: -4px;
   margin-right: 6px;
-  color: #f97316;
+  color: #18181b;
 }
 
 .reddit-empty {
@@ -10454,7 +10459,7 @@ button {
 .reddit-empty svg {
   width: 30px;
   height: 30px;
-  color: #f97316;
+  color: #18181b;
 }
 
 .reddit-empty p {
@@ -10475,10 +10480,10 @@ button {
 
 .reddit-card {
   padding: 18px;
-  border: 1px solid rgba(154, 52, 18, 0.12);
+  border: 1px solid rgba(9, 9, 11, 0.06);
   border-radius: 16px;
   background: #fff;
-  box-shadow: 0 2px 6px rgba(154, 52, 18, 0.04);
+  box-shadow: 0 2px 6px rgba(9, 9, 11, 0.04);
 }
 
 .reddit-card-head {
@@ -10492,14 +10497,14 @@ button {
   display: inline-block;
   font-size: 0.8rem;
   font-weight: 700;
-  color: #c2410c;
+  color: #09090b;
 }
 
 .reddit-post {
   margin: 4px 0 0;
   font-size: 1.05rem;
   font-weight: 700;
-  color: #24201d;
+  color: #09090b;
 }
 
 .reddit-badges {
@@ -10513,7 +10518,7 @@ button {
 .reddit-score {
   padding: 4px 11px;
   border-radius: 999px;
-  background: linear-gradient(135deg, #fb923c, #f97316);
+  background: #18181b;
   color: #fff;
   font-size: 0.85rem;
   font-weight: 800;
@@ -10551,8 +10556,8 @@ button {
   margin-top: 14px;
   padding: 14px;
   border-radius: 12px;
-  background: #fffaf3;
-  border: 1px solid rgba(154, 52, 18, 0.1);
+  background: #f9fafb;
+  border: 1px solid rgba(9, 9, 11, 0.04);
 }
 
 .reddit-draft-top {
@@ -10567,7 +10572,7 @@ button {
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: #8a8078;
+  color: #71717a;
 }
 
 .reddit-copy {
@@ -10578,7 +10583,7 @@ button {
   border-radius: 999px;
   border: 1px solid rgba(249, 115, 22, 0.28);
   background: #fff;
-  color: #c2410c;
+  color: #09090b;
   font-size: 0.78rem;
   font-weight: 700;
   cursor: pointer;
@@ -10586,7 +10591,7 @@ button {
 }
 
 .reddit-copy:hover {
-  background: linear-gradient(135deg, #fb923c, #f97316);
+  background: #18181b;
   border-color: transparent;
   color: #fff;
 }
@@ -10600,7 +10605,7 @@ button {
   margin: 0;
   font-size: 0.92rem;
   line-height: 1.55;
-  color: #3f3a35;
+  color: #3f3f46;
   white-space: pre-wrap;
 }
 
@@ -10608,7 +10613,7 @@ button {
   margin: 16px 0 0;
   font-size: 0.78rem;
   font-style: italic;
-  color: #a89c8e;
+  color: #a1a1aa;
 }
 
 /* Reddit filter pills */
@@ -10625,7 +10630,7 @@ button {
   gap: 6px;
   padding: 5px 14px;
   border-radius: 999px;
-  border: 1px solid rgba(154, 52, 18, 0.18);
+  border: 1px solid #e4e4e7;
   background: #fff;
   color: #71717a;
   font-size: 0.8rem;
@@ -10635,12 +10640,12 @@ button {
 }
 
 .reddit-filter-pill:hover {
-  border-color: rgba(249, 115, 22, 0.4);
-  color: #c2410c;
+  border-color: rgba(9, 9, 11, 0.2);
+  color: #09090b;
 }
 
 .reddit-filter-pill-active {
-  background: linear-gradient(135deg, #fb923c, #f97316);
+  background: #18181b;
   border-color: transparent;
   color: #fff;
 }
@@ -10735,13 +10740,13 @@ button {
 
 .reddit-search-btn {
   background: #fff;
-  border-color: rgba(154, 52, 18, 0.2);
-  color: #c2410c;
+  border-color: #d4d4d8;
+  color: #09090b;
 }
 
 .reddit-search-btn:hover {
-  background: #fff7ed;
-  border-color: rgba(249, 115, 22, 0.4);
+  background: #f9fafb;
+  border-color: rgba(9, 9, 11, 0.2);
 }
 
 .reddit-save-btn {
@@ -10821,7 +10826,7 @@ button {
 .sov-center strong {
   font-size: 1.75rem;
   font-weight: 800;
-  color: #9a3412;
+  color: #71717a;
 }
 
 .sov-center span {
@@ -10861,7 +10866,7 @@ button {
 .sov-legend-name em {
   font-style: normal;
   font-weight: 700;
-  color: #9a3412;
+  color: #71717a;
 }
 
 .sov-dot {
@@ -10921,22 +10926,22 @@ button {
   justify-items: end;
   padding: 6px 12px;
   border-radius: 12px;
-  background: #fff7ed;
-  border: 1px solid #fed7aa;
+  background: #f9fafb;
+  border: 1px solid #e4e4e7;
 }
 
 .trend-current strong {
   font-size: 1.25rem;
   font-weight: 800;
   line-height: 1;
-  color: #9a3412;
+  color: #71717a;
 }
 
 .trend-current span {
   font-size: 0.6875rem;
   font-weight: 700;
   text-transform: uppercase;
-  color: #c2410c;
+  color: #09090b;
 }
 
 .trend-axis {
@@ -11057,7 +11062,7 @@ button {
   padding: 14px 16px;
   margin-top: 4px;
   border-radius: 14px;
-  background: linear-gradient(135deg, #fff7ed, #fffaf3);
+  background: #f9fafb;
   border: 1px solid rgba(249, 115, 22, 0.16);
 }
 
@@ -11073,7 +11078,7 @@ button {
   gap: 5px;
   padding: 6px 14px;
   border-radius: 999px;
-  background: linear-gradient(135deg, #fb923c, #f97316);
+  background: #18181b;
   color: #fff;
   font-size: 1.05rem;
   font-weight: 800;
@@ -11085,7 +11090,7 @@ button {
 }
 
 .rank-badge-first {
-  background: linear-gradient(135deg, #f59e0b, #ea580c);
+  background: linear-gradient(135deg, #f59e0b, #27272a);
 }
 
 .rank-badge-none {
@@ -11095,7 +11100,7 @@ button {
 
 .rank-total {
   font-size: 0.9rem;
-  color: #8a8078;
+  color: #71717a;
 }
 
 .rank-delta {
@@ -11129,8 +11134,8 @@ button {
 }
 
 .rank-delta-new {
-  background: rgba(249, 115, 22, 0.14);
-  color: #c2410c;
+  background: rgba(9, 9, 11, 0.06);
+  color: #09090b;
 }
 
 .rank-meta {
@@ -11142,18 +11147,18 @@ button {
 .rank-score {
   font-size: 1.25rem;
   font-weight: 800;
-  color: #c2410c;
+  color: #09090b;
 }
 
 .rank-score small {
   font-size: 0.72rem;
   font-weight: 600;
-  color: #a89c8e;
+  color: #a1a1aa;
 }
 
 .rank-checked {
   font-size: 0.8rem;
-  color: #8a8078;
+  color: #71717a;
 }
 
 /* Engine connection status bar (top of Prompt Rank Tracker) */
@@ -11229,7 +11234,7 @@ button {
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: #8a8078;
+  color: #71717a;
 }
 
 .engine-status-item-live .engine-status-state {
@@ -11239,7 +11244,7 @@ button {
 .engine-status-hint {
   margin: 10px 0 0 0;
   font-size: 0.76rem;
-  color: #8a8078;
+  color: #71717a;
 }
 
 .engine-status-hint code {
@@ -11289,7 +11294,7 @@ button {
 }
 
 .engine-chip-rank-none {
-  color: #8a8078;
+  color: #71717a;
   font-weight: 600;
   font-size: 0.8rem;
 }
@@ -11299,7 +11304,7 @@ button {
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: #8a8078;
+  color: #71717a;
 }
 
 .engine-chip-live .engine-chip-tag {
@@ -11459,8 +11464,8 @@ button {
 
 .checker-field input:focus {
   outline: 0;
-  border-color: #f97316;
-  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.22);
+  border-color: #18181b;
+  box-shadow: 0 0 0 3px rgba(9, 9, 11, 0.12);
 }
 
 .checker-brand-error {
@@ -11552,7 +11557,7 @@ button {
 }
 
 .checker-option-active {
-  background: linear-gradient(135deg, #f97316, #ea580c);
+  background: #18181b;
   color: #fff;
 }
 
@@ -11565,7 +11570,7 @@ button {
   padding: 13px 18px;
   border: 0;
   border-radius: 11px;
-  background: linear-gradient(135deg, #f97316, #ea580c);
+  background: #18181b;
   color: #fff;
   font-size: 0.9375rem;
   font-weight: 800;
@@ -11611,8 +11616,8 @@ button {
   gap: 6px;
   padding: 5px 12px;
   border-radius: 999px;
-  background: rgba(249, 115, 22, 0.12);
-  color: #c2410c;
+  background: rgba(9, 9, 11, 0.06);
+  color: #09090b;
   font-size: 0.75rem;
   font-weight: 800;
   text-transform: uppercase;
@@ -11692,7 +11697,7 @@ button {
 }
 
 .checker-preview-hint strong {
-  color: #ea580c;
+  color: #27272a;
 }
 
 .checker-preview-brands {
@@ -11869,7 +11874,7 @@ button {
 .checker-locked-overlay svg {
   width: 24px;
   height: 24px;
-  color: #ea580c;
+  color: #27272a;
 }
 
 .checker-locked-overlay > strong {
@@ -11925,7 +11930,7 @@ button {
 
 .leaderboard-row-brand {
   border-color: #fdba74;
-  background: linear-gradient(135deg, #fff7ed, #fff);
+  background: linear-gradient(135deg, #f9fafb, #fff);
 }
 
 .leaderboard-rank {
@@ -11953,7 +11958,7 @@ button {
 .leaderboard-name em {
   font-style: normal;
   font-weight: 800;
-  color: #9a3412;
+  color: #71717a;
 }
 
 .leaderboard-bar {
@@ -11971,7 +11976,7 @@ button {
 }
 
 .leaderboard-row-brand .leaderboard-fill {
-  background: linear-gradient(90deg, #f97316, #ea580c);
+  background: #18181b;
 }
 
 .leaderboard-wins {
@@ -13094,7 +13099,7 @@ button {
 /* Authenticated app theme — matches the sign-in / onboarding look. */
 [data-slot="sidebar-wrapper"] {
   --background: #fbfbfa;
-  --foreground: #24201d;
+  --foreground: #09090b;
   --primary: #18181b;
   --primary-foreground: #ffffff;
   --ring: #d4d4d8;
@@ -13404,7 +13409,7 @@ button {
 
 .seo-brief-block li strong {
   display: block;
-  color: #24201d;
+  color: #09090b;
 }
 
 .seo-brief-block li span {
@@ -13577,7 +13582,7 @@ button {
 
 .blog-idea-card h3 {
   margin: 0;
-  color: #24201d;
+  color: #09090b;
   font-size: 1rem;
   line-height: 1.35;
 }
@@ -13853,7 +13858,7 @@ button {
   width: 7px;
   height: 7px;
   border-radius: 999px;
-  background: #f97316;
+  background: #18181b;
   box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.18);
 }
 
@@ -13871,11 +13876,11 @@ button {
 
 .autosend-hero h1 em {
   font-style: normal;
-  background: linear-gradient(180deg, #fb923c, #f97316);
+  background: linear-gradient(180deg, #52525b, #18181b);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  color: #f97316;
+  color: #18181b;
 }
 
 .autosend-hero p {
@@ -14976,7 +14981,7 @@ button {
 
 .oras-post-body p {
   margin: 0 0 16px;
-  color: #3f3a35;
+  color: #3f3f46;
   font-size: 17px;
   line-height: 1.75;
 }
@@ -14984,7 +14989,7 @@ button {
 .oras-post-body ul {
   margin: 0 0 16px;
   padding-left: 22px;
-  color: #3f3a35;
+  color: #3f3f46;
   font-size: 17px;
   line-height: 1.7;
 }
