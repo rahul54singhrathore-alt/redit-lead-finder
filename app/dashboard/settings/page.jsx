@@ -19,6 +19,7 @@ import { getTier, formatLimit } from "../../../lib/subscription";
 import {
   INDUSTRY_OPTIONS,
   formatCommaSeparatedList,
+  formatDefaultVisibilitySources,
   normalizeWorkspaceProfile,
   parseCommaSeparatedList,
 } from "../../../lib/workspace-profile";

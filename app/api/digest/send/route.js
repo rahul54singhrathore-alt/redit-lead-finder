@@ -80,7 +80,7 @@ export async function POST(request) {
   // For test sends, limit to the requesting user only.
   let profilesQuery = admin
     .from("user_profiles")
-    .select("user_id, product_name, industry, email_digest")
+    .select("user_id, product_name, industry, email_digest, digest_frequency")
     .eq("email_digest", true)
     .not("product_name", "is", null)
     .neq("product_name", "");
@@ -117,6 +117,9 @@ export async function POST(request) {
 
     const brand = profile.product_name;
     const category = profile.industry || "";
+    const frequency = profile.digest_frequency || "weekly";
+    // Cron fires weekly — respect user's "off" preference (test sends always go through)
+    if (!isTest && frequency === "off") { skipped++; continue; }
 
     let visData;
     try {
@@ -140,7 +143,7 @@ export async function POST(request) {
     const { error: sendError } = await resend.emails.send({
       from: `Oras <${FROM}>`,
       to: email,
-      subject: `${brand} — your weekly AI visibility digest`,
+      subject: `${brand} — your ${frequency === "daily" ? "daily" : "weekly"} AI visibility digest`,
       html,
     });
 
