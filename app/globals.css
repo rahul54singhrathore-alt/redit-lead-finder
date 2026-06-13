@@ -15293,6 +15293,45 @@ button {
   text-decoration: underline;
 }
 
+.oras-otp-hint {
+  margin: 0 0 20px;
+  color: #71717a;
+  font-size: 14px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.oras-otp-hint strong {
+  color: #18181b;
+}
+
+.oras-otp-inputs {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.oras-otp-box {
+  width: 46px;
+  height: 54px;
+  border: 1px solid #e4e4e7;
+  border-radius: 10px;
+  background: #fff;
+  color: #09090b;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-align: center;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  outline: none;
+}
+
+.oras-otp-box:focus {
+  border-color: #18181b;
+  box-shadow: 0 0 0 3px rgba(24, 24, 27, 0.1);
+}
+
 .oras-auth-primary,
 .oras-auth-google {
   display: inline-flex;
