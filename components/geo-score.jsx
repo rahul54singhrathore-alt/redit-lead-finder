@@ -118,7 +118,7 @@ export function GeoScore({ brand, category }) {
                 </div>
                 <span className="geo-score-grade" style={{ color: meta.color }}>{meta.grade}</span>
                 <div className="geo-score-checks-note">
-                  {data.totalChecks} AI checks · {data.liveChecks > 0 ? `${data.liveChecks} live engines` : "Groq fallback"}
+                  {data.totalChecks} AI checks · {data.liveChecks > 0 ? `${data.liveChecks} live engines` : "simulated engines"}
                 </div>
               </div>
 

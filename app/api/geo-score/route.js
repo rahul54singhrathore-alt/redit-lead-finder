@@ -11,12 +11,17 @@ import { getCachedResult, putCachedResult } from "../../../lib/visibility-guard"
 // scans within the cache window are fast.
 
 function buildPrompts(brand, category) {
-  const cat = (category || "").trim();
+  const cat = (category || "").trim() || "AI and productivity";
   return [
-    cat ? `Best ${cat} tools and software` : `Best AI and productivity tools`,
+    // Pure discovery — user has no prior knowledge of the brand
+    `Best ${cat} tools and software in 2025`,
+    `Top ${cat} platforms recommended by professionals`,
+    // Comparison — user is evaluating options, no brand preselected
+    `${cat} software comparison — which tool should I use?`,
+    // Problem-based — indirect path to discovery
+    `How to track and improve my brand's visibility in AI search results`,
+    // Direct knowledge check — intentionally last and weighted lower in scoring
     `What is ${brand} and what does it do?`,
-    cat ? `Top ${cat} software compared` : `Most popular SaaS tools compared`,
-    `${brand} pricing features and alternatives`,
   ];
 }
 
@@ -37,32 +42,38 @@ export async function POST(request) {
 
   const prompts = buildPrompts(brand, category);
 
+  // Prompt weights: discovery queries count fully; the direct brand check (last prompt)
+  // counts at 40% since asking "What is X?" almost always mentions X.
+  const PROMPT_WEIGHTS = [1, 1, 1, 1, 0.4];
+
   try {
     // Run all prompts in parallel; use per-prompt cache when available.
     const promptResults = await Promise.all(
-      prompts.map(async (prompt) => {
+      prompts.map(async (prompt, idx) => {
         const cacheKey = `geo:${prompt}`;
         const cached = await getCachedResult(cacheKey, brand).catch(() => null);
-        if (cached?.result) return { prompt, ...cached.result, fromCache: true };
+        if (cached?.result) return { prompt, weight: PROMPT_WEIGHTS[idx], ...cached.result, fromCache: true };
 
         const { engines, aggregate } = await checkVisibilityAcrossEngines({ prompt, brand });
-        const result = { prompt, engines, aggregate };
+        const result = { prompt, weight: PROMPT_WEIGHTS[idx], engines, aggregate };
         await putCachedResult(cacheKey, brand, result).catch(() => null);
         return result;
       })
     );
 
-    // Per-engine aggregation across all prompts.
+    // Per-engine aggregation across all prompts, applying per-prompt weights.
     const engineStats = ENGINES.map(({ key, label }) => {
       const perPrompt = promptResults.map((pr) => {
         const eng = pr.engines?.find((e) => e.key === key);
-        return eng ?? null;
+        return eng ? { ...eng, weight: pr.weight ?? 1 } : null;
       }).filter(Boolean);
 
-      const mentioned = perPrompt.filter((e) => e.mentioned);
-      const mentionCount = mentioned.length;
+      const totalWeight = perPrompt.reduce((s, e) => s + e.weight, 0);
+      const weightedMentions = perPrompt.reduce((s, e) => s + (e.mentioned ? e.weight : 0), 0);
+      const mentionCount = perPrompt.filter((e) => e.mentioned).length;
       const totalPrompts = perPrompt.length;
-      const mentionRate = totalPrompts > 0 ? Math.round((mentionCount / totalPrompts) * 100) : 0;
+      const mentionRate = totalWeight > 0 ? Math.round((weightedMentions / totalWeight) * 100) : 0;
+      const mentioned = perPrompt.filter((e) => e.mentioned);
       const avgRank = mentionCount > 0
         ? Math.round(mentioned.reduce((s, e) => s + (e.rank ?? 1), 0) / mentionCount)
         : null;
@@ -71,7 +82,7 @@ export async function POST(request) {
         : 0;
       const isLive = perPrompt.some((e) => e.live);
 
-      // Engine score: 60% mention rate + 40% rank quality (when mentioned).
+      // Engine score: 60% weighted mention rate + 40% rank quality (when mentioned).
       const score = Math.round(mentionRate * 0.6 + avgRankScore * 0.4);
 
       return { key, label, mentionCount, totalPrompts, mentionRate, avgRank, score, live: isLive };
