@@ -119,19 +119,19 @@ export default function Home() {
 
       <section className="autosend-hero" id="demo">
         <div className="autosend-hero-copy">
-          <span className="autosend-hero-eyebrow">AI VISIBILITY &amp; GEO TRACKING</span>
+          <span className="autosend-hero-eyebrow">ONLINE REPUTATION &amp; AI SEARCH</span>
           <h1>
-            AI visibility for <em>brands</em> growing in <em>answers</em>
+            Be the brand <em>AI recommends</em> — not a competitor
           </h1>
           <p>
-            Track where ChatGPT, Gemini, Claude, and Perplexity mention your brand.
-            Compare competitors, citations, prompts, and GEO actions in one place.
+            Oras tracks where ChatGPT, Gemini, Claude, and Perplexity mention your brand,
+            shows why competitors rank higher, and gives you a ranked action plan to fix it.
           </p>
-          <div className="autosend-hero-cta">
+          <div className="autosend-hero-actions">
             <Link className="autosend-button autosend-button-primary" href="#check">
               Check your visibility free
             </Link>
-            <Link className="autosend-button" href="/pricing">
+            <Link className="autosend-button autosend-button-ghost" href="/pricing">
               View pricing
             </Link>
           </div>
@@ -168,7 +168,7 @@ export default function Home() {
             </div>
           ))}
         </div>
-        <h2>AI MENTION TRACKING FOR BRANDS AND AGENCIES!</h2>
+        <h2>AI MENTION TRACKING FOR BRANDS AND AGENCIES</h2>
         <div className="autosend-company-grid">
           {companies.map((company, index) => (
             <div key={company}>
@@ -316,10 +316,10 @@ Create author and entity pages`}</pre>
       </section>
 
       <section className="autosend-pricing" id="pricing">
-        <span>#03 - AGENCY READY</span>
-        <h2>Generate white-label GEO audit reports and manage every client dashboard from one account.</h2>
+        <span>AGENCY READY</span>
+        <h2>One dashboard. Every client. White-label GEO audit reports included.</h2>
         <Link className="autosend-button autosend-button-primary" href="/pricing">
-          VIEW PRICING
+          See pricing
         </Link>
       </section>
 
@@ -361,6 +361,7 @@ Create author and entity pages`}</pre>
             <img src="/logo.png" alt="" />
             <span>ORAS</span>
           </Link>
+          <p className="oras-footer-tagline">Online Reputation &amp; AI Search</p>
           <p>AI visibility, GEO audits, citation tracking, and white-label reports for brands and agencies.</p>
         </div>
         {[

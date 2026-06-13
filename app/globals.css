@@ -13838,14 +13838,14 @@ button {
   gap: 8px;
   margin-bottom: 24px;
   padding: 7px 14px 7px 12px;
-  border: 1px solid #f1e6db;
+  border: 1px solid #e4e4e7;
   border-radius: 999px;
   background: #fff;
-  color: #7c736b;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  box-shadow: 0 2px 10px -4px rgba(120, 80, 40, 0.18);
+  color: #71717a;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
 }
 
 .autosend-hero-eyebrow::before {
@@ -13897,11 +13897,20 @@ button {
 }
 
 /* Hero CTA buttons are larger than the nav pills. */
+.autosend-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 36px;
+}
+
 .autosend-hero-actions .autosend-button {
-  min-height: 46px;
-  padding: 0 24px;
+  min-height: 50px;
+  padding: 0 28px;
   border-radius: 12px;
-  font-size: 13px;
+  font-size: 14px;
+  letter-spacing: 0.02em;
 }
 
 .autosend-hero-actions .autosend-button-ghost {
@@ -14098,9 +14107,10 @@ button {
 .autosend-docs-grid h2 {
   margin: 0;
   padding: 24px 24px 8px;
-  font-size: 14px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: #14110e;
 }
 
 .autosend-docs-grid p {
@@ -14196,10 +14206,11 @@ button {
 .autosend-split > div > span,
 .autosend-integrations > div > span,
 .autosend-pricing > span {
-  color: #ff2251;
-  font-size: 14px;
+  color: #a1a1aa;
+  font-size: 11px;
   font-weight: 800;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
 .autosend-product-head h2,
@@ -14207,13 +14218,13 @@ button {
 .autosend-integrations h2,
 .autosend-pricing h2 {
   max-width: 610px;
-  margin: 20px 0 0;
-  color: #2d2926;
+  margin: 14px 0 0;
+  color: #14110e;
   font-family: Inter, sans-serif;
-  font-size: 40px;
-  font-weight: 500;
-  line-height: 1.18;
-  letter-spacing: 0;
+  font-size: 36px;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
 }
 
 .autosend-product-body {
@@ -14698,9 +14709,18 @@ button {
   background: #fbfbfa;
 }
 
+.oras-footer-tagline {
+  margin: 10px 0 0;
+  color: #aaa49f;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
 .oras-footer-brand p {
   max-width: 310px;
-  margin: 18px 0 0;
+  margin: 10px 0 0;
   color: #77716c;
   font-family: Inter, sans-serif;
   font-size: 14px;
