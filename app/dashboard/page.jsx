@@ -96,11 +96,8 @@ export default function DashboardPage() {
     return (
       <SidebarProvider>
         <SidebarInset>
-          <div
-            className="dashboard-main dashboard-main-shadcn"
-            style={{ display: "flex", alignItems: "center", justifyContent: "center" }}
-          >
-            <p>Loading...</p>
+          <div className="dashboard-main dashboard-main-shadcn">
+            <div className="page-loader"><div className="page-loader-ring" /></div>
           </div>
         </SidebarInset>
       </SidebarProvider>

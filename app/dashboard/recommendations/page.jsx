@@ -49,9 +49,9 @@ export default function RecommendationsPage() {
     return (
       <SidebarProvider>
         <SidebarInset>
-          <div className="dashboard-main" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <p>Loading...</p>
-          </div>
+          <div className="dashboard-main">
+          <div className="page-loader"><div className="page-loader-ring" /></div>
+        </div>
         </SidebarInset>
       </SidebarProvider>
     );
@@ -72,7 +72,7 @@ export default function RecommendationsPage() {
             </div>
           </div>
           <div className="dashboard-content">
-            <GeoRoadmap brand={brand} category={category} currentScore={undefined} />
+            <GeoRoadmap brand={brand} category={category} currentScore={0} />
           </div>
         </main>
       </SidebarInset>

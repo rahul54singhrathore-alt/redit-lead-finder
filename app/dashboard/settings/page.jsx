@@ -81,7 +81,7 @@ export default function SettingsPage() {
       const { data, error } = await supabase
         .from("user_profiles").select("*").eq("user_id", session.user.id).maybeSingle();
       if (error) {
-        setMessage("Could not load settings. Run supabase-schema.sql in Supabase first.");
+        setMessage("Could not load settings. Please refresh the page.");
       } else if (data) {
         const normalized = normalizeWorkspaceProfile(data);
         setProfile(normalized);
@@ -230,9 +230,9 @@ export default function SettingsPage() {
     return (
       <SidebarProvider>
         <SidebarInset>
-          <div className="dashboard-main" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <p>Loading...</p>
-          </div>
+          <div className="dashboard-main">
+          <div className="page-loader"><div className="page-loader-ring" /></div>
+        </div>
         </SidebarInset>
       </SidebarProvider>
     );
@@ -403,7 +403,7 @@ export default function SettingsPage() {
                       <span className="settings-test-status settings-test-warn">No brand set yet</span>
                     )}
                     {digestTestStatus === "error" && (
-                      <span className="settings-test-status settings-test-err">Failed — check server logs</span>
+                      <span className="settings-test-status settings-test-err">Failed — check your email settings</span>
                     )}
                   </div>
                   <div className="settings-divider" />

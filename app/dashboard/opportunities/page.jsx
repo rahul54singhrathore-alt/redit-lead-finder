@@ -49,9 +49,9 @@ export default function OpportunitiesPage() {
     return (
       <SidebarProvider>
         <SidebarInset>
-          <div className="dashboard-main" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <p>Loading...</p>
-          </div>
+          <div className="dashboard-main">
+          <div className="page-loader"><div className="page-loader-ring" /></div>
+        </div>
         </SidebarInset>
       </SidebarProvider>
     );

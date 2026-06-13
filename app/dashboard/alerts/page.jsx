@@ -190,9 +190,9 @@ export default function AlertsPage() {
     return (
       <SidebarProvider>
         <SidebarInset>
-          <div className="dashboard-main" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <p>Loading...</p>
-          </div>
+          <div className="dashboard-main">
+          <div className="page-loader"><div className="page-loader-ring" /></div>
+        </div>
         </SidebarInset>
       </SidebarProvider>
     );
@@ -208,7 +208,7 @@ export default function AlertsPage() {
           <div className="dashboard-header">
             <div>
               <SidebarTrigger className="dashboard-sidebar-trigger" />
-              <h1>Audits</h1>
+              <h1>Alerts</h1>
               <p style={{ color: "#71717a", margin: "4px 0 0 0" }}>
                 Control when you are notified about high-value visibility signals
               </p>
