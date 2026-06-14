@@ -20,8 +20,8 @@ function buildPrompts(brand, category) {
     `${cat} software comparison — which tool should I use?`,
     // Problem-based — indirect path to discovery
     `How to track and improve my brand's visibility in AI search results`,
-    // Direct knowledge check — intentionally last and weighted lower in scoring
-    `What is ${brand} and what does it do?`,
+    // Direct brand check — intentionally last and weighted lower in scoring
+    `Why do companies choose ${brand}? What makes it stand out?`,
   ];
 }
 
