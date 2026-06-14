@@ -17550,6 +17550,56 @@ button {
   align-self: center;
 }
 
+/* Mobile nav right slot (auth + hamburger) */
+.oras-nav-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  grid-row: 1;
+  grid-column: 3;
+}
+
+.oras-mobile-menu-btn {
+  display: none; /* shown via @media (max-width: 900px) */
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid #e4e4e7;
+  border-radius: 8px;
+  background: #fff;
+  color: #18181b;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.oras-mobile-menu-btn svg { width: 18px; height: 18px; }
+
+/* Mobile dropdown nav — rendered by React only when open */
+.oras-mobile-menu {
+  position: fixed;
+  top: 60px;
+  left: 0;
+  right: 0;
+  z-index: 999;
+  background: #fff;
+  border-bottom: 1px solid #e4e4e7;
+  padding: 8px 0 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.oras-mobile-menu a {
+  display: block;
+  padding: 12px 20px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #18181b;
+  text-decoration: none;
+}
+
+.oras-mobile-menu a:hover { background: #f4f4f5; }
+
 .oras-prompt-library {
   display: grid;
   grid-template-columns: 1.15fr repeat(2, 1fr);
@@ -17698,7 +17748,7 @@ button {
     display: inline-flex;
   }
 
-  /* Mobile nav: brand left, login button right. No dead hamburger. */
+  /* Mobile nav: brand left, hamburger right */
   .oras-simple-nav {
     grid-template-columns: 1fr auto;
     padding: 0 10px 0 16px;
@@ -17709,18 +17759,16 @@ button {
   }
 
   .oras-simple-nav .autosend-actions {
-    grid-row: 1;
-    grid-column: 2;
-    align-self: center;
-  }
-
-  .oras-simple-nav .autosend-actions .autosend-button {
-    display: inline-flex;
+    display: none;
   }
 
   .oras-simple-nav .autosend-menu {
     display: none;
   }
+
+  .oras-nav-right { grid-column: 2; }
+
+  .oras-mobile-menu-btn { display: inline-flex; }
 }
 
 @media (max-width: 560px) {
@@ -17745,5 +17793,95 @@ button {
 
   .oras-result {
     border-right: 0;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
+   Global responsive fixes — dashboard + public pages
+   ═══════════════════════════════════════════════════════ */
+
+@media (max-width: 720px) {
+  /* ── Dashboard header ── */
+  .dashboard-header h1 {
+    font-size: 1.375rem;
+  }
+
+  .dashboard-header {
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  /* ── Visibility page — prompt list rows ── */
+  .vis-prompt-toggle {
+    gap: 8px;
+    padding: 11px 12px;
+    flex-wrap: wrap;
+  }
+
+  .vis-prompt-engines {
+    display: none;   /* hide engine dots, save horizontal space */
+  }
+
+  .vis-prompt-count {
+    font-size: 0.72rem;
+  }
+
+  /* ── Keywords page — seo brief + blog ideas ── */
+  .seo-brief-row {
+    grid-template-columns: 1fr;
+  }
+
+  .seo-brief-button {
+    width: 100%;
+  }
+
+  .seo-brief-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .blog-ideas-list {
+    grid-template-columns: 1fr;
+  }
+
+  /* ── Legal foot ── */
+  .oras-legal-foot {
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  /* ── Blog card padding ── */
+  .oras-blog-card {
+    padding: 18px 20px;
+  }
+}
+
+@media (max-width: 520px) {
+  /* ── Dashboard main padding ── */
+  .dashboard-main {
+    padding: 16px 12px 32px;
+  }
+
+  /* ── Dashboard card ── */
+  .dashboard-card {
+    padding: 16px;
+  }
+
+  /* ── Homepage code panel — prevent pre overflow ── */
+  .autosend-window pre {
+    overflow-x: auto;
+    white-space: pre;
+  }
+
+  /* ── Visibility hero ── */
+  .vis-hero {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .vis-hero-score strong {
+    font-size: 2.5rem;
   }
 }
