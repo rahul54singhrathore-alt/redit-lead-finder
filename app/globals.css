@@ -3082,7 +3082,7 @@ button {
 /* Plan cards grid */
 .pr-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
 }
 
@@ -3437,15 +3437,20 @@ button {
   text-decoration: underline;
 }
 
-/* Responsive — tablet (≤900px) */
-@media (max-width: 900px) {
+/* Responsive — tablet (≤860px): stack to single column */
+@media (max-width: 860px) {
   .pr-hero {
     padding: 52px 0 36px;
   }
 
   .pr-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: 1fr;
     gap: 14px;
+  }
+
+  /* Reorder: featured card first */
+  .pr-card-featured {
+    order: -1;
   }
 
   .pr-faq {
@@ -3503,12 +3508,6 @@ button {
   .pr-cycle-save {
     font-size: 0.7rem;
     padding: 1px 6px;
-  }
-
-  /* Cards — single column */
-  .pr-grid {
-    grid-template-columns: 1fr;
-    gap: 20px;
   }
 
   .pr-card {
@@ -7800,7 +7799,7 @@ button {
 }
 
 .stg2-pricing-embed .pr-grid {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 14px;
   width: 100%;
 }
