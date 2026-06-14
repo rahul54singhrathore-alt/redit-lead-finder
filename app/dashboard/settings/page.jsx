@@ -258,7 +258,6 @@ export default function SettingsPage() {
         <main className="dashboard-main stg2-main">
           <div className="dashboard-header">
             <SidebarTrigger className="dashboard-sidebar-trigger" />
-            <h1>Settings</h1>
           </div>
 
           {message ? <p className="stg2-error">{message}</p> : null}
