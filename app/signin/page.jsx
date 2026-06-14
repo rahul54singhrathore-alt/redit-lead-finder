@@ -8,7 +8,8 @@ import { createBrowserSupabaseClient, getAppUrl } from "../../lib/supabase";
 
 export default function SignInPage() {
   const [email, setEmail] = useState("");
-  const [linkSent, setLinkSent] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
+  const [otp, setOtp] = useState("");
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState("error");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -50,12 +51,6 @@ export default function SignInPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router, supabase]);
 
-  function getRedirectUrl() {
-    const baseUrl = typeof window !== "undefined" ? window.location.origin : getAppUrl();
-    if (!baseUrl) return undefined;
-    return `${baseUrl.replace(/\/$/, "")}/auth/callback?next=/onboarding`;
-  }
-
   async function handleEmailSubmit(event) {
     event.preventDefault();
 
@@ -79,7 +74,6 @@ export default function SignInPage() {
       email: trimmedEmail,
       options: {
         shouldCreateUser: true,
-        emailRedirectTo: getRedirectUrl(),
       },
     });
 
@@ -87,12 +81,42 @@ export default function SignInPage() {
 
     if (error) {
       setMessageType("error");
-      setMessage(error.message || "Could not send the sign-in link. Please try again.");
+      setMessage(error.message || "Could not send the code. Please try again.");
       return;
     }
 
-    setLinkSent(true);
+    setOtpSent(true);
     setMessage("");
+  }
+
+  async function handleOtpSubmit(event) {
+    event.preventDefault();
+
+    const trimmedOtp = otp.trim();
+    if (!trimmedOtp || trimmedOtp.length < 6) {
+      setMessageType("error");
+      setMessage("Enter the code from your email.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    setMessage("");
+
+    const { data, error } = await supabase.auth.verifyOtp({
+      email: email.trim(),
+      token: trimmedOtp,
+      type: "email",
+    });
+
+    setIsSubmitting(false);
+
+    if (error) {
+      setMessageType("error");
+      setMessage(error.message || "Invalid or expired code. Please try again.");
+      return;
+    }
+
+    routeAfterAuth(data.user?.id);
   }
 
   async function signInWithGoogle() {
@@ -105,9 +129,14 @@ export default function SignInPage() {
     setIsSubmitting(true);
     setMessage("");
 
+    const baseUrl = typeof window !== "undefined" ? window.location.origin : getAppUrl();
+    const redirectTo = baseUrl
+      ? `${baseUrl.replace(/\/$/, "")}/auth/callback?next=/onboarding`
+      : undefined;
+
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: getRedirectUrl() },
+      options: { redirectTo },
     });
 
     setIsSubmitting(false);
@@ -125,26 +154,40 @@ export default function SignInPage() {
       <section className="oras-auth-wrap" aria-label="Login">
         <div className="oras-login">
           <div className="oras-login-head">
-            <span className="oras-login-brand">
-              <img src="/logo.png" alt="Oras" />
-              <strong>Oras</strong>
-            </span>
             <h1>Log in to Oras</h1>
             <p>AI visibility and GEO tracking for modern teams.</p>
           </div>
 
-          {linkSent ? (
+          {otpSent ? (
             <div className="oras-auth-sent">
-              <MailIcon aria-hidden="true" />
+              <div className="oras-auth-sent-icon">
+                <MailIcon aria-hidden="true" />
+              </div>
               <h2>Check your inbox</h2>
               <p>
-                We emailed a sign-in link to <strong>{email.trim()}</strong>. Click the link to
-                finish logging in — it expires shortly and can only be used once.
+                We sent a sign-in code to <strong>{email.trim()}</strong>. Enter it below to log in.
               </p>
+              <form className="oras-login-form" onSubmit={handleOtpSubmit}>
+                <input
+                  className="oras-otp-input"
+                  type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  maxLength={8}
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
+                  placeholder="––––––––"
+                  autoComplete="one-time-code"
+                  autoFocus
+                />
+                <button className="oras-auth-primary" type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? "Verifying…" : "Verify code"}
+                </button>
+              </form>
               <button
                 type="button"
                 className="oras-auth-resend"
-                onClick={() => { setLinkSent(false); setMessage(""); }}
+                onClick={() => { setOtpSent(false); setOtp(""); setMessage(""); }}
               >
                 Use a different email
               </button>
@@ -163,7 +206,7 @@ export default function SignInPage() {
                   />
                 </label>
                 <button className="oras-auth-primary" type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? "Sending link…" : "Email me a sign-in link"}
+                  {isSubmitting ? "Sending code…" : "Email me a code"}
                 </button>
               </form>
 

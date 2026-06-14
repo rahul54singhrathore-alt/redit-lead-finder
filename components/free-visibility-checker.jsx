@@ -61,7 +61,7 @@ export function FreeVisibilityChecker() {
         <span className="checker-eyebrow">
           <SparklesIcon /> Free AI visibility check
         </span>
-        <h2>Are AI engines recommending you — or your competitors?</h2>
+        <h2>Are AI engines recommending you or your competitors?</h2>
         <p>
           Enter your brand and get an instant visibility score across ChatGPT, Gemini,
           Claude, and Perplexity. No signup needed.
@@ -199,7 +199,7 @@ export function FreeVisibilityChecker() {
                 <LockIcon />
                 <strong>See the 5 fixes to outrank {result.topRival}</strong>
                 <Link href="/signin" className="checker-cta">
-                  Get your full report — free <ArrowRightIcon />
+                  Get your full report, free <ArrowRightIcon />
                 </Link>
               </div>
             </div>

@@ -16,9 +16,9 @@ export function SiteNavbar({ className = "" }) {
       </Link>
 
       <nav className="autosend-links" aria-label="Primary">
-        <Link href="/#docs">How it works</Link>
         <Link href="/pricing">Pricing</Link>
         <Link href="/blog">Blog</Link>
+        <Link href="/#solutions">Compare</Link>
       </nav>
 
       <AuthNavActions primary />

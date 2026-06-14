@@ -52,7 +52,7 @@ const features = [
   {
     icon: BoxIcon,
     title: "WHY NOT MENTIONED?",
-    copy: "Oras explains why competitors appear, like high-authority citations, stronger entity coverage, or missing comparison pages.",
+    copy: "Oras explains why competitors appear, like high authority citations, stronger entity coverage, or missing comparison pages.",
   },
   {
     icon: GlobeIcon,
@@ -84,7 +84,7 @@ const faqs = [
   },
   {
     q: "What is GEO (Generative Engine Optimization)?",
-    a: "GEO is the practice of getting your brand recommended inside AI-generated answers, the way SEO gets you ranked in search results. Instead of optimizing for a list of links, you optimize for being the brand the model names.",
+    a: "GEO is the practice of getting your brand recommended inside AI generated answers, the way SEO gets you ranked in search results. Instead of optimizing for a list of links, you optimize for being the brand the model names.",
   },
   {
     q: "Which AI engines does Oras track?",
@@ -92,15 +92,15 @@ const faqs = [
   },
   {
     q: "How is this different from traditional SEO tools?",
-    a: "SEO tools track keyword rankings on search engines. Oras tracks whether AI answer engines mention you in their responses — a separate and growing channel where there is no second page, so if you aren't mentioned you're invisible.",
+    a: "SEO tools track keyword rankings on search engines. Oras tracks whether AI answer engines mention you in their responses, a separate and growing channel where there is no second page, so if you aren't mentioned you're invisible.",
   },
   {
     q: "Can I track competitors?",
-    a: "Yes. Oras compares your mentions against competitors across every engine, shows who gets recommended first, and explains why — from citation authority to missing comparison pages.",
+    a: "Yes. Oras compares your mentions against competitors across every engine, shows who gets recommended first, and explains why, from citation authority to missing comparison pages.",
   },
   {
     q: "Do you offer reports for agencies?",
-    a: "Yes. Oras generates white-label GEO audit reports and lets agencies manage every client dashboard from one account.",
+    a: "Yes. Oras generates white label GEO audit reports and lets agencies manage every client dashboard from one account.",
   },
 ];
 
@@ -119,9 +119,9 @@ export default function Home() {
 
       <section className="autosend-hero" id="demo">
         <div className="autosend-hero-copy">
-          <span className="autosend-hero-eyebrow">ONLINE REPUTATION &amp; AI SEARCH</span>
+          <span className="autosend-hero-eyebrow">GEO — GENERATIVE ENGINE OPTIMIZATION</span>
           <h1>
-            Be the brand <em>AI recommends</em> — not a competitor
+            Be the brand <em>AI recommends</em>, not a competitor
           </h1>
           <p>
             Oras tracks where ChatGPT, Gemini, Claude, and Perplexity mention your brand,
@@ -135,14 +135,9 @@ export default function Home() {
               View pricing
             </Link>
           </div>
+          <p className="hero-subtext">No credit card required. Free plan forever.</p>
         </div>
 
-        <div className="autosend-hero-illustration">
-          <img
-            src="/illustor.png"
-            alt="AI Recommendation Simulator showing how ChatGPT, Gemini, Claude, and Perplexity rank your brand against competitors"
-          />
-        </div>
       </section>
 
       <FreeVisibilityChecker />
@@ -180,7 +175,7 @@ export default function Home() {
 
       <section className="autosend-product" id="docs">
         <div className="autosend-product-head">
-          <span>#01 - AI RECOMMENDATION SIMULATOR</span>
+          <span>#01 AI RECOMMENDATION SIMULATOR</span>
           <h2>See which AI engine recommends you, competitors, or nobody.</h2>
         </div>
         <div className="autosend-product-body">
@@ -317,7 +312,7 @@ Create author and entity pages`}</pre>
 
       <section className="autosend-pricing" id="pricing">
         <span>AGENCY READY</span>
-        <h2>One dashboard. Every client. White-label GEO audit reports included.</h2>
+        <h2>One dashboard. Every client. White label GEO audit reports included.</h2>
         <Link className="autosend-button autosend-button-primary" href="/pricing">
           See pricing
         </Link>

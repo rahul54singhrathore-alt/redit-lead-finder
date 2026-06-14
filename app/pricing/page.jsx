@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { PricingPlans } from "@/components/pricing-plans";
+import { SiteNavbar } from "@/components/site-navbar";
 
 export const metadata = {
   // Root layout applies the "%s | Oras" template, so the title here omits the
@@ -29,20 +30,8 @@ export default async function PricingPage({ searchParams }) {
   const fromOnboarding = params?.welcome === "1";
 
   return (
-    <main className="pricing-page">
-      <header className="site-header">
-        <Link className="brand" href="/">
-          <img src="/logo.png" alt="" />
-          Oras
-        </Link>
-        <nav className="nav-links">
-          <Link href="/">Home</Link>
-          <Link href="/pricing">Pricing</Link>
-          <Link className="nav-cta" href={fromOnboarding ? "/dashboard" : "/signin"}>
-            {fromOnboarding ? "Skip for now" : "Sign In"}
-          </Link>
-        </nav>
-      </header>
+    <main className="pricing-page autosend-page">
+      <SiteNavbar />
 
       {fromOnboarding ? (
         <div className="pricing-welcome">
