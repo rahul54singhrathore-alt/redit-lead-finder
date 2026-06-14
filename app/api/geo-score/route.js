@@ -48,18 +48,20 @@ export async function POST(request) {
 
   try {
     // Run all prompts in parallel; use per-prompt cache when available.
-    const promptResults = await Promise.all(
-      prompts.map(async (prompt, idx) => {
-        const cacheKey = `geo:${prompt}`;
-        const cached = await getCachedResult(cacheKey, brand).catch(() => null);
-        if (cached?.result) return { prompt, weight: PROMPT_WEIGHTS[idx], ...cached.result, fromCache: true };
-
-        const { engines, aggregate } = await checkVisibilityAcrossEngines({ prompt, brand });
-        const result = { prompt, weight: PROMPT_WEIGHTS[idx], engines, aggregate };
-        await putCachedResult(cacheKey, brand, result).catch(() => null);
-        return result;
-      })
-    );
+    const promptResults = [];
+    for (let idx = 0; idx < prompts.length; idx++) {
+      const prompt = prompts[idx];
+      const cacheKey = `geo:${prompt}`;
+      const cached = await getCachedResult(cacheKey, brand).catch(() => null);
+      if (cached?.result) {
+        promptResults.push({ prompt, weight: PROMPT_WEIGHTS[idx], ...cached.result, fromCache: true });
+        continue;
+      }
+      const { engines, aggregate } = await checkVisibilityAcrossEngines({ prompt, brand });
+      const result = { prompt, weight: PROMPT_WEIGHTS[idx], engines, aggregate };
+      await putCachedResult(cacheKey, brand, result).catch(() => null);
+      promptResults.push(result);
+    }
 
     // Per-engine aggregation across all prompts, applying per-prompt weights.
     const engineStats = ENGINES.map(({ key, label }) => {

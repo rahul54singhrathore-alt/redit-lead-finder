@@ -34,18 +34,19 @@ export async function POST(request) {
   const prompts = buildPrompts(brand, category);
 
   try {
-    const promptResults = await Promise.all(
-      prompts.map(async (prompt) => {
-        const cacheKey = `vis:${prompt}`;
-        const cached = await getCachedResult(cacheKey, brand).catch(() => null);
-        if (cached?.result) return { prompt, ...cached.result, fromCache: true };
-
-        const { engines, aggregate } = await checkVisibilityAcrossEngines({ prompt, brand });
-        const result = { prompt, engines, aggregate };
-        await putCachedResult(cacheKey, brand, result).catch(() => null);
-        return result;
-      })
-    );
+    const promptResults = [];
+    for (const prompt of prompts) {
+      const cacheKey = `vis:${prompt}`;
+      const cached = await getCachedResult(cacheKey, brand).catch(() => null);
+      if (cached?.result) {
+        promptResults.push({ prompt, ...cached.result, fromCache: true });
+        continue;
+      }
+      const { engines, aggregate } = await checkVisibilityAcrossEngines({ prompt, brand });
+      const result = { prompt, engines, aggregate };
+      await putCachedResult(cacheKey, brand, result).catch(() => null);
+      promptResults.push(result);
+    }
 
     // Per-engine aggregation.
     const engineStats = ENGINES.map(({ key, label }) => {
