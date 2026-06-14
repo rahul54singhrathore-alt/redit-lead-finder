@@ -39,12 +39,12 @@ const QuoraMark = () => (
 );
 
 const sourceMeta = {
-  ChatGPT: { icon: ChatGptMark, tone: "green" },
-  Gemini: { icon: GeminiMark, tone: "blue" },
-  Claude: { icon: ClaudeMark, tone: "amber" },
-  Perplexity: { icon: PerplexityMark, tone: "purple" },
-  Reddit: { icon: RedditMark, tone: "orange" },
-  Quora: { icon: QuoraMark, tone: "red" },
+  ChatGPT:    { icon: ChatGptMark,    tone: "green",  label: "AI Assistant" },
+  Gemini:     { icon: GeminiMark,     tone: "blue",   label: "AI Assistant" },
+  Claude:     { icon: ClaudeMark,     tone: "amber",  label: "AI Assistant" },
+  Perplexity: { icon: PerplexityMark, tone: "purple", label: "AI Search"    },
+  Reddit:     { icon: RedditMark,     tone: "orange", label: "Community"    },
+  Quora:      { icon: QuoraMark,      tone: "red",    label: "Q&A Platform" },
 };
 
 export function SourcePresetPicker({ value, onChange, mode = "multi" }) {
@@ -82,7 +82,17 @@ export function SourcePresetPicker({ value, onChange, mode = "multi" }) {
             <span className="source-preset-mark">
               {Icon ? <Icon /> : source.slice(0, 2).toUpperCase()}
             </span>
-            <span>{source}</span>
+            <span className="source-preset-info">
+              <span className="source-preset-name">{source}</span>
+              <span className="source-preset-label">{meta.label}</span>
+            </span>
+            {isSelected && (
+              <span className="source-preset-check" aria-hidden="true">
+                <svg viewBox="0 0 12 12" fill="none">
+                  <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </span>
+            )}
           </button>
         );
       })}

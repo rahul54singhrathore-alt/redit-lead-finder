@@ -6355,76 +6355,127 @@ button {
 
 .source-preset-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(136px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(156px, 1fr));
   gap: 10px;
 }
 
 .source-preset {
   display: flex;
   align-items: center;
-  gap: 10px;
-  min-height: 44px;
+  gap: 12px;
+  min-height: 56px;
   min-width: 0;
-  padding: 8px 10px;
-  border: 1px solid var(--line);
-  border-radius: 10px;
+  padding: 12px 14px;
+  border: 1.5px solid #e4e4e7;
+  border-radius: 12px;
   background: #fff;
-  color: var(--muted);
+  color: #3f3f46;
   font-size: 0.875rem;
-  font-weight: 700;
+  font-weight: 600;
   text-align: left;
-  white-space: nowrap;
-  transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
-}
-
-.source-preset span:last-child {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+  position: relative;
 }
 
 .source-preset:hover {
-  transform: translateY(-1px);
-  border-color: var(--line-strong);
-  box-shadow: 0 8px 18px rgba(9, 9, 11, 0.06);
+  border-color: #d4d4d8;
+  box-shadow: 0 4px 12px rgba(9,9,11,0.06);
+  background: #fafafa;
 }
 
 .source-preset:focus-visible {
   outline: 0;
-  border-color: var(--ink);
+  border-color: #18181b;
   box-shadow: 0 0 0 3px rgba(9, 9, 11, 0.08);
 }
 
+/* Icon badge */
 .source-preset-mark {
   display: grid;
   place-items: center;
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   flex: 0 0 auto;
   border-radius: 9px;
-  background: var(--ink);
-  color: #fff;
   font-size: 0.6875rem;
   font-weight: 800;
 }
 
 .source-preset-mark svg {
-  width: 19px;
-  height: 19px;
+  width: 18px;
+  height: 18px;
   display: block;
 }
 
-.source-preset-selected {
-  color: var(--ink);
-  border-color: var(--ink);
-  background: #f7f7f8;
-  box-shadow: inset 0 0 0 1px var(--ink), 0 8px 18px rgba(9, 9, 11, 0.05);
+/* Per-engine brand colors */
+.source-preset-green  .source-preset-mark { background: #d1fae5; color: #065f46; }
+.source-preset-blue   .source-preset-mark { background: #dbeafe; color: #1d4ed8; }
+.source-preset-amber  .source-preset-mark { background: #fef3c7; color: #92400e; }
+.source-preset-purple .source-preset-mark { background: #ede9fe; color: #5b21b6; }
+.source-preset-orange .source-preset-mark { background: #ffedd5; color: #c2410c; }
+.source-preset-red    .source-preset-mark { background: #fee2e2; color: #b91c1c; }
+
+/* Name + label stacked */
+.source-preset-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
 }
 
-.source-preset-selected .source-preset-mark {
-  background: var(--ink);
-  color: #fff;
+.source-preset-name {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #18181b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
+
+.source-preset-label {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: #a1a1aa;
+  white-space: nowrap;
+}
+
+/* Check indicator */
+.source-preset-check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: #18181b;
+  color: #fff;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.source-preset-check svg {
+  width: 10px;
+  height: 10px;
+}
+
+/* Selected state */
+.source-preset-selected {
+  border-color: #18181b;
+  background: #f9f9f9;
+  box-shadow: 0 0 0 1px #18181b;
+}
+
+.source-preset-selected .source-preset-name { color: #09090b; }
+
+/* Keep brand colors on selected mark */
+.source-preset-selected.source-preset-green  .source-preset-mark { background: #d1fae5; color: #065f46; }
+.source-preset-selected.source-preset-blue   .source-preset-mark { background: #dbeafe; color: #1d4ed8; }
+.source-preset-selected.source-preset-amber  .source-preset-mark { background: #fef3c7; color: #92400e; }
+.source-preset-selected.source-preset-purple .source-preset-mark { background: #ede9fe; color: #5b21b6; }
+.source-preset-selected.source-preset-orange .source-preset-mark { background: #ffedd5; color: #c2410c; }
+.source-preset-selected.source-preset-red    .source-preset-mark { background: #fee2e2; color: #b91c1c; }
 
 .source-chip-row {
   display: flex;
