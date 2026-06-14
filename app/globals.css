@@ -16551,6 +16551,210 @@ button {
   .autosend-integration-grid article {
     border-left: 0;
   }
+
+  /* Stat grid: 2-col on tablet, not 1-col */
+  .autosend-stat-grid,
+  .autosend-company-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .autosend-stat-grid div:nth-child(2),
+  .autosend-company-grid div:nth-child(2) {
+    border-right: 0;
+  }
+
+  .autosend-stat-grid div,
+  .autosend-company-grid div {
+    border-bottom: 1px solid #e4e4e7;
+  }
+
+  .autosend-stat-grid div:nth-last-child(-n+2),
+  .autosend-company-grid div:nth-last-child(-n+2) {
+    border-bottom: 0;
+  }
+
+  /* Pricing section center on tablet */
+  .autosend-pricing {
+    justify-items: center;
+    text-align: center;
+    padding: 32px 20px 36px;
+  }
+}
+
+/* ── Homepage mobile (≤560px) ── */
+@media (max-width: 560px) {
+  /* Nav pill tighter */
+  .autosend-nav {
+    height: 48px;
+    top: 12px;
+    margin-top: 12px;
+  }
+
+  /* Hero */
+  .autosend-hero {
+    padding: 40px 0 48px;
+    gap: 28px;
+  }
+
+  .autosend-hero h1 {
+    font-size: clamp(32px, 9vw, 48px);
+  }
+
+  .autosend-hero p {
+    font-size: 15px;
+    margin-top: 16px;
+  }
+
+  .autosend-hero-eyebrow {
+    font-size: 10px;
+    padding: 6px 12px 6px 10px;
+    margin-bottom: 20px;
+  }
+
+  /* Hero buttons full-width on small screens */
+  .autosend-hero-actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    margin-top: 24px;
+  }
+
+  .autosend-hero-actions .autosend-button {
+    width: 100%;
+    min-height: 46px;
+    font-size: 13px;
+  }
+
+  /* Section widths */
+  .autosend-docs-grid,
+  .autosend-proof,
+  .autosend-product,
+  .autosend-split,
+  .autosend-integrations,
+  .autosend-testimonials,
+  .autosend-pricing {
+    width: calc(100% - 16px);
+  }
+
+  /* Section margins */
+  .autosend-docs-grid { margin-top: 48px; }
+
+  .autosend-proof,
+  .autosend-product,
+  .autosend-split,
+  .autosend-integrations,
+  .autosend-testimonials,
+  .autosend-pricing {
+    margin-top: 48px;
+  }
+
+  /* Stats — 1-col on mobile */
+  .autosend-stat-grid,
+  .autosend-company-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .autosend-stat-grid strong { font-size: 18px; }
+  .autosend-stat-grid span  { font-size: 12px; }
+  .autosend-company-grid span { font-size: 15px; }
+
+  /* Section headings */
+  .autosend-product-head h2,
+  .autosend-split h2,
+  .autosend-integrations h2,
+  .autosend-pricing h2 {
+    font-size: 26px;
+  }
+
+  /* Feature list */
+  .autosend-feature-list article {
+    grid-template-columns: 28px 1fr;
+    gap: 14px;
+    min-height: auto;
+    padding: 20px 18px;
+  }
+
+  .autosend-feature-list h3 { font-size: 13px; }
+  .autosend-feature-list p  { font-size: 14px; }
+  .autosend-feature-list svg { width: 16px; height: 16px; }
+
+  /* Code panel — hide sidebar on very small screens */
+  .autosend-code-content {
+    grid-template-columns: 1fr;
+  }
+
+  .autosend-code-content aside {
+    display: none;
+  }
+
+  .autosend-code-panel,
+  .autosend-split > div:first-child,
+  .autosend-integrations > div:first-child {
+    min-height: 280px;
+  }
+
+  /* Split section */
+  .autosend-split p {
+    font-size: 16px;
+    margin-top: 16px;
+  }
+
+  /* Integration grid — 2-col on mobile */
+  .autosend-integration-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Pricing CTA */
+  .autosend-pricing {
+    justify-items: center;
+    text-align: center;
+    padding: 28px 18px 32px;
+    gap: 18px;
+  }
+
+  .autosend-pricing .autosend-button {
+    width: 100%;
+    min-height: 46px;
+  }
+
+  /* Prompt library */
+  .oras-prompt-library {
+    margin-top: 48px;
+  }
+
+  .oras-prompt-lead h2 {
+    font-size: 26px;
+  }
+
+  .oras-prompt-library article {
+    padding: 18px 40px 18px 18px;
+    min-height: auto;
+  }
+
+  .oras-prompt-library h3 { font-size: 13px; }
+  .oras-prompt-library p  { font-size: 13px; margin-top: 8px; }
+
+  /* FAQ */
+  .oras-faq {
+    margin-top: 48px;
+  }
+
+  .oras-faq-lead h2 {
+    font-size: 26px;
+  }
+
+  /* Footer */
+  .oras-footer {
+    width: calc(100% - 16px);
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    padding: 24px 18px 18px;
+    margin-bottom: 20px;
+  }
+
+  .oras-footer-brand {
+    grid-column: 1 / -1;
+  }
 }
 
 .oras-footer {
