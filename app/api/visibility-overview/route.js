@@ -10,7 +10,9 @@ function buildPrompts(brand, category) {
   const cat = (category || "").trim();
   return [
     cat ? `Best ${cat} tools and software` : `Best AI and productivity tools`,
-    `What is ${brand} and what do they offer?`,
+    cat
+      ? `Why would a company choose ${brand} for ${cat}? How does it compare to alternatives?`
+      : `Why would someone choose ${brand}? What makes it stand out from competitors?`,
     cat ? `Compare the top ${cat} platforms` : `Most recommended SaaS platforms compared`,
   ];
 }
