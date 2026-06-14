@@ -6869,7 +6869,18 @@ button {
 
 /* Settings v2 — .stg2-* namespace */
 
-.stg2-main { padding-bottom: 0; }
+.stg2-main {
+  padding-bottom: 0;
+  padding-top: 12px;
+}
+
+.stg2-main .dashboard-header {
+  margin-bottom: 12px;
+}
+
+.stg2-main .dashboard-sidebar-trigger {
+  margin-bottom: 0;
+}
 
 .stg2-error {
   margin: 0 0 16px;
