@@ -3437,36 +3437,132 @@ button {
   text-decoration: underline;
 }
 
-/* Responsive */
+/* Responsive — tablet (≤900px) */
 @media (max-width: 900px) {
+  .pr-hero {
+    padding: 52px 0 36px;
+  }
+
   .pr-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
   }
+
+  .pr-faq {
+    margin-top: 52px;
+  }
+
   .pr-service-inner {
     flex-direction: column;
     gap: 28px;
   }
-  .pr-service-right {
-    text-align: left;
-  }
-  .pr-service-price {
-    justify-content: flex-start;
-  }
+
+  .pr-service-right { text-align: left; }
+  .pr-service-price { justify-content: flex-start; }
 }
 
-@media (max-width: 560px) {
+/* Responsive — mobile (≤600px) */
+@media (max-width: 600px) {
+  .pr-page { padding-bottom: 56px; }
+
+  /* Hero */
+  .pr-hero {
+    width: min(100% - 32px, 760px);
+    padding: 36px 0 28px;
+  }
+
+  .pr-hero h1 {
+    font-size: 1.875rem;
+    letter-spacing: -0.015em;
+  }
+
+  .pr-hero p {
+    font-size: 0.9375rem;
+  }
+
+  .pr-eyebrow {
+    font-size: 0.75rem;
+    padding: 3px 10px;
+    margin-bottom: 12px;
+  }
+
+  /* Cycle toggle */
+  .pr-plans {
+    width: min(100% - 32px, 1100px);
+  }
+
+  .pr-cycle {
+    margin-bottom: 28px;
+  }
+
+  .pr-cycle-btn {
+    padding: 7px 14px;
+    font-size: 0.85rem;
+  }
+
+  .pr-cycle-save {
+    font-size: 0.7rem;
+    padding: 1px 6px;
+  }
+
+  /* Cards — single column */
   .pr-grid {
     grid-template-columns: 1fr;
+    gap: 20px;
   }
-  .pr-faq-grid {
-    grid-template-columns: 1fr;
+
+  .pr-card {
+    padding: 20px;
+    border-radius: 14px;
   }
-  .pr-hero h1 {
+
+  .pr-card-price strong {
     font-size: 2rem;
   }
-  .pr-service-inner {
-    padding: 24px;
+
+  .pr-plans-foot {
+    font-size: 0.775rem;
+    margin-top: 20px;
   }
+
+  /* FAQ */
+  .pr-faq {
+    width: min(100% - 32px, 1100px);
+    margin-top: 44px;
+  }
+
+  .pr-faq h2 {
+    font-size: 1.125rem;
+    margin-bottom: 20px;
+  }
+
+  .pr-faq-grid {
+    grid-template-columns: 1fr;
+    border-radius: 12px;
+  }
+
+  .pr-faq-item {
+    padding: 18px;
+  }
+
+  .pr-faq-item h3 { font-size: 0.875rem; }
+  .pr-faq-item p  { font-size: 0.8375rem; }
+
+  /* Footer */
+  .pr-footer {
+    margin-top: 40px;
+    font-size: 0.775rem;
+    padding: 0 16px;
+  }
+
+  /* Welcome banner */
+  .pr-welcome {
+    width: min(100% - 32px, 680px);
+    font-size: 0.8375rem;
+  }
+
+  /* Service section */
+  .pr-service-inner { padding: 20px; }
 }
 
 /* ===== Checkout / payment page ===== */
@@ -7625,6 +7721,14 @@ button {
 
   .stg2-save-hint { font-size: 0.775rem; }
   .stg2-saved-msg { font-size: 0.775rem; justify-content: center; }
+
+  /* Pricing embed inside Plan tab — collapse to 1 column on mobile */
+  .stg2-pricing-embed .pr-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .stg2-pricing-embed { padding: 16px 0; }
 }
 
 /* Pricing embed inside settings Plan tab */
