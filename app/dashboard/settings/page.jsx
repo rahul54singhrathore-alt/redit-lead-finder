@@ -8,7 +8,8 @@ import {
   Building2Icon,
   CreditCardIcon,
   LogOutIcon,
-  SlidersHorizontalIcon,
+  MonitorIcon,
+  UserIcon,
   WandSparklesIcon,
 } from "lucide-react";
 import { AppSidebar } from "@/components/app-sidebar";
@@ -31,16 +32,39 @@ function settingsFromProfile(profile) {
     industry: profile.industry || "",
     customerType: profile.customer_type || "both",
     brandDescription: profile.brand_description || "",
+    competitors: Array.isArray(profile.competitors) ? profile.competitors.join(", ") : "",
     emailDigest: profile.email_digest,
-    instantAlerts: profile.instant_alerts,
     digestFrequency: profile.digest_frequency,
-    alertChannel: profile.alert_channel,
     defaultSubreddits: formatCommaSeparatedList(profile.target_subreddits),
     minScore: profile.min_score,
     minComments: profile.min_comments,
     ignoredTerms: profile.ignored_terms,
     exportFormat: profile.export_format,
   };
+}
+
+function SectionHeader({ icon: Icon, title, description }) {
+  return (
+    <div className="stg-section-head">
+      <div className="stg-section-title">
+        <Icon className="stg-section-icon" />
+        {title}
+      </div>
+      {description ? <p className="stg-section-desc">{description}</p> : null}
+    </div>
+  );
+}
+
+function FieldRow({ label, hint, children, wide }) {
+  return (
+    <div className={`stg-field-row${wide ? " stg-field-row-wide" : ""}`}>
+      <div className="stg-field-meta">
+        <span className="stg-field-label">{label}</span>
+        {hint ? <span className="stg-field-hint">{hint}</span> : null}
+      </div>
+      <div className="stg-field-control">{children}</div>
+    </div>
+  );
 }
 
 export default function SettingsPage() {
@@ -54,10 +78,9 @@ export default function SettingsPage() {
     industry: "",
     customerType: "both",
     brandDescription: "",
+    competitors: "",
     emailDigest: true,
-    instantAlerts: true,
     digestFrequency: "daily",
-    alertChannel: "email",
     defaultSubreddits: formatDefaultVisibilitySources(),
     minScore: 5,
     minComments: 3,
@@ -73,7 +96,6 @@ export default function SettingsPage() {
 
   useEffect(() => {
     if (!supabase) return;
-
     const checkUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) { router.replace("/signin"); return; }
@@ -81,18 +103,15 @@ export default function SettingsPage() {
       const { data, error } = await supabase
         .from("user_profiles").select("*").eq("user_id", session.user.id).maybeSingle();
       if (error) {
-        setMessage("Could not load settings. Please refresh the page.");
+        setMessage("Could not load settings. Please refresh.");
       } else if (data) {
         const normalized = normalizeWorkspaceProfile(data);
         setProfile(normalized);
         setSettings(settingsFromProfile(normalized));
-        setMessage("");
       }
       setLoading(false);
     };
-
     checkUser();
-
     const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
       if (!session) {
         router.replace("/signin");
@@ -108,14 +127,10 @@ export default function SettingsPage() {
         setLoading(false);
       }
     });
-
     return () => authListener?.subscription?.unsubscribe();
   }, [router, supabase]);
 
-  const updateSetting = (key, value) => {
-    setSettings((current) => ({ ...current, [key]: value }));
-    setSaved(false);
-  };
+  const set = (key, value) => { setSettings((s) => ({ ...s, [key]: value })); setSaved(false); };
 
   const isValidUrl = (value) => {
     const trimmed = String(value || "").trim();
@@ -127,8 +142,7 @@ export default function SettingsPage() {
   };
 
   const handleAutoFill = async () => {
-    setAutoFillMessage("");
-    setSaved(false);
+    setAutoFillMessage(""); setSaved(false);
     if (!isValidUrl(settings.productUrl)) {
       setAutoFillStatus("error");
       setAutoFillMessage("Enter a valid website URL first.");
@@ -136,20 +150,16 @@ export default function SettingsPage() {
     }
     setAutoFillStatus("loading");
     try {
-      const response = await fetch("/api/brand-lookup", {
+      const res = await fetch("/api/brand-lookup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url: settings.productUrl.trim() }),
       });
-      const data = await response.json();
-      if (!response.ok) {
-        setAutoFillStatus("error");
-        setAutoFillMessage(data?.error || "Could not read that website.");
-        return;
-      }
+      const data = await res.json();
+      if (!res.ok) { setAutoFillStatus("error"); setAutoFillMessage(data?.error || "Could not read that website."); return; }
       const filled = [];
-      setSettings((current) => {
-        const next = { ...current };
+      setSettings((s) => {
+        const next = { ...s };
         if (data.brandName) { next.productName = data.brandName; filled.push("name"); }
         if (data.description) { next.brandDescription = data.description.slice(0, 220); filled.push("description"); }
         if (data.industry) { next.industry = data.industry; filled.push("industry"); }
@@ -157,19 +167,17 @@ export default function SettingsPage() {
         return next;
       });
       setAutoFillStatus("success");
-      setAutoFillMessage(
-        filled.length ? `Auto-filled ${filled.join(", ")}. Review and save.` : "Reached the site but found no brand metadata.",
-      );
+      setAutoFillMessage(filled.length ? `Auto-filled ${filled.join(", ")}.` : "No brand metadata found.");
     } catch {
       setAutoFillStatus("error");
-      setAutoFillMessage("Something went wrong reaching that website.");
+      setAutoFillMessage("Something went wrong.");
     }
   };
 
   const handleSave = async (event) => {
     event.preventDefault();
-    if (!supabase || !user) { setMessage("Supabase is not configured yet."); return; }
-
+    if (!supabase || !user) { setMessage("Not authenticated."); return; }
+    const competitorList = settings.competitors.split(",").map((c) => c.trim()).filter(Boolean);
     const payload = {
       user_id: user.id,
       onboarding_completed: profile?.onboarding_completed ?? true,
@@ -178,24 +186,21 @@ export default function SettingsPage() {
       industry: settings.industry,
       customer_type: settings.customerType,
       brand_description: settings.brandDescription.trim(),
+      competitors: competitorList,
       starter_keyword: profile?.starter_keyword || settings.productName.trim(),
       target_subreddits: parseCommaSeparatedList(settings.defaultSubreddits),
       digest_frequency: settings.digestFrequency,
       email_digest: settings.emailDigest,
-      instant_alerts: settings.instantAlerts,
-      alert_channel: settings.alertChannel,
       min_score: Number(settings.minScore) || 0,
       min_comments: Number(settings.minComments) || 0,
       ignored_terms: settings.ignoredTerms,
       export_format: settings.exportFormat,
       updated_at: new Date().toISOString(),
     };
-
     const { error, data } = await supabase.from("user_profiles").upsert(payload).select("*").single();
     if (error) { setMessage(error.message || "Could not save settings."); return; }
     if (data) setProfile(normalizeWorkspaceProfile(data));
-    setSaved(true);
-    setMessage("");
+    setSaved(true); setMessage("");
   };
 
   const handleSignOut = async () => {
@@ -231,8 +236,8 @@ export default function SettingsPage() {
       <SidebarProvider>
         <SidebarInset>
           <div className="dashboard-main">
-          <div className="page-loader"><div className="page-loader-ring" /></div>
-        </div>
+            <div className="page-loader"><div className="page-loader-ring" /></div>
+          </div>
         </SidebarInset>
       </SidebarProvider>
     );
@@ -247,234 +252,201 @@ export default function SettingsPage() {
             <div>
               <SidebarTrigger className="dashboard-sidebar-trigger" />
               <h1>Settings</h1>
-              <p style={{ color: "#71717a", margin: "4px 0 0 0" }}>
-                Manage your brand, notifications, and workspace preferences.
-              </p>
+              <p className="stg-page-desc">Manage your brand, notifications, and workspace.</p>
             </div>
           </div>
 
-          {message ? <p className="signin-message" style={{ textAlign: "left" }}>{message}</p> : null}
+          {message ? <p className="stg-error">{message}</p> : null}
 
-          <form className="dashboard-content" onSubmit={handleSave}>
-            <div className="settings-grid">
+          <form className="stg-form" onSubmit={handleSave}>
 
-              {/* Brand — full width */}
-              <section className="dashboard-card dashboard-card-wide">
-                <div className="card-header">
-                  <div>
-                    <h2><Building2Icon className="settings-section-icon" /> Brand</h2>
-                    <p className="card-supporting-copy">
-                      Powers every AI check — GEO Roadmap, Visibility, and Reddit drafts.
-                    </p>
-                  </div>
-                </div>
-                <div className="settings-form-grid">
-                  <div className="form-group">
-                    <label className="form-label" htmlFor="product-name">Brand name</label>
+            {/* Brand */}
+            <section className="stg-section">
+              <SectionHeader
+                icon={Building2Icon}
+                title="Brand"
+                description="Powers every AI check — GEO Score, Visibility, and Recommendations."
+              />
+              <div className="stg-fields">
+                <FieldRow label="Brand name">
+                  <input
+                    className="stg-input"
+                    value={settings.productName}
+                    onChange={(e) => set("productName", e.target.value)}
+                    placeholder="e.g., Oras"
+                  />
+                </FieldRow>
+                <FieldRow label="Website" hint="Used for auto-fill and brand lookups.">
+                  <div className="stg-url-row">
                     <input
-                      id="product-name"
-                      className="form-input"
-                      value={settings.productName}
-                      onChange={(e) => updateSetting("productName", e.target.value)}
-                      placeholder="e.g., Oras"
+                      className="stg-input"
+                      value={settings.productUrl}
+                      onChange={(e) => { set("productUrl", e.target.value); setAutoFillMessage(""); setAutoFillStatus("idle"); }}
+                      placeholder="https://yourbrand.com"
                     />
+                    <button type="button" className="stg-autofill-btn" onClick={handleAutoFill} disabled={autoFillStatus === "loading"}>
+                      <WandSparklesIcon className={autoFillStatus === "loading" ? "stg-spin" : ""} />
+                      {autoFillStatus === "loading" ? "Reading…" : "Auto-fill"}
+                    </button>
                   </div>
-                  <div className="form-group">
-                    <label className="form-label" htmlFor="product-url">Website</label>
-                    <div className="settings-autofill-row">
-                      <input
-                        id="product-url"
-                        className="form-input"
-                        value={settings.productUrl}
-                        onChange={(e) => {
-                          updateSetting("productUrl", e.target.value);
-                          setAutoFillMessage("");
-                          setAutoFillStatus("idle");
-                        }}
-                        placeholder="https://yourbrand.com"
-                      />
-                      <button
-                        type="button"
-                        className="settings-autofill-button"
-                        onClick={handleAutoFill}
-                        disabled={autoFillStatus === "loading"}
-                      >
-                        <WandSparklesIcon className={autoFillStatus === "loading" ? "onboarding-spin" : ""} />
-                        {autoFillStatus === "loading" ? "Reading…" : "Auto-fill"}
-                      </button>
-                    </div>
-                    {autoFillMessage ? (
-                      <span className={`settings-autofill-note settings-autofill-note-${autoFillStatus}`}>
-                        {autoFillMessage}
-                      </span>
-                    ) : null}
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label" htmlFor="industry">Industry</label>
-                    <select
-                      id="industry"
-                      className="form-input"
-                      value={settings.industry}
-                      onChange={(e) => updateSetting("industry", e.target.value)}
-                    >
-                      <option value="">Select industry…</option>
-                      {INDUSTRY_OPTIONS.map((opt) => (
-                        <option key={opt} value={opt}>{opt}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label" htmlFor="customer-type">Sells to</label>
-                    <select
-                      id="customer-type"
-                      className="form-input"
-                      value={settings.customerType}
-                      onChange={(e) => updateSetting("customerType", e.target.value)}
-                    >
-                      <option value="b2b">B2B — businesses</option>
-                      <option value="b2c">B2C — consumers</option>
-                      <option value="both">Both</option>
-                    </select>
-                  </div>
-                  <div className="form-group settings-span-2">
-                    <label className="form-label" htmlFor="brand-description">What does your brand do?</label>
-                    <textarea
-                      id="brand-description"
-                      className="form-input textarea-input"
-                      value={settings.brandDescription}
-                      onChange={(e) => updateSetting("brandDescription", e.target.value)}
-                      placeholder="One or two lines — makes AI checks more accurate."
-                    />
-                  </div>
-                </div>
-              </section>
+                  {autoFillMessage ? (
+                    <span className={`stg-note stg-note-${autoFillStatus}`}>{autoFillMessage}</span>
+                  ) : null}
+                </FieldRow>
+                <FieldRow label="Industry">
+                  <select className="stg-input" value={settings.industry} onChange={(e) => set("industry", e.target.value)}>
+                    <option value="">Select industry…</option>
+                    {INDUSTRY_OPTIONS.map((opt) => <option key={opt} value={opt}>{opt}</option>)}
+                  </select>
+                </FieldRow>
+                <FieldRow label="Sells to">
+                  <select className="stg-input" value={settings.customerType} onChange={(e) => set("customerType", e.target.value)}>
+                    <option value="b2b">B2B — businesses</option>
+                    <option value="b2c">B2C — consumers</option>
+                    <option value="both">Both</option>
+                  </select>
+                </FieldRow>
+                <FieldRow label="Description" hint="Makes AI checks more accurate." wide>
+                  <textarea
+                    className="stg-input stg-textarea"
+                    value={settings.brandDescription}
+                    onChange={(e) => set("brandDescription", e.target.value)}
+                    placeholder="One or two lines about what your brand does."
+                    rows={2}
+                  />
+                </FieldRow>
+                <FieldRow label="Competitors" hint="Comma-separated. Tracked alongside your brand." wide>
+                  <input
+                    className="stg-input"
+                    value={settings.competitors}
+                    onChange={(e) => set("competitors", e.target.value)}
+                    placeholder="Competitor A, Competitor B"
+                  />
+                </FieldRow>
+              </div>
+            </section>
 
-              {/* Notifications — Account + Alerts merged */}
-              <section className="dashboard-card">
-                <div className="card-header">
-                  <h2><BellIcon className="settings-section-icon" /> Notifications</h2>
-                </div>
-                <div className="settings-stack">
-                  <div className="form-group">
-                    <label className="form-label" htmlFor="account-email">Email</label>
-                    <input id="account-email" className="form-input" value={user?.email || ""} readOnly />
-                  </div>
-                  <div className="setting-row">
-                    <div>
-                      <h3>Email digest</h3>
-                      <p>Summarize new visibility signals on a schedule.</p>
-                    </div>
-                    <label className="switch">
-                      <input
-                        type="checkbox"
-                        checked={settings.emailDigest}
-                        onChange={(e) => updateSetting("emailDigest", e.target.checked)}
-                      />
-                      <span />
-                    </label>
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label" htmlFor="digest-frequency">Digest frequency</label>
-                    <select
-                      id="digest-frequency"
-                      className="form-input"
-                      value={settings.digestFrequency}
-                      disabled={!settings.emailDigest}
-                      onChange={(e) => updateSetting("digestFrequency", e.target.value)}
-                    >
-                      <option value="daily">Daily</option>
-                      <option value="weekly">Weekly</option>
-                      <option value="off">Off</option>
-                    </select>
-                  </div>
-                  <div className="settings-test-row">
+            {/* Platforms */}
+            <section className="stg-section">
+              <SectionHeader
+                icon={MonitorIcon}
+                title="AI Platforms"
+                description="Choose which AI engines to include in visibility checks."
+              />
+              <div className="stg-fields stg-fields-plain">
+                <SourcePresetPicker
+                  value={settings.defaultSubreddits}
+                  onChange={(value) => set("defaultSubreddits", value)}
+                />
+              </div>
+            </section>
+
+            {/* Notifications */}
+            <section className="stg-section">
+              <SectionHeader
+                icon={BellIcon}
+                title="Notifications"
+                description="Control how and when Oras sends you updates."
+              />
+              <div className="stg-fields">
+                <FieldRow label="Email digest" hint="Summarize visibility signals on a schedule.">
+                  <label className="stg-toggle">
+                    <input type="checkbox" checked={settings.emailDigest} onChange={(e) => set("emailDigest", e.target.checked)} />
+                    <span />
+                  </label>
+                </FieldRow>
+                <FieldRow label="Digest frequency">
+                  <select
+                    className="stg-input stg-input-sm"
+                    value={settings.digestFrequency}
+                    disabled={!settings.emailDigest}
+                    onChange={(e) => set("digestFrequency", e.target.value)}
+                  >
+                    <option value="daily">Daily</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="off">Off</option>
+                  </select>
+                </FieldRow>
+                <FieldRow label="Test digest" hint="Send a sample digest to your inbox.">
+                  <div className="stg-test-row">
                     <button
                       type="button"
-                      className="action-button settings-test-btn"
+                      className="stg-secondary-btn"
                       onClick={sendTestDigest}
                       disabled={digestTestStatus === "sending" || !settings.emailDigest}
                     >
-                      {digestTestStatus === "sending" ? "Sending…" : "Send test digest"}
+                      {digestTestStatus === "sending" ? "Sending…" : "Send test"}
                     </button>
-                    {digestTestStatus === "sent" && (
-                      <span className="settings-test-status settings-test-ok">✓ Sent — check your inbox</span>
-                    )}
-                    {digestTestStatus === "skipped" && (
-                      <span className="settings-test-status settings-test-warn">No brand set yet</span>
-                    )}
-                    {digestTestStatus === "error" && (
-                      <span className="settings-test-status settings-test-err">Failed — check your email settings</span>
-                    )}
+                    {digestTestStatus === "sent" && <span className="stg-status-ok">Sent — check your inbox</span>}
+                    {digestTestStatus === "skipped" && <span className="stg-status-warn">No brand set yet</span>}
+                    {digestTestStatus === "error" && <span className="stg-status-err">Failed to send</span>}
                   </div>
-                  <div className="settings-divider" />
-                  <button type="button" className="danger-button" onClick={handleSignOut}>
-                    <LogOutIcon className="button-icon" />
-                    Sign out
-                  </button>
-                </div>
-              </section>
+                </FieldRow>
+              </div>
+            </section>
 
-              {/* Plan */}
-              <section className="dashboard-card">
-                <div className="card-header">
-                  <h2><CreditCardIcon className="settings-section-icon" /> Plan</h2>
-                </div>
-                <div className="settings-stack">
-                  <div className="settings-plan-row">
-                    <span className="settings-plan-name">{tier.name}</span>
-                    <span className={`settings-plan-tag${isPaid ? " settings-plan-tag-paid" : ""}`}>
+            {/* Plan */}
+            <section className="stg-section">
+              <SectionHeader icon={CreditCardIcon} title="Plan" />
+              <div className="stg-fields">
+                <FieldRow label="Current plan">
+                  <div className="stg-plan-row">
+                    <span className="stg-plan-name">{tier.name}</span>
+                    <span className={`stg-plan-badge${isPaid ? " stg-plan-badge-paid" : ""}`}>
                       {isPaid ? "Active" : "Free"}
                     </span>
                   </div>
-                  <div className="settings-plan-limits">
-                    <div className="settings-plan-limit">
-                      <span className="settings-plan-limit-val">{formatLimit(tier.limits.brands)}</span>
-                      <span className="settings-plan-limit-label">brand{tier.limits.brands !== 1 ? "s" : ""}</span>
+                </FieldRow>
+                <FieldRow label="Limits">
+                  <div className="stg-plan-limits">
+                    <div className="stg-plan-limit">
+                      <span>{formatLimit(tier.limits.brands)}</span>
+                      <label>brand{tier.limits.brands !== 1 ? "s" : ""}</label>
                     </div>
-                    <div className="settings-plan-limit">
-                      <span className="settings-plan-limit-val">{formatLimit(tier.limits.promptRuns)}</span>
-                      <span className="settings-plan-limit-label">AI checks / mo</span>
+                    <div className="stg-plan-limit">
+                      <span>{formatLimit(tier.limits.promptRuns)}</span>
+                      <label>AI checks/mo</label>
                     </div>
-                    <div className="settings-plan-limit">
-                      <span className="settings-plan-limit-val">
-                        {tier.limits.historyDays === Infinity ? "∞" : `${tier.limits.historyDays}d`}
-                      </span>
-                      <span className="settings-plan-limit-label">history</span>
+                    <div className="stg-plan-limit">
+                      <span>{tier.limits.historyDays === Infinity ? "∞" : `${tier.limits.historyDays}d`}</span>
+                      <label>history</label>
                     </div>
                   </div>
-                  <div className="settings-engines">
-                    {tier.limits.engines.map((e) => (
-                      <span key={e} className="settings-engine-chip">{e}</span>
-                    ))}
+                </FieldRow>
+                <FieldRow label="Engines">
+                  <div className="stg-engines">
+                    {tier.limits.engines.map((e) => <span key={e} className="stg-engine-chip">{e}</span>)}
                   </div>
-                  <Link href="/pricing" className="action-button">
+                </FieldRow>
+                <FieldRow label="">
+                  <Link href="/pricing" className="stg-secondary-btn">
                     {isPaid ? "Manage plan" : "Upgrade plan →"}
                   </Link>
-                </div>
-              </section>
+                </FieldRow>
+              </div>
+            </section>
 
-              {/* Signal Matching — full width */}
-              <section className="dashboard-card dashboard-card-wide">
-                <div className="card-header">
-                  <div>
-                    <h2><SlidersHorizontalIcon className="settings-section-icon" /> AI Platforms</h2>
-                    <p className="card-supporting-copy">Choose which AI platforms to include in your visibility checks.</p>
-                  </div>
-                </div>
-                <SourcePresetPicker
-                  value={settings.defaultSubreddits}
-                  onChange={(value) => updateSetting("defaultSubreddits", value)}
-                />
-              </section>
+            {/* Account */}
+            <section className="stg-section stg-section-last">
+              <SectionHeader icon={UserIcon} title="Account" />
+              <div className="stg-fields">
+                <FieldRow label="Email">
+                  <input className="stg-input" value={user?.email || ""} readOnly />
+                </FieldRow>
+                <FieldRow label="Session">
+                  <button type="button" className="stg-danger-btn" onClick={handleSignOut}>
+                    <LogOutIcon />
+                    Sign out
+                  </button>
+                </FieldRow>
+              </div>
+            </section>
 
+            <div className="stg-save-bar">
+              {saved ? <span className="stg-saved-label">Changes saved</span> : null}
+              <button type="submit" className="stg-save-btn">Save changes</button>
             </div>
 
-            <div className="settings-actions">
-              {saved && <span className="settings-saved">✓ Saved</span>}
-              <button type="submit" className="primary-button settings-save-button">
-                Save settings
-              </button>
-            </div>
           </form>
         </main>
       </SidebarInset>
