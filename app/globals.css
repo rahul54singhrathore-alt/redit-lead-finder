@@ -7523,33 +7523,11 @@ button {
   .stg2-nav-user, .stg2-nav-bottom { display: none; }
 }
 
-/* Plan section inside settings */
-.stg2-plan-section {
+/* Pricing embed inside settings Plan tab */
+.stg2-pricing-embed {
+  padding: 24px 0 24px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  padding: 22px 0 0;
-}
-
-.stg2-plan-current {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 14px 18px;
-  border: 1px solid #e4e4e7;
-  border-radius: 12px;
-  background: #fafafa;
-}
-
-.stg2-plan-current-desc {
-  margin: 0;
-  font-size: 0.8375rem;
-  color: #71717a;
-  margin-left: auto;
-}
-
-.stg2-pricing-embed {
-  padding-bottom: 24px;
 }
 
 .stg2-pricing-embed .pr-plans {
@@ -7557,21 +7535,23 @@ button {
 }
 
 .stg2-pricing-embed .pr-cycle {
-  margin-bottom: 20px;
+  display: flex;
+  width: fit-content;
+  margin: 0 auto 24px;
 }
 
 .stg2-pricing-embed .pr-grid {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
   width: 100%;
 }
 
 .stg2-pricing-embed .pr-card {
-  padding: 18px;
+  padding: 20px;
 }
 
 .stg2-pricing-embed .pr-card-price strong {
-  font-size: 2rem;
+  font-size: 2.25rem;
 }
 
 .stg2-pricing-embed .pr-plans-foot {

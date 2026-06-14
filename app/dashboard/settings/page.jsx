@@ -306,22 +306,23 @@ export default function SettingsPage() {
             {/* ── Content ── */}
             <form className={`stg2-content${activeSection === "plan" ? " stg2-content-wide" : ""}`} onSubmit={handleSave}>
 
-              <div className="stg2-content-head">
-                <div>
-                  <h2 className="stg2-section-title">
-                    {SECTIONS.find(s => s.key === activeSection)?.label}
-                  </h2>
-                  {activeSection === "general" && <p className="stg2-section-sub">Manage your brand information used across all AI checks.</p>}
-                  {activeSection === "account" && <p className="stg2-section-sub">Manage your account details and session.</p>}
-                  {activeSection === "platforms" && <p className="stg2-section-sub">Choose which AI engines to include in visibility checks.</p>}
-                  {activeSection === "notifications" && <p className="stg2-section-sub">Control how and when Oras sends you email updates.</p>}
-                  {activeSection === "plan" && <p className="stg2-section-sub">View your current plan and manage your subscription.</p>}
-                  {activeSection === "danger" && <p className="stg2-section-sub">Irreversible actions. Proceed with care.</p>}
+              {activeSection !== "plan" && (
+                <div className="stg2-content-head">
+                  <div>
+                    <h2 className="stg2-section-title">
+                      {SECTIONS.find(s => s.key === activeSection)?.label}
+                    </h2>
+                    {activeSection === "general" && <p className="stg2-section-sub">Manage your brand information used across all AI checks.</p>}
+                    {activeSection === "account" && <p className="stg2-section-sub">Manage your account details and session.</p>}
+                    {activeSection === "platforms" && <p className="stg2-section-sub">Choose which AI engines to include in visibility checks.</p>}
+                    {activeSection === "notifications" && <p className="stg2-section-sub">Control how and when Oras sends you email updates.</p>}
+                    {activeSection === "danger" && <p className="stg2-section-sub">Irreversible actions. Proceed with care.</p>}
+                  </div>
+                  {dirty && showSave && (
+                    <span className="stg2-unsaved-badge">Unsaved changes</span>
+                  )}
                 </div>
-                {dirty && showSave && (
-                  <span className="stg2-unsaved-badge">Unsaved changes</span>
-                )}
-              </div>
+              )}
 
               <div className="stg2-fields-wrap">
 
@@ -420,19 +421,8 @@ export default function SettingsPage() {
 
                 {/* Plan */}
                 {activeSection === "plan" && (
-                  <div className="stg2-plan-section">
-                    <div className="stg2-plan-current">
-                      <div className="stg2-plan-name-row">
-                        <span className="stg2-plan-name">{tier.name}</span>
-                        <span className={`stg2-plan-badge${isPaid ? " stg2-plan-badge-paid" : ""}`}>
-                          {isPaid ? "Active" : "Free"}
-                        </span>
-                      </div>
-                      <p className="stg2-plan-current-desc">Your current plan. Choose a plan below to upgrade or switch.</p>
-                    </div>
-                    <div className="stg2-pricing-embed">
-                      <PricingPlans />
-                    </div>
+                  <div className="stg2-pricing-embed">
+                    <PricingPlans />
                   </div>
                 )}
 
