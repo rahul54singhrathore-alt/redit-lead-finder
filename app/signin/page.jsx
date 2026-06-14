@@ -1,19 +1,24 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { MailIcon } from "lucide-react";
 import { SiteNavbar } from "@/components/site-navbar";
 import { createBrowserSupabaseClient, getAppUrl } from "../../lib/supabase";
 
+const OTP_LENGTH = 6;
+
 export default function SignInPage() {
   const [email, setEmail] = useState("");
   const [otpSent, setOtpSent] = useState(false);
-  const [otp, setOtp] = useState("");
+  const [digits, setDigits] = useState(Array(OTP_LENGTH).fill(""));
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState("error");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const boxRefs = useRef([]);
   const router = useRouter();
+
+  const otp = digits.join("");
 
   const supabase = useMemo(() => createBrowserSupabaseClient(), []);
 
@@ -89,11 +94,47 @@ export default function SignInPage() {
     setMessage("");
   }
 
+  function handleDigitChange(index, value) {
+    const digit = value.replace(/\D/g, "").slice(-1);
+    const next = [...digits];
+    next[index] = digit;
+    setDigits(next);
+    if (digit && index < OTP_LENGTH - 1) {
+      boxRefs.current[index + 1]?.focus();
+    }
+  }
+
+  function handleDigitKeyDown(index, e) {
+    if (e.key === "Backspace") {
+      if (digits[index]) {
+        const next = [...digits];
+        next[index] = "";
+        setDigits(next);
+      } else if (index > 0) {
+        boxRefs.current[index - 1]?.focus();
+      }
+    } else if (e.key === "ArrowLeft" && index > 0) {
+      boxRefs.current[index - 1]?.focus();
+    } else if (e.key === "ArrowRight" && index < OTP_LENGTH - 1) {
+      boxRefs.current[index + 1]?.focus();
+    }
+  }
+
+  function handleDigitPaste(e) {
+    const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, OTP_LENGTH);
+    if (!pasted) return;
+    e.preventDefault();
+    const next = Array(OTP_LENGTH).fill("");
+    for (let i = 0; i < pasted.length; i++) next[i] = pasted[i];
+    setDigits(next);
+    const focusIdx = Math.min(pasted.length, OTP_LENGTH - 1);
+    boxRefs.current[focusIdx]?.focus();
+  }
+
   async function handleOtpSubmit(event) {
     event.preventDefault();
 
-    const trimmedOtp = otp.trim();
-    if (!trimmedOtp || trimmedOtp.length < 6) {
+    if (otp.length < OTP_LENGTH) {
       setMessageType("error");
       setMessage("Enter the code from your email.");
       return;
@@ -168,18 +209,25 @@ export default function SignInPage() {
                 We sent a sign-in code to <strong>{email.trim()}</strong>. Enter it below to log in.
               </p>
               <form className="oras-login-form" onSubmit={handleOtpSubmit}>
-                <input
-                  className="oras-otp-input"
-                  type="text"
-                  inputMode="numeric"
-                  pattern="[0-9]*"
-                  maxLength={8}
-                  value={otp}
-                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
-                  placeholder="––––––––"
-                  autoComplete="one-time-code"
-                  autoFocus
-                />
+                <div className="oras-otp-inputs">
+                  {digits.map((d, i) => (
+                    <input
+                      key={i}
+                      ref={el => { boxRefs.current[i] = el; }}
+                      className="oras-otp-box"
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      maxLength={1}
+                      value={d}
+                      autoFocus={i === 0}
+                      autoComplete={i === 0 ? "one-time-code" : "off"}
+                      onChange={e => handleDigitChange(i, e.target.value)}
+                      onKeyDown={e => handleDigitKeyDown(i, e)}
+                      onPaste={i === 0 ? handleDigitPaste : undefined}
+                    />
+                  ))}
+                </div>
                 <button className="oras-auth-primary" type="submit" disabled={isSubmitting}>
                   {isSubmitting ? "Verifying…" : "Verify code"}
                 </button>
@@ -187,7 +235,7 @@ export default function SignInPage() {
               <button
                 type="button"
                 className="oras-auth-resend"
-                onClick={() => { setOtpSent(false); setOtp(""); setMessage(""); }}
+                onClick={() => { setOtpSent(false); setDigits(Array(OTP_LENGTH).fill("")); setMessage(""); }}
               >
                 Use a different email
               </button>
