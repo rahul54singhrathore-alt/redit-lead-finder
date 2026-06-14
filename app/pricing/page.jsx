@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { CheckIcon } from "lucide-react";
 
 import { PricingPlans } from "@/components/pricing-plans";
 import { SiteNavbar } from "@/components/site-navbar";
@@ -16,13 +15,6 @@ export const metadata = {
     url: "https://www.tryoras.com/pricing",
   },
 };
-
-const serviceFeatures = [
-  "Weekly AI visibility audit across all 4 engines",
-  "AI-generated content and citation recommendations",
-  "Competitor GEO tracking and benchmarking",
-  "Dedicated account manager",
-];
 
 export default async function PricingPage({ searchParams }) {
   const params = await searchParams;
@@ -46,35 +38,6 @@ export default async function PricingPage({ searchParams }) {
       </section>
 
       <PricingPlans />
-
-      <section className="pr-service">
-        <div className="pr-service-inner">
-          <div className="pr-service-left">
-            <span className="pr-service-label">Done-For-You</span>
-            <h2>Managed Visibility Service</h2>
-            <p>
-              Skip the software — get a fully managed AI visibility workflow with weekly audits,
-              content recommendations, and competitor tracking delivered to your inbox.
-            </p>
-            <ul className="pr-service-features">
-              {serviceFeatures.map((f) => (
-                <li key={f}>
-                  <CheckIcon />
-                  {f}
-                </li>
-              ))}
-            </ul>
-            <Link className="pr-service-cta" href="/signin">Apply for service →</Link>
-          </div>
-          <div className="pr-service-right">
-            <div className="pr-service-price">
-              <strong>$299</strong>
-              <span>/month</span>
-            </div>
-            <p className="pr-service-note">Billed monthly · cancel anytime</p>
-          </div>
-        </div>
-      </section>
 
       <section className="pr-faq">
         <h2>Common questions</h2>
