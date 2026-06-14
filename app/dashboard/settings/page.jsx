@@ -4,7 +4,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
-  AlertTriangleIcon,
   ArrowUpRightIcon,
   BellIcon,
   Building2Icon,
@@ -36,7 +35,6 @@ const SECTIONS = [
   { key: "platforms",     label: "Platforms",      icon: MonitorIcon },
   { key: "notifications", label: "Notifications",  icon: BellIcon },
   { key: "plan",          label: "Plan",           icon: CreditCardIcon },
-  { key: "danger",        label: "Danger zone",    icon: AlertTriangleIcon },
 ];
 
 function settingsFromProfile(profile) {
@@ -240,7 +238,7 @@ export default function SettingsPage() {
   const tierKey = profile?.subscription_tier || "free";
   const tier    = getTier(tierKey);
   const isPaid  = tierKey !== "free";
-  const showSave = !["account", "danger", "plan"].includes(activeSection);
+  const showSave = !["account", "plan"].includes(activeSection);
 
   if (loading) return (
     <SidebarProvider>
@@ -316,8 +314,7 @@ export default function SettingsPage() {
                     {activeSection === "account" && <p className="stg2-section-sub">Manage your account details and session.</p>}
                     {activeSection === "platforms" && <p className="stg2-section-sub">Choose which AI engines to include in visibility checks.</p>}
                     {activeSection === "notifications" && <p className="stg2-section-sub">Control how and when Oras sends you email updates.</p>}
-                    {activeSection === "danger" && <p className="stg2-section-sub">Irreversible actions. Proceed with care.</p>}
-                  </div>
+                    </div>
                   {dirty && showSave && (
                     <span className="stg2-unsaved-badge">Unsaved changes</span>
                   )}
@@ -426,21 +423,6 @@ export default function SettingsPage() {
                   </div>
                 )}
 
-                {/* Danger zone */}
-                {activeSection === "danger" && (
-                  <div className="stg2-fields">
-                    <div className="stg2-danger-banner">
-                      <AlertTriangleIcon />
-                      Actions in this section are permanent or end your session.
-                    </div>
-                    <Field label="Sign out" description="End your current session and return to the sign-in page." noBorder>
-                      <button type="button" className="stg2-danger-btn" onClick={handleSignOut}>
-                        <LogOutIcon />
-                        Sign out of Oras
-                      </button>
-                    </Field>
-                  </div>
-                )}
 
               </div>
 
