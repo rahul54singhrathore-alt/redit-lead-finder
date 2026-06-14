@@ -17,6 +17,7 @@ import {
   ZapIcon,
 } from "lucide-react";
 import { AppSidebar } from "@/components/app-sidebar";
+import { PricingPlans } from "@/components/pricing-plans";
 import { SourcePresetPicker } from "@/components/source-preset-picker";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { createBrowserSupabaseClient } from "../../../lib/supabase";
@@ -239,7 +240,7 @@ export default function SettingsPage() {
   const tierKey = profile?.subscription_tier || "free";
   const tier    = getTier(tierKey);
   const isPaid  = tierKey !== "free";
-  const showSave = !["account", "danger"].includes(activeSection);
+  const showSave = !["account", "danger", "plan"].includes(activeSection);
 
   if (loading) return (
     <SidebarProvider>
@@ -303,7 +304,7 @@ export default function SettingsPage() {
             </nav>
 
             {/* ── Content ── */}
-            <form className="stg2-content" onSubmit={handleSave}>
+            <form className={`stg2-content${activeSection === "plan" ? " stg2-content-wide" : ""}`} onSubmit={handleSave}>
 
               <div className="stg2-content-head">
                 <div>
@@ -419,56 +420,19 @@ export default function SettingsPage() {
 
                 {/* Plan */}
                 {activeSection === "plan" && (
-                  <div className="stg2-fields">
-                    <Field label="Current plan" description="Your active subscription and what it includes." noBorder={isPaid}>
-                      <div className="stg2-plan-card">
-                        <div className="stg2-plan-card-top">
-                          <div>
-                            <div className="stg2-plan-name-row">
-                              <span className="stg2-plan-name">{tier.name}</span>
-                              <span className={`stg2-plan-badge${isPaid ? " stg2-plan-badge-paid" : ""}`}>
-                                {isPaid ? "Active" : "Free"}
-                              </span>
-                            </div>
-                          </div>
-                          <Link href="/pricing" className="stg2-plan-manage-link">
-                            {isPaid ? "Manage" : "Upgrade"} <ArrowUpRightIcon />
-                          </Link>
-                        </div>
-                        <div className="stg2-plan-limits">
-                          <div className="stg2-plan-stat">
-                            <span>{formatLimit(tier.limits.brands)}</span>
-                            <label>brand{tier.limits.brands !== 1 ? "s" : ""}</label>
-                          </div>
-                          <div className="stg2-plan-stat">
-                            <span>{formatLimit(tier.limits.promptRuns)}</span>
-                            <label>AI checks/mo</label>
-                          </div>
-                          <div className="stg2-plan-stat">
-                            <span>{tier.limits.historyDays === Infinity ? "∞" : `${tier.limits.historyDays}d`}</span>
-                            <label>history</label>
-                          </div>
-                        </div>
-                        <div className="stg2-plan-engines">
-                          {tier.limits.engines.map(e => (
-                            <span key={e} className="stg2-engine-chip">{e}</span>
-                          ))}
-                        </div>
+                  <div className="stg2-plan-section">
+                    <div className="stg2-plan-current">
+                      <div className="stg2-plan-name-row">
+                        <span className="stg2-plan-name">{tier.name}</span>
+                        <span className={`stg2-plan-badge${isPaid ? " stg2-plan-badge-paid" : ""}`}>
+                          {isPaid ? "Active" : "Free"}
+                        </span>
                       </div>
-                    </Field>
-
-                    {!isPaid && (
-                      <Field label="Upgrade to Pro" description="Get more brands, more AI checks per month, and 30-day history." noBorder>
-                        <Link href="/pricing" className="stg2-upgrade-card">
-                          <ZapIcon />
-                          <div>
-                            <strong>Unlock Pro — $19/mo</strong>
-                            <span>5 brands · 100 AI checks · 30-day history</span>
-                          </div>
-                          <ArrowUpRightIcon className="stg2-upgrade-arrow" />
-                        </Link>
-                      </Field>
-                    )}
+                      <p className="stg2-plan-current-desc">Your current plan. Choose a plan below to upgrade or switch.</p>
+                    </div>
+                    <div className="stg2-pricing-embed">
+                      <PricingPlans />
+                    </div>
                   </div>
                 )}
 
