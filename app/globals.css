@@ -2562,7 +2562,7 @@ button {
   display: none;
 }
 
-/* Pricing */
+/* Pricing — legacy classes kept for checkout page */
 .pricing-page {
   min-height: 100vh;
   padding-bottom: 72px;
@@ -2962,6 +2962,510 @@ button {
 @media (max-width: 560px) {
   .pp-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+/* ===== Pricing page redesign — .pr-* namespace ===== */
+
+.pr-page {
+  min-height: 100vh;
+  background: #fff;
+  padding-bottom: 80px;
+}
+
+.pr-welcome {
+  width: min(100% - 40px, 680px);
+  margin: 24px auto 0;
+  padding: 13px 18px;
+  border: 1px solid #e4e4e7;
+  border-radius: 10px;
+  background: #fafafa;
+  color: #52525b;
+  font-size: 0.875rem;
+  text-align: center;
+}
+
+.pr-welcome a {
+  color: #18181b;
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+.pr-hero {
+  width: min(100% - 40px, 760px);
+  margin: 0 auto;
+  padding: 72px 0 48px;
+  text-align: center;
+}
+
+.pr-eyebrow {
+  display: inline-block;
+  margin: 0 0 16px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px solid #e4e4e7;
+  background: #fafafa;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: #52525b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.pr-hero h1 {
+  margin: 0 0 14px;
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: #09090b;
+}
+
+.pr-hero p {
+  margin: 0;
+  font-size: 1.0625rem;
+  color: #71717a;
+  line-height: 1.6;
+}
+
+/* Billing cycle toggle */
+.pr-plans {
+  width: min(100% - 40px, 1100px);
+  margin: 0 auto;
+}
+
+.pr-cycle {
+  display: inline-flex;
+  gap: 2px;
+  margin: 0 auto 40px;
+  padding: 4px;
+  border-radius: 10px;
+  background: #f4f4f5;
+  border: 1px solid #e4e4e7;
+}
+
+.pr-plans .pr-cycle {
+  display: flex;
+  width: fit-content;
+}
+
+.pr-cycle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 20px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: #71717a;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+}
+
+.pr-cycle-active {
+  background: #fff;
+  color: #09090b;
+  box-shadow: 0 1px 4px rgba(9, 9, 11, 0.1);
+}
+
+.pr-cycle-save {
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: #dcfce7;
+  color: #15803d;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+/* Plan cards grid */
+.pr-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.pr-card {
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+  border: 1px solid #e4e4e7;
+  border-radius: 16px;
+  background: #fff;
+  position: relative;
+}
+
+.pr-card-featured {
+  background: #09090b;
+  border-color: #27272a;
+  color: #fff;
+}
+
+.pr-card-badge {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 3px 12px;
+  border-radius: 999px;
+  background: #18181b;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.pr-card-featured .pr-card-badge {
+  background: #fff;
+  color: #09090b;
+}
+
+.pr-card-head {
+  margin-bottom: 20px;
+}
+
+.pr-card-head h2 {
+  margin: 0 0 6px;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.pr-card-head p {
+  margin: 0;
+  font-size: 0.8375rem;
+  line-height: 1.5;
+  color: #71717a;
+  min-height: 40px;
+}
+
+.pr-card-featured .pr-card-head p {
+  color: #a1a1aa;
+}
+
+.pr-card-price {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.pr-card-price strong {
+  font-size: 2.5rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.pr-card-price span {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #a1a1aa;
+}
+
+.pr-card-billed {
+  margin: 6px 0 0;
+  font-size: 0.8rem;
+  color: #a1a1aa;
+}
+
+/* CTA button */
+.pr-card-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-top: 20px;
+  padding: 11px 16px;
+  border: 1px solid #e4e4e7;
+  border-radius: 10px;
+  background: #fff;
+  color: #09090b;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  text-decoration: none;
+}
+
+.pr-card-cta:hover { background: #fafafa; }
+.pr-card-cta:disabled { opacity: 0.55; cursor: not-allowed; }
+
+.pr-card-cta-featured {
+  background: #fff;
+  border-color: transparent;
+  color: #09090b;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.18);
+}
+
+.pr-card-cta-featured:hover { background: #f4f4f5; }
+
+.plan-button-error {
+  display: block;
+  margin-top: 8px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #b91c1c;
+  text-align: center;
+}
+
+/* Feature list */
+.pr-card-features {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 20px 0 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid #f0f0f1;
+  padding-top: 20px;
+}
+
+.pr-card-featured .pr-card-features {
+  border-top-color: #27272a;
+}
+
+.pr-card-features li {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 0.875rem;
+  color: #3f3f46;
+}
+
+.pr-card-featured .pr-card-features li {
+  color: #d4d4d8;
+}
+
+.pr-card-features li svg {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  color: #16a34a;
+}
+
+.pr-card-featured .pr-card-features li svg {
+  color: #86efac;
+}
+
+.pr-plans-foot {
+  margin: 28px auto 0;
+  text-align: center;
+  font-size: 0.8125rem;
+  color: #a1a1aa;
+}
+
+/* Managed service section */
+.pr-service {
+  width: min(100% - 40px, 1100px);
+  margin: 64px auto 0;
+}
+
+.pr-service-inner {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 40px;
+  padding: 40px;
+  border: 1px solid #e4e4e7;
+  border-radius: 18px;
+  background: #fafafa;
+}
+
+.pr-service-left {
+  flex: 1;
+  max-width: 580px;
+}
+
+.pr-service-label {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: #18181b;
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+
+.pr-service-left h2 {
+  margin: 0 0 10px;
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #09090b;
+}
+
+.pr-service-left p {
+  margin: 0 0 20px;
+  font-size: 0.9375rem;
+  color: #52525b;
+  line-height: 1.6;
+}
+
+.pr-service-features {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0 0 24px;
+  padding: 0;
+  list-style: none;
+}
+
+.pr-service-features li {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 0.9rem;
+  color: #3f3f46;
+}
+
+.pr-service-features li svg {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  color: #16a34a;
+}
+
+.pr-service-cta {
+  display: inline-flex;
+  align-items: center;
+  padding: 11px 22px;
+  border-radius: 10px;
+  background: #18181b;
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+
+.pr-service-cta:hover { opacity: 0.85; }
+
+.pr-service-right {
+  flex-shrink: 0;
+  text-align: right;
+  padding-top: 4px;
+}
+
+.pr-service-price {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  justify-content: flex-end;
+}
+
+.pr-service-price strong {
+  font-size: 3rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #09090b;
+  line-height: 1;
+}
+
+.pr-service-price span {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #a1a1aa;
+}
+
+.pr-service-note {
+  margin: 6px 0 0;
+  font-size: 0.8rem;
+  color: #a1a1aa;
+}
+
+/* FAQ */
+.pr-faq {
+  width: min(100% - 40px, 1100px);
+  margin: 64px auto 0;
+}
+
+.pr-faq h2 {
+  margin: 0 0 28px;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #09090b;
+  letter-spacing: -0.01em;
+}
+
+.pr-faq-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  border: 1px solid #f0f0f1;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #f0f0f1;
+}
+
+.pr-faq-item {
+  padding: 24px;
+  background: #fff;
+}
+
+.pr-faq-item h3 {
+  margin: 0 0 8px;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: #09090b;
+}
+
+.pr-faq-item p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #71717a;
+  line-height: 1.6;
+}
+
+/* Footer */
+.pr-footer {
+  margin: 56px auto 0;
+  text-align: center;
+  font-size: 0.8125rem;
+  color: #a1a1aa;
+}
+
+.pr-footer a {
+  color: #52525b;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .pr-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .pr-service-inner {
+    flex-direction: column;
+    gap: 28px;
+  }
+  .pr-service-right {
+    text-align: left;
+  }
+  .pr-service-price {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 560px) {
+  .pr-grid {
+    grid-template-columns: 1fr;
+  }
+  .pr-faq-grid {
+    grid-template-columns: 1fr;
+  }
+  .pr-hero h1 {
+    font-size: 2rem;
+  }
+  .pr-service-inner {
+    padding: 24px;
   }
 }
 

@@ -10,13 +10,13 @@ export function PricingPlans() {
   const [cycle, setCycle] = useState("monthly");
 
   return (
-    <>
-      <div className="pp-toggle" role="tablist" aria-label="Billing cycle">
+    <div className="pr-plans">
+      <div className="pr-cycle" role="tablist" aria-label="Billing cycle">
         <button
           type="button"
           role="tab"
           aria-selected={cycle === "monthly"}
-          className={`pp-toggle-btn${cycle === "monthly" ? " pp-toggle-active" : ""}`}
+          className={`pr-cycle-btn${cycle === "monthly" ? " pr-cycle-active" : ""}`}
           onClick={() => setCycle("monthly")}
         >
           Monthly
@@ -25,43 +25,43 @@ export function PricingPlans() {
           type="button"
           role="tab"
           aria-selected={cycle === "yearly"}
-          className={`pp-toggle-btn${cycle === "yearly" ? " pp-toggle-active" : ""}`}
+          className={`pr-cycle-btn${cycle === "yearly" ? " pr-cycle-active" : ""}`}
           onClick={() => setCycle("yearly")}
         >
-          Yearly <span className="pp-save">-20%</span>
+          Yearly
+          <span className="pr-cycle-save">Save 20%</span>
         </button>
       </div>
 
-      <section className="pp-grid" aria-label="Subscription plans">
+      <div className="pr-grid">
         {PLANS.map((plan) => {
           const view = priceView(plan, cycle);
           return (
-            <article key={plan.name} className={`pp-card${plan.featured ? " pp-card-featured" : ""}`}>
-              <div className="pp-card-head">
-                <div className="pp-titlerow">
-                  <h2>{plan.name}</h2>
-                  {plan.badge ? <span className="pp-badge">{plan.badge}</span> : null}
-                </div>
-                <p className="pp-desc">{plan.description}</p>
+            <article key={plan.name} className={`pr-card${plan.featured ? " pr-card-featured" : ""}`}>
+              {plan.badge ? <span className="pr-card-badge">{plan.badge}</span> : null}
+
+              <div className="pr-card-head">
+                <h2>{plan.name}</h2>
+                <p>{plan.description}</p>
               </div>
 
-              <div className="pp-price">
+              <div className="pr-card-price">
                 <strong>{view.display}</strong>
                 {view.suffix ? <span>{view.suffix}</span> : null}
               </div>
-              <p className="pp-billed">{view.billed}</p>
+              <p className="pr-card-billed">{view.billed}</p>
 
               <PlanButton
                 tierKey={plan.tierKey}
                 billingCycle={cycle}
                 label={plan.cta}
-                className={`pp-cta${plan.featured ? " pp-cta-featured" : ""}`}
+                className={`pr-card-cta${plan.featured ? " pr-card-cta-featured" : ""}`}
               />
 
-              <ul className="pp-features">
+              <ul className="pr-card-features">
                 {plan.features.map((feature) => (
                   <li key={feature}>
-                    <CheckIcon className="pp-check" />
+                    <CheckIcon />
                     {feature}
                   </li>
                 ))}
@@ -69,11 +69,11 @@ export function PricingPlans() {
             </article>
           );
         })}
-      </section>
+      </div>
 
-      <p className="pp-foot">
-        Prices in USD. Taxes calculated at checkout. Cancel anytime from your billing portal.
+      <p className="pr-plans-foot">
+        All plans include access to ChatGPT, Gemini, Claude, and Perplexity checks.
       </p>
-    </>
+    </div>
   );
 }

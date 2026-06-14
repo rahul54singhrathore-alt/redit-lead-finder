@@ -1,11 +1,10 @@
 import Link from "next/link";
+import { CheckIcon } from "lucide-react";
 
 import { PricingPlans } from "@/components/pricing-plans";
 import { SiteNavbar } from "@/components/site-navbar";
 
 export const metadata = {
-  // Root layout applies the "%s | Oras" template, so the title here omits the
-  // brand suffix to avoid duplicating it.
   title: "Pricing — AI Visibility & GEO Tracking Plans",
   description:
     "Simple plans for tracking your brand's visibility across ChatGPT, Gemini, Claude, and Perplexity. Start free — upgrade as you grow.",
@@ -19,10 +18,10 @@ export const metadata = {
 };
 
 const serviceFeatures = [
-  "Daily visibility checks",
-  "Mentions delivered to Slack/Email",
-  "AI-generated content suggestions",
-  "Weekly GEO report",
+  "Weekly AI visibility audit across all 4 engines",
+  "AI-generated content and citation recommendations",
+  "Competitor GEO tracking and benchmarking",
+  "Dedicated account manager",
 ];
 
 export default async function PricingPage({ searchParams }) {
@@ -30,43 +29,79 @@ export default async function PricingPage({ searchParams }) {
   const fromOnboarding = params?.welcome === "1";
 
   return (
-    <main className="pricing-page autosend-page">
+    <main className="pr-page">
       <SiteNavbar />
 
       {fromOnboarding ? (
-        <div className="pricing-welcome">
-          🎉 Your workspace is ready. Pick a plan to unlock more brands and prompt
+        <div className="pr-welcome">
+          Your workspace is ready. Pick a plan to unlock more brands and prompt
           coverage — or <Link href="/dashboard">continue on the free plan</Link>.
         </div>
       ) : null}
 
-      <section className="pricing-hero">
-        <p className="eyebrow">Subscription plans</p>
-        <h1>Choose the AI visibility plan that fits your workflow.</h1>
-        <p>
-          Start free, upgrade when you need more brands, stronger prompt coverage, team access, or a managed visibility service.
-        </p>
+      <section className="pr-hero">
+        <p className="pr-eyebrow">Pricing</p>
+        <h1>Simple, transparent pricing</h1>
+        <p>Start free. Upgrade when you need more coverage, brands, or team access.</p>
       </section>
 
       <PricingPlans />
 
-      <section className="service-plan">
-        <div>
-          <span className="pricing-badge">Done-For-You</span>
-          <h2>Done-For-You Visibility Service</h2>
-          <p>Instead of only software, get a managed AI visibility workflow with audits, tracking, and content recommendations delivered every week.</p>
+      <section className="pr-service">
+        <div className="pr-service-inner">
+          <div className="pr-service-left">
+            <span className="pr-service-label">Done-For-You</span>
+            <h2>Managed Visibility Service</h2>
+            <p>
+              Skip the software — get a fully managed AI visibility workflow with weekly audits,
+              content recommendations, and competitor tracking delivered to your inbox.
+            </p>
+            <ul className="pr-service-features">
+              {serviceFeatures.map((f) => (
+                <li key={f}>
+                  <CheckIcon />
+                  {f}
+                </li>
+              ))}
+            </ul>
+            <Link className="pr-service-cta" href="/signin">Apply for service →</Link>
+          </div>
+          <div className="pr-service-right">
+            <div className="pr-service-price">
+              <strong>$299</strong>
+              <span>/month</span>
+            </div>
+            <p className="pr-service-note">Billed monthly · cancel anytime</p>
+          </div>
         </div>
-        <div className="service-price">
-          <strong>$299</strong>
-          <span>/month</span>
-        </div>
-        <ul className="pricing-features service-features">
-          {serviceFeatures.map((feature) => (
-            <li key={feature}>{feature}</li>
-          ))}
-        </ul>
-        <Link className="primary-button pricing-button" href="/signin">Apply for service</Link>
       </section>
+
+      <section className="pr-faq">
+        <h2>Common questions</h2>
+        <div className="pr-faq-grid">
+          <div className="pr-faq-item">
+            <h3>Do I need a credit card to start?</h3>
+            <p>No. The free plan requires no payment details — just sign up and go.</p>
+          </div>
+          <div className="pr-faq-item">
+            <h3>What counts as a prompt run?</h3>
+            <p>One prompt run is a single AI query checked across all 4 engines (ChatGPT, Gemini, Claude, Perplexity).</p>
+          </div>
+          <div className="pr-faq-item">
+            <h3>Can I cancel anytime?</h3>
+            <p>Yes. Cancel from your billing portal at any time — no questions asked.</p>
+          </div>
+          <div className="pr-faq-item">
+            <h3>What happens when I hit my limit?</h3>
+            <p>Checks pause until your next billing cycle. You can upgrade at any time to increase your quota.</p>
+          </div>
+        </div>
+      </section>
+
+      <footer className="pr-footer">
+        Prices in USD · Taxes calculated at checkout ·{" "}
+        <Link href="/dashboard">Back to dashboard</Link>
+      </footer>
     </main>
   );
 }
