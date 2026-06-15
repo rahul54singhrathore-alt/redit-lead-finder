@@ -458,10 +458,7 @@ export default function SettingsPage() {
               {/* Save bar */}
               {showSave && (
                 <div className="stg2-save-bar">
-                  {saved
-                    ? <span className="stg2-saved-msg"><CheckIcon />Saved</span>
-                    : <span className="stg2-save-hint">Press Save to apply changes</span>
-                  }
+                  {saved && <span className="stg2-saved-msg"><CheckIcon />Saved</span>}
                   <button type="submit" className={`stg2-save-btn${dirty ? " stg2-save-btn-active" : ""}`} disabled={saving}>
                     {saving ? "Saving…" : "Save settings"}
                   </button>
