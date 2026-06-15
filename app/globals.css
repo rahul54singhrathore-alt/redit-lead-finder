@@ -7421,6 +7421,19 @@ button {
 .stg2-outline-btn:hover { background: #fafafa; border-color: #c9c9ce; }
 .stg2-outline-btn:disabled { opacity: 0.45; cursor: not-allowed; }
 
+.stg2-meta-value {
+  display: inline-flex;
+  align-items: center;
+  height: 38px;
+  padding: 0 12px;
+  font-size: 0.9rem;
+  color: #3a3a3f;
+  background: #f7f7f8;
+  border: 1px solid #e4e4e9;
+  border-radius: 8px;
+}
+.stg2-meta-provider { text-transform: capitalize; }
+
 .stg2-danger-btn {
   display: inline-flex;
   align-items: center;

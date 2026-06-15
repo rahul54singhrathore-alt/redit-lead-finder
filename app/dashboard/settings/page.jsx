@@ -365,9 +365,38 @@ export default function SettingsPage() {
                 {/* Account */}
                 {activeSection === "account" && (
                   <div className="stg2-fields">
+                    {(user?.user_metadata?.full_name || user?.user_metadata?.name) && (
+                      <Field label="Name" description="Your name as provided during sign-up." inputLabel="Full name">
+                        <input className="stg2-input" value={user?.user_metadata?.full_name || user?.user_metadata?.name || ""} readOnly />
+                      </Field>
+                    )}
                     <Field label="Email address" description="The email you use to sign in to Oras. Cannot be changed here." inputLabel="Email">
                       <input className="stg2-input" value={user?.email || ""} readOnly />
                     </Field>
+                    {user?.app_metadata?.provider && (
+                      <Field label="Sign-in method" description="How you authenticate with Oras.">
+                        <span className="stg2-meta-value stg2-meta-provider">
+                          {user.app_metadata.provider === "google" ? "Google" :
+                           user.app_metadata.provider === "github" ? "GitHub" :
+                           user.app_metadata.provider === "email"  ? "Email & password" :
+                           user.app_metadata.provider}
+                        </span>
+                      </Field>
+                    )}
+                    {user?.created_at && (
+                      <Field label="Member since" description="When your Oras account was created.">
+                        <span className="stg2-meta-value">
+                          {new Date(user.created_at).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
+                        </span>
+                      </Field>
+                    )}
+                    {user?.last_sign_in_at && (
+                      <Field label="Last sign-in" description="The most recent time you logged in.">
+                        <span className="stg2-meta-value">
+                          {new Date(user.last_sign_in_at).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
+                        </span>
+                      </Field>
+                    )}
                     <Field label="Sign out" description="End your current session on this device." noBorder>
                       <button type="button" className="stg2-outline-btn" onClick={handleSignOut}>
                         <LogOutIcon />
