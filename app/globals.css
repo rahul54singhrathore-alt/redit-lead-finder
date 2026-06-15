@@ -7665,6 +7665,40 @@ button {
 .stg2-save-btn-active:hover { opacity: 0.85; }
 .stg2-save-btn:disabled { opacity: 0.55; cursor: progress; }
 
+/* ── Tablet (900px) ── */
+@media (max-width: 900px) {
+  .stg2-main { padding-left: 14px; padding-right: 14px; }
+
+  .stg2-layout { border-radius: 10px; }
+
+  .stg2-nav { width: 180px; }
+
+  .stg2-nav-user { padding: 14px 12px 12px; }
+
+  .stg2-nav-user-email { font-size: 0.74rem; }
+  .stg2-nav-user-plan  { font-size: 0.68rem; }
+
+  .stg2-nav-item { font-size: 0.82rem; padding: 7px 9px; }
+
+  .stg2-content-head { padding: 18px 24px 16px; }
+
+  .stg2-fields-wrap { padding: 0 24px; }
+
+  .stg2-field {
+    grid-template-columns: 1fr 1.5fr;
+    gap: 16px;
+    padding: 18px 0;
+  }
+
+  .stg2-save-bar { padding: 14px 24px 16px; }
+
+  .stg2-pricing-embed .pr-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+/* ── Mobile (720px) ── */
 @media (max-width: 720px) {
   /* Layout stacks vertically */
   .stg2-main { padding-left: 12px; padding-right: 12px; padding-top: 10px; }
@@ -7764,6 +7798,9 @@ button {
   .stg2-field-desc p      { font-size: 0.775rem; margin-top: 2px; }
 
   .stg2-input { font-size: 0.875rem; }
+
+  /* Meta value chips stretch full width on mobile */
+  .stg2-meta-value { width: 100%; box-sizing: border-box; }
 
   .stg2-url-row { flex-direction: column; gap: 8px; }
   .stg2-autofill-btn { width: 100%; justify-content: center; }
