@@ -170,7 +170,7 @@ export default function CompetitorsPage() {
             <div>
               <SidebarTrigger className="dashboard-sidebar-trigger" />
               <h1>Competitor Intelligence</h1>
-              <p style={{ color: "#71717a", margin: "4px 0 0 0" }}>
+              <p className="page-subtitle">
                 Real AI benchmark — we ask AI “{prompt}” and rank {brand} against the brands it recommends.
               </p>
             </div>

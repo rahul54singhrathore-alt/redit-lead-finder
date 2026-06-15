@@ -176,12 +176,12 @@ export default function RedditPage() {
             <div>
               <SidebarTrigger className="dashboard-sidebar-trigger" />
               <h1>Reddit Opportunity Engine</h1>
-              <p style={{ color: "#71717a", margin: "4px 0 0 0" }}>
+              <p className="page-subtitle">
                 AI models cite Reddit heavily — reply on these threads to get {brand} cited.
               </p>
             </div>
             <button type="button" className="action-button" onClick={exportLeads} title="Export saved signals as CSV">
-              <DownloadIcon style={{ width: 14, height: 14 }} /> Export CSV
+              <DownloadIcon className="button-icon" /> Export CSV
             </button>
           </div>
 

@@ -66,7 +66,7 @@ export default function RecommendationsPage() {
             <div>
               <SidebarTrigger className="dashboard-sidebar-trigger" />
               <h1>Recommendations</h1>
-              <p style={{ color: "#71717a", margin: "4px 0 0 0" }}>
+              <p className="page-subtitle">
                 AI-generated action plan for <strong style={{ color: "#18181b" }}>{brand}</strong> — ranked by GEO impact.
               </p>
             </div>

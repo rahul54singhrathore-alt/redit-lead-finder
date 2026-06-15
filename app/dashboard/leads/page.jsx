@@ -216,7 +216,7 @@ export default function LeadsPage() {
             <div>
               <SidebarTrigger className="dashboard-sidebar-trigger" />
               <h1>Signals</h1>
-              <p style={{ color: "#71717a", margin: "4px 0 0 0" }}>Review, qualify, and track visibility results that match your brands</p>
+              <p className="page-subtitle">Review, qualify, and track visibility results that match your brands</p>
             </div>
           </div>
 

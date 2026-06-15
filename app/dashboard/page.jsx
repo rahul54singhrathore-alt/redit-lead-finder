@@ -117,7 +117,7 @@ export default function DashboardPage() {
               <div>
                 <SidebarTrigger className="dashboard-sidebar-trigger" />
                 <h1>Set up your workspace</h1>
-                <p style={{ color: "#71717a", margin: "4px 0 0 0" }}>
+                <p className="page-subtitle">
                   Add your first brand, the sources to watch, and the audit cadence.
                 </p>
               </div>
@@ -147,7 +147,7 @@ export default function DashboardPage() {
             <div>
               <SidebarTrigger className="dashboard-sidebar-trigger" />
               <h1>GEO Score</h1>
-              <p style={{ color: "#71717a", margin: "4px 0 0 0" }}>
+              <p className="page-subtitle">
                 How often AI engines mention {profile?.product_name || "your brand"} — and what to improve.
               </p>
             </div>

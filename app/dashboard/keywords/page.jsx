@@ -533,7 +533,7 @@ export default function KeywordsPage() {
             <div>
               <SidebarTrigger className="dashboard-sidebar-trigger" />
               <h1>Brands</h1>
-              <p style={{ color: "#71717a", margin: "4px 0 0 0" }}>Manage the brands you want to track across AI answers</p>
+              <p className="page-subtitle">Manage the brands you want to track across AI answers</p>
             </div>
           </div>
 

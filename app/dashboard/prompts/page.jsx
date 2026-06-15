@@ -234,7 +234,7 @@ export default function PromptsPage() {
             <div>
               <SidebarTrigger className="dashboard-sidebar-trigger" />
               <h1>Prompt Rank Tracker</h1>
-              <p style={{ color: "#71717a", margin: "4px 0 0 0" }}>
+              <p className="page-subtitle">
                 Like keyword ranks for SEO — track where {brand} ranks for each prompt, and watch it move.
               </p>
             </div>
@@ -286,7 +286,7 @@ export default function PromptsPage() {
                 <section key={item.id} className="dashboard-card prompt-result-card">
                   <div className="card-header">
                     <h2 className="prompt-result-title">“{item.prompt}”</h2>
-                    <div style={{ display: "flex", gap: 8 }}>
+                    <div className="row-actions">
                       <button
                         type="button"
                         className="prompt-remove"
@@ -306,7 +306,7 @@ export default function PromptsPage() {
                   {!result || result.status === "loading" ? (
                     <p className="card-supporting-copy">Checking rank…</p>
                   ) : result.status === "error" ? (
-                    <p className="card-supporting-copy" style={{ color: "#dc2626" }}>{result.error}</p>
+                    <p className="card-supporting-copy error-text">{result.error}</p>
                   ) : (
                     <>
                       <RankRow data={result.data} delta={delta} lastChecked={lastChecked} />

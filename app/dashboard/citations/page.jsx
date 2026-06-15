@@ -105,7 +105,7 @@ export default function CitationsPage() {
             <div>
               <SidebarTrigger className="dashboard-sidebar-trigger" />
               <h1>AI Citation Tracker</h1>
-              <p style={{ color: "#71717a", margin: "4px 0 0 0" }}>
+              <p className="page-subtitle">
                 See which websites AI uses as sources in {brand}’s space — and where {brand} is missing.
               </p>
             </div>

@@ -125,7 +125,7 @@ export default function BrandMemoryPage() {
             <div>
               <SidebarTrigger className="dashboard-sidebar-trigger" />
               <h1>Brand Memory</h1>
-              <p style={{ color: "#71717a", margin: "4px 0 0 0" }}>
+              <p className="page-subtitle">
                 What AI models know about {brand} — used to make every check accurate.
               </p>
             </div>
@@ -156,7 +156,7 @@ export default function BrandMemoryPage() {
               )}
               {pct === 100 && (
                 <p className="memory-completeness-done-msg">
-                  <CheckIcon style={{ width: 13, height: 13, verticalAlign: -2 }} /> Profile complete — AI checks are fully optimised.
+                  <CheckIcon className="button-icon" /> Profile complete — AI checks are fully optimised.
                 </p>
               )}
             </section>
@@ -195,7 +195,7 @@ export default function BrandMemoryPage() {
               <section className="dashboard-card">
                 <div className="card-header">
                   <div>
-                    <h2><SparklesIcon className="settings-section-icon" style={{ color: "#8b5cf6" }} /> AI context preview</h2>
+                    <h2><SparklesIcon className="settings-section-icon" /> AI context preview</h2>
                     <p className="card-supporting-copy">Exactly what AI models receive when checking {brand}.</p>
                   </div>
                 </div>
@@ -251,7 +251,7 @@ export default function BrandMemoryPage() {
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="e.g. Launched 2024 · best-known for AI visibility tracking · pricing from $29/mo · featured on Product Hunt…"
               />
-              <div style={{ display: "flex", alignItems: "center", gap: 14, marginTop: 12 }}>
+              <div className="row-actions">
                 <button
                   type="button"
                   className="primary-button"

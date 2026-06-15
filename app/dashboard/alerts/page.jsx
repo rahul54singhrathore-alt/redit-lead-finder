@@ -9,50 +9,7 @@ import { createBrowserSupabaseClient } from "../../../lib/supabase";
 import { normalizeWorkspaceProfile } from "../../../lib/workspace-profile";
 import { getTier, hasFeature } from "../../../lib/subscription";
 import { LimitNotice } from "@/components/upgrade-prompt";
-
-const BellIcon = () => (
-  <svg className="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-    <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-  </svg>
-);
-
-const TrendingIcon = () => (
-  <svg className="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
-    <polyline points="17 6 23 6 23 12" />
-  </svg>
-);
-
-const SearchIcon = () => (
-  <svg className="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <circle cx="11" cy="11" r="8" />
-    <path d="m21 21-4.35-4.35" />
-  </svg>
-);
-
-const PlusIcon = () => (
-  <svg className="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M12 5v14M5 12h14" />
-  </svg>
-);
-
-const TrashIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: 15, height: 15 }}>
-    <polyline points="3 6 5 6 21 6" />
-    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
-    <path d="M10 11v6M14 11v6" />
-    <path d="M9 6V4h6v2" />
-  </svg>
-);
-
-const ExternalIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: 13, height: 13 }}>
-    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-    <polyline points="15 3 21 3 21 9" />
-    <line x1="10" y1="14" x2="21" y2="3" />
-  </svg>
-);
+import { BellIcon, ExternalLinkIcon, PlusIcon, SearchIcon, Trash2Icon, TrendingUpIcon } from "lucide-react";
 
 const TRIGGER_PRESETS = [
   "Brand mentioned in AI answer",
@@ -209,7 +166,7 @@ export default function AlertsPage() {
             <div>
               <SidebarTrigger className="dashboard-sidebar-trigger" />
               <h1>Alerts</h1>
-              <p style={{ color: "#71717a", margin: "4px 0 0 0" }}>
+              <p className="page-subtitle">
                 Control when you are notified about high-value visibility signals
               </p>
             </div>
@@ -223,7 +180,7 @@ export default function AlertsPage() {
                 <p className="stat-value">{rules.filter((r) => r.active).length}</p>
               </div>
               <div className="stat-card">
-                <div className="stat-icon stat-icon-green"><TrendingIcon /></div>
+                <div className="stat-icon stat-icon-green"><TrendingUpIcon /></div>
                 <h3>Signals today</h3>
                 <p className="stat-value">{signalsTodayCount}</p>
               </div>
@@ -329,7 +286,7 @@ export default function AlertsPage() {
                     recentAlerts.map((alert) => (
                       <div key={alert.id} className="alert-feed-item">
                         <div className={`alert-priority-dot priority-${alert.intent.toLowerCase()}`} />
-                        <div style={{ minWidth: 0 }}>
+                        <div className="alert-feed-body">
                           <div className="alert-feed-head">
                             <h3>{alert.title}</h3>
                             <span className={`audit-intent-badge audit-intent-${alert.intent.toLowerCase()}`}>
@@ -348,7 +305,7 @@ export default function AlertsPage() {
                               rel="noopener noreferrer"
                               className="audit-signal-link"
                             >
-                              <ExternalIcon /> View thread
+                              <ExternalLinkIcon className="button-icon" /> View thread
                             </a>
                           ) : null}
                         </div>
@@ -365,7 +322,7 @@ export default function AlertsPage() {
                     <h2>Audit rules</h2>
                     <p className="card-supporting-copy">Toggle or delete rules at any time.</p>
                   </div>
-                  <span style={{ fontSize: "0.875rem", color: "#71717a" }}>
+                  <span className="card-meta-count">
                     {rules.length} {rules.length === 1 ? "rule" : "rules"}
                   </span>
                 </div>
@@ -390,7 +347,7 @@ export default function AlertsPage() {
                             disabled={deletingId === rule.id}
                             title="Delete rule"
                           >
-                            <TrashIcon />
+                            <Trash2Icon className="button-icon" />
                           </button>
                           <label className="switch">
                             <input type="checkbox" checked={rule.active} onChange={() => toggleRule(rule.id)} />

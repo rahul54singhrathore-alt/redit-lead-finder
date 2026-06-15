@@ -66,7 +66,7 @@ export default function OpportunitiesPage() {
             <div>
               <SidebarTrigger className="dashboard-sidebar-trigger" />
               <h1>Opportunities</h1>
-              <p style={{ color: "#71717a", margin: "4px 0 0 0" }}>
+              <p className="page-subtitle">
                 Buyer prompts where your brand is missing — each one a chance to get recommended.
               </p>
             </div>

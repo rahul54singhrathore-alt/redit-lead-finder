@@ -114,8 +114,8 @@ export default function VisibilityPage() {
             <div>
               <SidebarTrigger className="dashboard-sidebar-trigger" />
               <h1>Visibility</h1>
-              <p style={{ color: "#71717a", margin: "4px 0 0 0" }}>
-                What AI engines actually say about <strong style={{ color: "#18181b" }}>{brand}</strong> — real queries, real answers.
+              <p className="page-subtitle">
+                What AI engines actually say about <strong>{brand}</strong> — real queries, real answers.
               </p>
             </div>
             <button
@@ -152,7 +152,7 @@ export default function VisibilityPage() {
               <section className="dashboard-card">
                 <div className="vis-empty">
                   <p>{scan.error}</p>
-                  <button type="button" className="geo-build-cta" onClick={runScan} style={{ marginTop: 12 }}>Try again</button>
+                  <button type="button" className="geo-build-cta action-button" onClick={runScan}>Try again</button>
                 </div>
               </section>
             )}
@@ -162,7 +162,7 @@ export default function VisibilityPage() {
                 {/* Hero strip */}
                 <div className="vis-hero-strip">
                   <div className="vis-hero-stat">
-                    <span className="vis-hero-number" style={{ color: data.mentionedCount > 0 ? "#16a34a" : "#dc2626" }}>
+                    <span className={`vis-hero-number ${data.mentionedCount > 0 ? "vis-hero-number-positive" : "vis-hero-number-negative"}`}>
                       {data.mentionedCount}/{data.engineCount}
                     </span>
                     <span className="vis-hero-label">Engines that mention you</span>
@@ -186,7 +186,7 @@ export default function VisibilityPage() {
                   </div>
                   <div className="vis-hero-divider" />
                   <div className="vis-hero-stat">
-                    <span className="vis-hero-number" style={{ fontSize: "1.1rem", color: data.liveCount > 0 ? "#16a34a" : "#a1a1aa" }}>
+                    <span className={`vis-hero-number ${data.liveCount > 0 ? "vis-hero-number-live" : "vis-hero-number-muted"}`}>
                       {data.liveCount > 0 ? `${data.liveCount} live` : "Groq fallback"}
                     </span>
                     <span className="vis-hero-label">Engine mode</span>
@@ -212,13 +212,12 @@ export default function VisibilityPage() {
                       return (
                         <div
                           key={key}
-                          className="vis-engine-card"
-                          style={{ borderColor: `${meta.color}28` }}
+                          className={`vis-engine-card vis-engine-${key}`}
                         >
-                          <div className="vis-engine-card-header" style={{ background: meta.bg }}>
-                            <div className="vis-engine-dot" style={{ background: meta.color }} />
+                          <div className="vis-engine-card-header">
+                            <div className="vis-engine-dot" />
                             <strong>{meta.label}</strong>
-                            <span className="vis-engine-score-pill" style={{ color: meta.color, background: `${meta.color}15` }}>
+                            <span className="vis-engine-score-pill">
                               {engine.score}
                             </span>
                           </div>
@@ -240,9 +239,9 @@ export default function VisibilityPage() {
                             {/* Score bar */}
                             <div className="vis-engine-bar-wrap">
                               <div className="vis-engine-bar-track">
-                                <div className="vis-engine-bar-fill" style={{ width: `${engine.score}%`, background: meta.color }} />
+                                <div className="vis-engine-bar-fill" style={{ width: `${engine.score}%` }} />
                               </div>
-                              <span className="vis-engine-bar-label" style={{ color: label.color }}>{label.text}</span>
+                              <span className={`vis-engine-bar-label vis-bar-label-${label.text.toLowerCase()}`}>{label.text}</span>
                             </div>
                             {/* Answer quote */}
                             {engine.answer ? (
