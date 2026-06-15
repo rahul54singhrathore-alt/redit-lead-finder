@@ -10,8 +10,10 @@ import {
   LockIcon,
   PlusIcon,
   RefreshCwIcon,
+  SearchXIcon,
   SparklesIcon,
   TrophyIcon,
+  UsersIcon,
   XIcon,
 } from "lucide-react";
 
@@ -197,13 +199,25 @@ export default function CompetitorsPage() {
             ) : (
               <>
                 <section className="unlock-welcome">
-                  <div>
+                  <div className="unlock-welcome-left">
                     <span className="unlock-welcome-tag">✦ {getTier(tierKey).name} unlocked</span>
                     <h2>You’re tracking {competitors.length} competitor{competitors.length === 1 ? "" : "s"}.</h2>
                     <p>Live ranking of {brand} vs competitors, straight from AI.</p>
+                    <div className="unlock-welcome-meta">
+                      <span className="unlock-welcome-stat">
+                        <UsersIcon />
+                        {competitors.length} tracked
+                      </span>
+                      <span className="unlock-welcome-stat">
+                        <BarChart3Icon />
+                        {scan.status === "done" ? `${leaderboard.length} ranked` : "Scanning…"}
+                      </span>
+                    </div>
                   </div>
                   <div className="unlock-welcome-score">
-                    <span>{scan.status === "done" ? myGeo : "—"}</span>
+                    <div className="unlock-score-ring">
+                      <span className="unlock-score-num">{scan.status === "done" ? myGeo : "—"}</span>
+                    </div>
                     <small>GEO score</small>
                   </div>
                 </section>
@@ -211,12 +225,14 @@ export default function CompetitorsPage() {
                 <section className="dashboard-card">
                   <div className="card-header">
                     <div>
-                      <h2>Your competitors</h2>
+                      <h2><UsersIcon className="card-header-icon" /> Your competitors</h2>
                       <p className="card-supporting-copy">
                         Add the brands AI recommends instead of you — or pick from AI’s suggestions below.
                       </p>
                     </div>
-                    <span className="pricing-badge">{competitors.length} tracked</span>
+                    <span className={`ci-tracked-badge${competitors.length > 0 ? " ci-tracked-badge-active" : ""}`}>
+                      {competitors.length} tracked
+                    </span>
                   </div>
 
                   <form className="competitor-add-form" onSubmit={handleAddCompetitor}>
@@ -277,7 +293,7 @@ export default function CompetitorsPage() {
                 <section className="dashboard-card">
                   <div className="card-header">
                     <div>
-                      <h2>Visibility leaderboard</h2>
+                      <h2><BarChart3Icon className="card-header-icon" /> Visibility leaderboard</h2>
                       <p className="card-supporting-copy">Ranked by AI’s real recommendations.</p>
                     </div>
                     <div style={{ display: "flex", gap: 8 }}>
@@ -324,18 +340,22 @@ export default function CompetitorsPage() {
                       </button>
                     </div>
                   ) : leaderboard.length === 0 ? (
-                    <div className="empty-state">
+                    <div className="ci-empty-state">
+                      <SearchXIcon />
                       <h2>No ranking yet</h2>
-                      <p>AI didn’t return a recommendation list for this prompt. Try Re-scan.</p>
+                      <p>AI didn’t return a recommendation list for this prompt.</p>
+                      <button type="button" className="action-button" onClick={runScan}>
+                        <RefreshCwIcon className="button-icon" /> Re-scan
+                      </button>
                     </div>
                   ) : (
                     <div className="leaderboard">
                       {leaderboard.map((entry) => (
                         <div
                           key={entry.name}
-                          className={`leaderboard-row${entry.isBrand ? " leaderboard-row-brand" : ""}`}
+                          className={`leaderboard-row${entry.isBrand ? " leaderboard-row-brand" : ""}${entry.rank === 1 ? " leaderboard-row-first" : ""}`}
                         >
-                          <span className="leaderboard-rank">
+                          <span className={`leaderboard-rank${entry.rank === 1 ? " leaderboard-rank-first" : ""}`}>
                             {entry.rank === 1 ? <TrophyIcon /> : entry.rank}
                           </span>
                           <span className="leaderboard-name">
@@ -348,7 +368,7 @@ export default function CompetitorsPage() {
                           <span className="leaderboard-wins">
                             {entry.mentioned ? `AI #${entry.claudeRank}` : "Not ranked"}
                           </span>
-                          <span className="leaderboard-score">{entry.score}</span>
+                          <span className={`leaderboard-score${entry.isBrand ? " leaderboard-score-brand" : ""}`}>{entry.score}</span>
                         </div>
                       ))}
                     </div>
