@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
 
-import { getStripe } from "@/lib/stripe";
+import { getDodo } from "@/lib/dodo";
 import { createAdminClient, getUserFromToken, bearerToken } from "@/lib/supabase-server";
 
-// Opens the Stripe Customer Portal so a subscriber can update, downgrade, or
-// cancel their plan and view invoices.
+// Opens the Dodo Payments customer portal so a subscriber can manage,
+// update, or cancel their subscription and view invoices.
 export async function POST(request) {
-  const stripe = getStripe();
-  if (!stripe) {
+  const dodo = getDodo();
+  if (!dodo) {
     return NextResponse.json({ error: "Payments are not configured yet." }, { status: 503 });
   }
 
@@ -23,24 +23,30 @@ export async function POST(request) {
 
   const { data: profile } = await admin
     .from("user_profiles")
-    .select("stripe_customer_id")
+    .select("dodo_subscription_id")
     .eq("user_id", user.id)
     .maybeSingle();
 
-  if (!profile?.stripe_customer_id) {
+  if (!profile?.dodo_subscription_id) {
     return NextResponse.json({ error: "No active subscription found." }, { status: 400 });
   }
 
   const origin =
-    request.headers.get("origin") || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    request.headers.get("origin") ||
+    process.env.NEXT_PUBLIC_APP_URL ||
+    "http://localhost:3000";
 
   try {
-    const session = await stripe.billingPortal.sessions.create({
-      customer: profile.stripe_customer_id,
-      return_url: `${origin}/dashboard/settings`,
+    // Dodo customer portal: redirect user to manage their subscription.
+    const portal = await dodo.customers.customerPortal({
+      subscription_id: profile.dodo_subscription_id,
+      return_url:      `${origin}/dashboard/settings`,
     });
-    return NextResponse.json({ url: session.url });
+    return NextResponse.json({ url: portal.url });
   } catch (error) {
-    return NextResponse.json({ error: error?.message || "Could not open billing portal." }, { status: 502 });
+    return NextResponse.json(
+      { error: error?.message || "Could not open billing portal." },
+      { status: 502 },
+    );
   }
 }
