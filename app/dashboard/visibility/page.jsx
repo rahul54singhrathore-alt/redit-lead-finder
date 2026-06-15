@@ -17,6 +17,7 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { createBrowserSupabaseClient } from "../../../lib/supabase";
 import { normalizeWorkspaceProfile } from "../../../lib/workspace-profile";
+import { exportVisibilityCsv } from "@/lib/report-export";
 
 const ENGINE_META = {
   chatgpt:    { color: "#10a37f", bg: "rgba(16,163,127,0.08)",  label: "ChatGPT",    tagline: "Largest user base — highest brand awareness impact." },
@@ -118,15 +119,26 @@ export default function VisibilityPage() {
                 What AI engines actually say about <strong>{brand}</strong> — real queries, real answers.
               </p>
             </div>
-            <button
-              type="button"
-              className="action-button vis-refresh-btn"
-              onClick={runScan}
-              disabled={scan.status === "loading"}
-            >
-              <RefreshCwIcon className={scan.status === "loading" ? "button-icon spin" : "button-icon"} />
-              {scan.status === "loading" ? "Scanning…" : "Refresh"}
-            </button>
+            <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+              {scan.status === "done" && data?.engines?.length > 0 && (
+                <button
+                  type="button"
+                  className="action-button"
+                  onClick={() => exportVisibilityCsv(data.engines, profile?.product_name)}
+                >
+                  Export CSV
+                </button>
+              )}
+              <button
+                type="button"
+                className="action-button vis-refresh-btn"
+                onClick={runScan}
+                disabled={scan.status === "loading"}
+              >
+                <RefreshCwIcon className={scan.status === "loading" ? "button-icon spin" : "button-icon"} />
+                {scan.status === "loading" ? "Scanning…" : "Refresh"}
+              </button>
+            </div>
           </div>
 
           <div className="dashboard-content">
