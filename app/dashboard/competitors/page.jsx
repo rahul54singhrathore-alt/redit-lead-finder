@@ -296,7 +296,7 @@ export default function CompetitorsPage() {
                       <h2><BarChart3Icon className="card-header-icon" /> Visibility leaderboard</h2>
                       <p className="card-supporting-copy">Ranked by AI’s real recommendations.</p>
                     </div>
-                    <div style={{ display: "flex", gap: 8 }}>
+                    <div className="leaderboard-actions-row" style={{ display: "flex", gap: 8 }}>
                       <button
                         type="button"
                         className="action-button"

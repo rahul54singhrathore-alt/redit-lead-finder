@@ -13867,27 +13867,185 @@ button {
   color: #4f46e5;
 }
 
+/* ── Competitor page: tablet (≤900px) ── */
+@media (max-width: 900px) {
+  .unlock-welcome {
+    padding: 22px 20px;
+    gap: 18px;
+  }
+
+  .unlock-welcome h2 { font-size: 1.2rem; }
+
+  .unlock-score-ring {
+    width: 76px;
+    height: 76px;
+  }
+
+  .unlock-score-num { font-size: 1.5rem; }
+
+  .leaderboard-row {
+    grid-template-columns: 28px 1fr 90px 64px 40px;
+    gap: 10px;
+  }
+
+  .card-header { flex-wrap: wrap; gap: 10px; }
+}
+
+/* ── Competitor page: mobile (≤720px) ── */
 @media (max-width: 720px) {
+  /* member strips */
   .member-celebrate,
-  .member-strip,
+  .member-strip { flex-direction: column; align-items: flex-start; }
+
+  /* Welcome banner stacks vertically */
   .unlock-welcome {
     flex-direction: column;
     align-items: flex-start;
+    padding: 20px 18px;
+    gap: 18px;
+    border-radius: 14px;
   }
 
-  .unlock-welcome-meta { gap: 8px; }
+  .unlock-welcome::before { display: none; }
+
+  .unlock-welcome h2 {
+    font-size: 1.125rem;
+    margin: 8px 0 4px;
+  }
+
+  .unlock-welcome p { font-size: 0.84rem; }
+
+  .unlock-welcome-meta {
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
   .unlock-welcome-stat { font-size: 0.75rem; }
 
-  .leaderboard-row {
-    grid-template-columns: 28px 1fr 60px 36px;
-    padding: 11px 12px;
+  /* Score ring: compact inline row when stacked */
+  .unlock-welcome-score {
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 12px 16px;
+    background: rgba(124,58,237,0.06);
+    border: 1px solid rgba(124,58,237,0.15);
+    border-radius: 12px;
   }
 
+  .unlock-score-ring {
+    width: 56px;
+    height: 56px;
+    flex-shrink: 0;
+  }
+
+  .unlock-score-ring::before { inset: 5px; }
+
+  .unlock-score-num { font-size: 1.25rem; }
+
+  .unlock-welcome-score small {
+    font-size: 0.78rem;
+    letter-spacing: 0.04em;
+  }
+
+  /* Unlock hero (locked state) */
+  .unlock-hero { padding: 32px 18px; }
+  .unlock-hero h2 { font-size: 1.2rem; }
+
+  /* Card header: wrap badge below heading */
+  .card-header {
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .card-header > div { flex: 1; min-width: 0; }
+
+  .ci-tracked-badge { align-self: flex-start; }
+
+  /* Leaderboard: drop bar column on mobile */
+  .leaderboard-row {
+    grid-template-columns: 28px 1fr 56px 36px;
+    gap: 8px;
+    padding: 11px 12px;
+    border-radius: 10px;
+  }
+
+  .leaderboard-bar { display: none; }
   .leaderboard-wins { display: none; }
 
-  .competitor-add-form { flex-direction: column; }
+  .leaderboard-name { font-size: 0.845rem; }
+
+  .leaderboard-score {
+    font-size: 0.8rem;
+    padding: 2px 5px;
+  }
+
+  /* Add competitor form stacks */
+  .competitor-add-form {
+    flex-direction: column;
+    gap: 8px;
+  }
+
   .competitor-add-form .form-input { width: 100%; }
   .competitor-add-form .primary-button { width: 100%; justify-content: center; }
+
+  /* Chip wrapping on narrow screens */
+  .competitor-chip-row { gap: 6px; }
+  .competitor-chip { font-size: 0.8rem; padding: 5px 8px 5px 12px; }
+
+  /* Suggest section */
+  .competitor-suggest { margin-top: 16px; padding-top: 14px; }
+  .competitor-suggest-row { gap: 6px; }
+  .competitor-suggest-chip { font-size: 0.8rem; padding: 6px 12px; }
+
+  /* CI empty state */
+  .ci-empty-state { padding: 36px 16px; }
+
+  /* Leaderboard action buttons row */
+  .leaderboard-actions-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .leaderboard-actions-row .action-button,
+  .leaderboard-actions-row .primary-button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* ── Competitor page: very small (≤480px) ── */
+@media (max-width: 480px) {
+  .unlock-welcome { padding: 16px 14px; }
+
+  .unlock-welcome h2 { font-size: 1rem; }
+
+  .unlock-score-ring {
+    width: 48px;
+    height: 48px;
+  }
+
+  .unlock-score-num { font-size: 1.1rem; }
+
+  /* Leaderboard: 3 columns only */
+  .leaderboard-row {
+    grid-template-columns: 26px 1fr 32px;
+    gap: 6px;
+    padding: 10px;
+  }
+
+  .leaderboard-score { font-size: 0.75rem; padding: 2px 4px; }
+
+  .unlock-hero { padding: 24px 14px; gap: 10px; }
+  .unlock-hero h2 { font-size: 1.05rem; }
+
+  .dashboard-card { border-radius: 12px; }
+
+  .competitor-chip { font-size: 0.78rem; }
+  .competitor-suggest-chip { font-size: 0.78rem; padding: 5px 10px; }
 }
 
 .onboarding-actions {
