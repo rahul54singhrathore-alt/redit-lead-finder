@@ -408,34 +408,61 @@ export default function OnboardingPage() {
         {/* Step 3 — All set */}
         {step === 3 ? (
           <div className="onb-panel onb-finish">
-            <div className="onb-finish-icon"><SparklesIcon /></div>
-            <h1>{productName ? `${productName} is ready` : "Your workspace is ready"}</h1>
+            <div className="onb-finish-check">
+              <div className="onb-finish-check-ring" />
+              <svg className="onb-finish-check-svg" viewBox="0 0 52 52" fill="none">
+                <circle cx="26" cy="26" r="25" stroke="#22c55e" strokeWidth="2" fill="#f0fdf4" />
+                <path d="M14 26l9 9 15-15" stroke="#22c55e" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
+            <h1>You&apos;re all set{productName ? `, ${productName}` : ""}!</h1>
             <p className="onb-sub">Here&apos;s what&apos;s set up and waiting for you in the dashboard.</p>
+
+            {/* What happens next */}
+            <div className="onb-next-steps">
+              <p className="onb-next-steps-label">What happens next</p>
+              <div className="onb-next-steps-flow">
+                <div className="onb-next-step">
+                  <span className="onb-next-step-num">1</span>
+                  <span>We scan AI engines for your brand</span>
+                </div>
+                <span className="onb-next-step-arrow">→</span>
+                <div className="onb-next-step">
+                  <span className="onb-next-step-num">2</span>
+                  <span>You get your first visibility score</span>
+                </div>
+                <span className="onb-next-step-arrow">→</span>
+                <div className="onb-next-step">
+                  <span className="onb-next-step-num">3</span>
+                  <span>Improve with recommendations</span>
+                </div>
+              </div>
+            </div>
 
             <div className="onb-feature-list">
               <div className="onb-feature-item">
-                <span className="onb-feature-icon"><GaugeIcon /></span>
+                <span className="onb-feature-icon onb-feature-icon-green"><GaugeIcon /></span>
                 <div>
                   <strong>GEO Score</strong>
                   <p>Track {productName || "your brand"} across {sourceList.length || DEFAULT_VISIBILITY_SOURCES.length} selected sources.</p>
                 </div>
               </div>
               <div className="onb-feature-item">
-                <span className="onb-feature-icon"><BellRingIcon /></span>
+                <span className="onb-feature-icon onb-feature-icon-blue"><BellRingIcon /></span>
                 <div>
                   <strong>{selectedFrequency.label} digest</strong>
                   <p>{selectedFrequency.value === "off" ? "You can review signals in the dashboard." : "Visibility changes will be summarized for review."}</p>
                 </div>
               </div>
               <div className="onb-feature-item">
-                <span className="onb-feature-icon"><SearchIcon /></span>
+                <span className="onb-feature-icon onb-feature-icon-purple"><SearchIcon /></span>
                 <div>
                   <strong>Competitor context</strong>
                   <p>{competitorList.length ? `Benchmark against ${competitorList.slice(0, 2).join(" and ")}.` : "Add competitors later when you want benchmarking."}</p>
                 </div>
               </div>
               <div className="onb-feature-item">
-                <span className="onb-feature-icon"><ZapIcon /></span>
+                <span className="onb-feature-icon onb-feature-icon-orange"><ZapIcon /></span>
                 <div>
                   <strong>Recommendations</strong>
                   <p>Use the setup to generate concrete actions for improving AI visibility.</p>
@@ -443,7 +470,7 @@ export default function OnboardingPage() {
               </div>
             </div>
 
-            <div className="onb-recap">
+            <div className="onb-recap onb-recap-striped">
               <div className="onb-recap-row"><span>Brand</span><strong>{productName || "—"}</strong></div>
               <div className="onb-recap-row"><span>Website</span><strong>{productUrl || "—"}</strong></div>
               {industry ? <div className="onb-recap-row"><span>Industry</span><strong>{industry}</strong></div> : null}
