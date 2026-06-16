@@ -51,9 +51,9 @@ export default function BlogIndex() {
           <div className="blog3-hero-inner">
             <span className="blog3-eyebrow">✦ From the Oras team</span>
             <h1>
-              GEO guides, playbooks
+              <span className="blog3-hero-color">GEO guides, playbooks, and insights</span>
               <br />
-              <span className="blog3-hero-muted">and AI visibility insights</span>
+              from the Oras team
             </h1>
             <p>Everything you need to get your brand recommended inside AI answers — practical, jargon-free, and updated weekly.</p>
             <div className="blog3-hero-stats">

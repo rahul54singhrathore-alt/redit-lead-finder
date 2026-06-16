@@ -17989,14 +17989,16 @@ button {
 .blog3-hero h1 {
   font-size: clamp(2.5rem, 5.5vw, 4rem);
   font-weight: 900;
-  line-height: 1.08;
-  letter-spacing: -0.035em;
+  line-height: 1.12;
+  letter-spacing: -0.03em;
   color: #09090b;
   margin: 0 0 18px;
 }
 
-.blog3-hero-muted {
-  color: #a1a1aa;
+.blog3-hero-color {
+  color: #6366f1;
+  display: block;
+  font-weight: 700;
 }
 
 .blog3-hero p {
