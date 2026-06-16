@@ -2,58 +2,47 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowRightIcon, ChevronDownIcon, LockIcon, SearchIcon, SparklesIcon, TrophyIcon } from "lucide-react";
+import { ArrowRightIcon, LockIcon, SearchIcon, SparklesIcon, TrophyIcon, ZapIcon } from "lucide-react";
 
-import {
-  SIM_ENGINES,
-  overallGeoScore,
-  simulateVisibility,
-} from "@/lib/visibility-sim";
-import { searchBrands } from "@/lib/brands";
-
-const DEFAULT_PROMPT = "best tools in your category";
-
-// Public, no-signup visibility checker for the landing page. Gives an instant
-// GEO score + competitor gap (the "aha" moment), then funnels to sign-up for
-// the full report. Uses the same deterministic simulator as the app.
 export function FreeVisibilityChecker() {
   const [brand, setBrand] = useState("");
-  const [competitor, setCompetitor] = useState("");
-  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [prompt, setPrompt] = useState("");
   const [result, setResult] = useState(null);
   const [checking, setChecking] = useState(false);
   const [error, setError] = useState("");
 
-  const competitorMatches = searchBrands(competitor);
-
   const handleCheck = async (event) => {
     event.preventDefault();
     const cleanBrand = brand.trim();
+    const cleanPrompt = prompt.trim() || `best ${cleanBrand} alternatives`;
     if (!cleanBrand) return;
 
     setError("");
+    setResult(null);
     setChecking(true);
-    // Any brand is allowed — new and unknown brands are exactly who this is for.
-    // An unrecognized brand simply gets a low visibility score, which is the point.
-    setChecking(false);
 
-    const rivals = competitor.trim()
-      ? [competitor.trim()]
-      : ["Competitor A", "Competitor B"];
-
-    const engines = simulateVisibility({
-      prompt: DEFAULT_PROMPT,
-      brand: cleanBrand,
-      competitors: rivals,
-      engines: SIM_ENGINES,
-    });
-
-    const score = overallGeoScore(engines);
-    const losing = engines.filter((e) => e.brandRank !== 1).length;
-    const topRival = engines[0]?.rows.find((r) => !r.isBrand)?.name || rivals[0];
-
-    setResult({ brand: cleanBrand, engines, score, losing, topRival });
+    try {
+      const res = await fetch("/api/visibility-check", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ brand: cleanBrand, prompt: cleanPrompt }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data?.error || "Check failed. Please try again.");
+        return;
+      }
+      setResult({ ...data, promptUsed: cleanPrompt });
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setChecking(false);
+    }
   };
+
+  const scoreClass = result
+    ? result.score >= 60 ? "score-good" : result.score >= 35 ? "score-mid" : "score-low"
+    : "";
 
   return (
     <section className="checker" id="check">
@@ -63,8 +52,8 @@ export function FreeVisibilityChecker() {
         </span>
         <h2>Are AI engines recommending you or your competitors?</h2>
         <p>
-          Enter your brand and get an instant visibility score across ChatGPT, Gemini,
-          Claude, and Perplexity. No signup needed.
+          Enter your brand and the prompt your buyers use — we&apos;ll query
+          ChatGPT, Gemini, Claude, and Perplexity live and return your real rank.
         </p>
 
         <form className="checker-form" onSubmit={handleCheck}>
@@ -73,117 +62,103 @@ export function FreeVisibilityChecker() {
             <input
               id="checker-brand"
               value={brand}
-              onChange={(event) => setBrand(event.target.value)}
+              onChange={(e) => setBrand(e.target.value)}
               placeholder="e.g., Oras"
               autoComplete="off"
             />
           </div>
           <div className="checker-field">
-            <label htmlFor="checker-rival">Main competitor <span>(optional)</span></label>
-            <div className="checker-combo">
-              <input
-                id="checker-rival"
-                value={competitor}
-                onChange={(event) => { setCompetitor(event.target.value); setDropdownOpen(true); }}
-                onFocus={() => setDropdownOpen(true)}
-                onBlur={() => setTimeout(() => setDropdownOpen(false), 150)}
-                placeholder="e.g., Ahrefs"
-                autoComplete="off"
-              />
-              <button
-                type="button"
-                className="checker-combo-toggle"
-                aria-label="Show options"
-                onClick={() => setDropdownOpen((open) => !open)}
-              >
-                <ChevronDownIcon className={dropdownOpen ? "checker-chevron-open" : ""} />
-              </button>
-
-              {dropdownOpen && competitorMatches.length > 0 ? (
-                <ul className="checker-dropdown" role="listbox">
-                  {competitorMatches.map((name) => (
-                    <li key={name}>
-                      <button
-                        type="button"
-                        className={`checker-option${competitor === name ? " checker-option-active" : ""}`}
-                        onMouseDown={(event) => {
-                          event.preventDefault();
-                          setCompetitor(name);
-                          setDropdownOpen(false);
-                        }}
-                      >
-                        {name}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              ) : null}
-            </div>
+            <label htmlFor="checker-prompt">Buyer prompt <span>(optional)</span></label>
+            <input
+              id="checker-prompt"
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              placeholder={`e.g., best GEO tracking tools`}
+              autoComplete="off"
+            />
           </div>
-          <button type="submit" className="checker-submit" disabled={checking}>
-            <SearchIcon /> {checking ? "Checking…" : "Check visibility"}
+          <button type="submit" className="checker-submit" disabled={checking || !brand.trim()}>
+            {checking ? (
+              <><ZapIcon className="checker-spin" /> Querying AI engines…</>
+            ) : (
+              <><SearchIcon /> Check visibility</>
+            )}
           </button>
-
           {error ? <p className="checker-brand-error">{error}</p> : null}
         </form>
       </div>
 
       <div className="checker-result-panel">
-        {!result ? (
+        {!result && !checking ? (
           <div className="checker-placeholder">
             <span className="checker-preview-badge">
               <SparklesIcon /> Live preview
             </span>
-
             <div className="checker-preview">
               <div className="checker-preview-ring">
                 <strong>62</strong>
                 <span>/100</span>
               </div>
               <div className="checker-preview-engines">
-                {["ChatGPT", "Gemini", "Claude", "Perplexity"].map((engine, index) => (
-                  <div key={engine} className="checker-preview-pill" style={{ animationDelay: `${index * 0.12}s` }}>
+                {["ChatGPT", "Gemini", "Claude", "Perplexity"].map((engine, i) => (
+                  <div key={engine} className="checker-preview-pill" style={{ animationDelay: `${i * 0.12}s` }}>
                     <span>{engine}</span>
-                    <strong>#{(index % 3) + 1}</strong>
+                    <strong>#{(i % 3) + 1}</strong>
                   </div>
                 ))}
               </div>
             </div>
-
             <p className="checker-preview-hint">
-              👆 Enter your brand to reveal your <strong>real</strong> AI visibility score.
+              👆 Enter your brand to see your <strong>real</strong> AI rank.
             </p>
-
             <div className="checker-preview-brands">
-              <span>Tracked by brands like</span>
-              <em>Oras · Ahrefs · Semrush · Notion</em>
+              <span>Live queries to</span>
+              <em>ChatGPT · Gemini · Claude · Perplexity</em>
             </div>
           </div>
-        ) : (
+        ) : checking ? (
+          <div className="checker-loading">
+            <div className="checker-loading-dots">
+              {["ChatGPT", "Gemini", "Claude", "Perplexity"].map((e, i) => (
+                <div key={e} className="checker-loading-engine" style={{ animationDelay: `${i * 0.18}s` }}>
+                  <span className="checker-loading-dot" />
+                  <span>{e}</span>
+                </div>
+              ))}
+            </div>
+            <p>Querying all 4 AI engines in real time…</p>
+          </div>
+        ) : result ? (
           <div className="checker-result">
             <div className="checker-score-head">
-              <div className={`checker-score-ring score-${result.score >= 60 ? "good" : result.score >= 40 ? "mid" : "low"}`}>
+              <div className={`checker-score-ring ${scoreClass}`}>
                 <strong>{result.score}</strong>
                 <span>/100</span>
               </div>
               <div className="checker-verdict">
-                <h3>{result.brand}&apos;s AI visibility</h3>
-                {result.losing > 0 ? (
-                  <p className="checker-verdict-bad">
-                    You&apos;re losing to <strong>{result.topRival}</strong> on {result.losing} of 4 engines.
+                <h3>{result.brand}&apos;s GEO Score</h3>
+                {result.mentionedCount > 0 ? (
+                  <p className="checker-verdict-good">
+                    Mentioned on <strong>{result.mentionedCount}/{result.engineCount}</strong> AI engines.
                   </p>
                 ) : (
-                  <p className="checker-verdict-good">You lead across all 4 engines. 🎉</p>
+                  <p className="checker-verdict-bad">
+                    Not found on any AI engine for this prompt.
+                  </p>
                 )}
+                <small className="checker-prompt-used">Prompt: &ldquo;{result.promptUsed}&rdquo;</small>
               </div>
             </div>
 
             <div className="checker-engines">
-              {result.engines.map((engine) => (
-                <div key={engine.engine} className="checker-engine">
-                  <span>{engine.engine}</span>
-                  <strong className={engine.brandRank === 1 ? "checker-rank-win" : ""}>
-                    {engine.brandRank === 1 ? <TrophyIcon /> : null}#{engine.brandRank}
+              {(result.engines || []).map((engine) => (
+                <div key={engine.key} className="checker-engine">
+                  <span>
+                    {engine.label}
+                    {!engine.live && <em className="checker-engine-sim"> (sim)</em>}
+                  </span>
+                  <strong className={engine.mentioned ? "checker-rank-win" : "checker-rank-miss"}>
+                    {engine.mentioned ? <><TrophyIcon />#{engine.rank}</> : "—"}
                   </strong>
                 </div>
               ))}
@@ -191,20 +166,20 @@ export function FreeVisibilityChecker() {
 
             <div className="checker-locked">
               <div className="checker-locked-blur">
-                <p>1. Add comparison pages targeting “{result.topRival}”</p>
-                <p>2. Build Reddit &amp; Quora citations</p>
-                <p>3. Add FAQ schema to key pages</p>
+                <p>1. Fix citation gaps on {result.engines?.[0]?.brandsInOrder?.[0] || "top competitor"}</p>
+                <p>2. Add prompt-optimised FAQ schema</p>
+                <p>3. Build Reddit &amp; Quora citations</p>
               </div>
               <div className="checker-locked-overlay">
                 <LockIcon />
-                <strong>See the 5 fixes to outrank {result.topRival}</strong>
+                <strong>See the full fix plan for {result.brand}</strong>
                 <Link href="/signin" className="checker-cta">
                   Get your full report, free <ArrowRightIcon />
                 </Link>
               </div>
             </div>
           </div>
-        )}
+        ) : null}
       </div>
     </section>
   );

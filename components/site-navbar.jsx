@@ -22,6 +22,7 @@ export function SiteNavbar({ className = "" }) {
 
         <nav className="autosend-links" aria-label="Primary">
           <Link href="/pricing">Pricing</Link>
+          <Link href="/tools">Tools</Link>
           <Link href="/blog">Blog</Link>
           <Link href="/compare">Compare</Link>
           <Link href="/contact">Contact</Link>
@@ -43,6 +44,7 @@ export function SiteNavbar({ className = "" }) {
       {open && (
         <div className="oras-mobile-menu" onClick={() => setOpen(false)}>
           <Link href="/pricing">Pricing</Link>
+          <Link href="/tools">Tools</Link>
           <Link href="/blog">Blog</Link>
           <Link href="/compare">Compare</Link>
           <Link href="/contact">Contact</Link>
