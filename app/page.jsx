@@ -351,53 +351,57 @@ Create author and entity pages`}</pre>
       </section>
 
       <footer className="oras-footer">
-        <div className="oras-footer-brand">
-          <Link className="autosend-brand" href="/">
-            <img src="/logo.png" alt="" />
-            <span>ORAS</span>
-          </Link>
-          <p className="oras-footer-tagline">Online Reputation &amp; AI Search</p>
-          <p>AI visibility, GEO audits, citation tracking, and white-label reports for brands and agencies.</p>
-        </div>
-        {[
-          ["PRODUCT", "GEO Score", "Prompt Library", "Citation Sources", "Reports"],
-          ["ENGINES", "ChatGPT", "Gemini", "Claude", "Perplexity"],
-          ["COMPANY", "How it works", "Free check", "Pricing", "Blog"],
-          ["ACCOUNT", "Log in", "Dashboard", "Pricing", "Support"],
-          ["LEGAL", "Privacy Policy", "Terms of Service"],
-        ].map(([heading, ...items]) => {
-          const hrefFor = (item) =>
-            ({
-              "GEO Score": "/#check",
-              "Prompt Library": "/#blog",
-              "Citation Sources": "/#agents",
-              Reports: "/#pricing",
-              ChatGPT: "/#agents",
-              Gemini: "/#agents",
-              Claude: "/#agents",
-              Perplexity: "/#agents",
-              "How it works": "/#docs",
-              "Free check": "/#check",
-              Blog: "/blog",
-              Pricing: "/pricing",
-              "Log in": "/signin",
-              Dashboard: "/dashboard",
-              Support: "mailto:support@tryoras.com",
-              "Privacy Policy": "/privacy",
-              "Terms of Service": "/terms",
-            }[item] || "/");
-          return (
+        <div className="oras-footer-inner">
+          <div className="oras-footer-brand">
+            <Link className="autosend-brand" href="/">
+              <img src="/logo.png" alt="" />
+              <span>ORAS</span>
+            </Link>
+            <p className="oras-footer-tagline">Online Reputation &amp; AI Search</p>
+            <p>AI visibility, GEO audits, citation tracking, and white-label reports for brands and agencies.</p>
+          </div>
+          {[
+            ["Product",   ["GEO Score", "/#geo"],    ["Visibility", "/dashboard"],  ["Competitors", "/dashboard/competitors"], ["Pricing", "/pricing"]],
+            ["Guides",    ["What is GEO?", "/blog"],  ["How AI ranks brands", "/blog"], ["Improve AI visibility", "/blog"],    ["Free check", "/#check"]],
+            ["Solutions", ["For founders", "/pricing"], ["For agencies", "/pricing"], ["For marketers", "/pricing"],           ["For creators", "/pricing"]],
+            ["Company",   ["Blog", "/blog"],           ["Pricing", "/pricing"],       ["Sign in", "/signin"],                  ["Support", "mailto:support@tryoras.com"]],
+            ["Legal",     ["Privacy Policy", "/privacy"], ["Terms of Service", "/terms"]],
+          ].map(([heading, ...pairs]) => (
             <div className="oras-footer-list" key={heading}>
               <h2>{heading}</h2>
-              {items.map((item) => (
-                <a href={hrefFor(item)} key={item}>
-                  {item}
-                </a>
+              {pairs.map(([label, href]) => (
+                <a href={href} key={label}>{label}</a>
               ))}
             </div>
-          );
-        })}
-        <p className="oras-footer-bottom">© 2026 · ORAS INC.</p>
+          ))}
+        </div>
+
+        <div className="oras-footer-bottom-bar">
+          <span className="oras-footer-status">
+            <span className="oras-footer-status-dot" />
+            Operational
+          </span>
+          <span className="oras-footer-copy">© 2026 · ORAS INC.</span>
+        </div>
+
+        <div className="oras-footer-resources">
+          <div className="oras-footer-resources-head">
+            <span>Free tools</span>
+            <a href="/#check">All tools →</a>
+          </div>
+          <div className="oras-footer-resources-grid">
+            {[
+              "GEO Score checker", "AI citation audit", "Brand visibility scan",
+              "Competitor comparison", "Prompt gap finder", "AI mention tracker",
+              "ChatGPT rank check", "Gemini brand scan", "Claude mention check",
+              "Perplexity audit", "Reddit visibility", "Quora presence check",
+              "Share of voice report", "Brand memory audit", "GEO score history",
+              "Visibility leaderboard", "AI recommendation gaps", "Citation source finder",
+            ].map((tool) => (
+              <a href="/#check" key={tool} className="oras-footer-tool-link">{tool}</a>
+            ))}
+          </div>
+        </div>
       </footer>
     </main>
   );
