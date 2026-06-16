@@ -2977,16 +2977,16 @@ button {
   width: min(100% - 40px, 680px);
   margin: 24px auto 0;
   padding: 13px 18px;
-  border: 1px solid #e4e4e7;
+  border: 1px solid #ddd6fe;
   border-radius: 10px;
-  background: #fafafa;
+  background: #f5f3ff;
   color: #52525b;
   font-size: 0.875rem;
   text-align: center;
 }
 
 .pr-welcome a {
-  color: #18181b;
+  color: #7c3aed;
   font-weight: 700;
   text-decoration: underline;
 }
@@ -2994,38 +2994,68 @@ button {
 .pr-hero {
   width: min(100% - 40px, 760px);
   margin: 0 auto;
-  padding: 72px 0 48px;
+  padding: 80px 0 52px;
   text-align: center;
+  position: relative;
 }
 
 .pr-eyebrow {
   display: inline-block;
-  margin: 0 0 16px;
-  padding: 4px 12px;
+  margin: 0 0 18px;
+  padding: 5px 14px;
   border-radius: 999px;
-  border: 1px solid #e4e4e7;
-  background: #fafafa;
+  border: 1px solid #ddd6fe;
+  background: #f3f0ff;
   font-size: 0.8125rem;
   font-weight: 700;
-  color: #52525b;
+  color: #7c3aed;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
 }
 
 .pr-hero h1 {
-  margin: 0 0 14px;
-  font-size: clamp(2rem, 5vw, 3rem);
+  margin: 0 0 16px;
+  font-size: clamp(2.2rem, 5vw, 3.25rem);
   font-weight: 800;
   line-height: 1.1;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
   color: #09090b;
 }
 
 .pr-hero p {
-  margin: 0;
+  margin: 0 0 32px;
   font-size: 1.0625rem;
   color: #71717a;
   line-height: 1.6;
+}
+
+/* Engine badges strip */
+.pr-engines {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 0;
+}
+
+.pr-engine-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border: 1px solid #e4e4e7;
+  border-radius: 999px;
+  background: #fafafa;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #3f3f46;
+}
+
+.pr-engine-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
 }
 
 /* Billing cycle toggle */
@@ -3037,9 +3067,9 @@ button {
 .pr-cycle {
   display: inline-flex;
   gap: 2px;
-  margin: 0 auto 40px;
+  margin: 0 auto 44px;
   padding: 4px;
-  border-radius: 10px;
+  border-radius: 12px;
   background: #f4f4f5;
   border: 1px solid #e4e4e7;
 }
@@ -3053,9 +3083,9 @@ button {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 20px;
+  padding: 9px 22px;
   border: 0;
-  border-radius: 7px;
+  border-radius: 9px;
   background: transparent;
   color: #71717a;
   font-size: 0.9rem;
@@ -3067,11 +3097,11 @@ button {
 .pr-cycle-active {
   background: #fff;
   color: #09090b;
-  box-shadow: 0 1px 4px rgba(9, 9, 11, 0.1);
+  box-shadow: 0 1px 6px rgba(9, 9, 11, 0.12);
 }
 
 .pr-cycle-save {
-  padding: 2px 7px;
+  padding: 2px 8px;
   border-radius: 999px;
   background: #dcfce7;
   color: #15803d;
@@ -3083,67 +3113,82 @@ button {
 .pr-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
+  gap: 20px;
+  align-items: stretch;
 }
 
 .pr-card {
   display: flex;
   flex-direction: column;
-  padding: 24px;
-  border: 1px solid #e4e4e7;
-  border-radius: 16px;
+  padding: 28px;
+  border: 1.5px solid #e4e4e7;
+  border-radius: 20px;
   background: #fff;
   position: relative;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.pr-card:hover {
+  box-shadow: 0 8px 32px rgba(9,9,11,0.08);
+  transform: translateY(-2px);
 }
 
 .pr-card-featured {
-  background: #09090b;
-  border-color: #27272a;
+  background: linear-gradient(160deg, #5b21b6 0%, #7c3aed 50%, #6d28d9 100%);
+  border-color: transparent;
   color: #fff;
+  box-shadow: 0 16px 48px rgba(124,58,237,0.30);
+}
+
+.pr-card-featured:hover {
+  box-shadow: 0 24px 64px rgba(124,58,237,0.38);
+  transform: translateY(-3px);
 }
 
 .pr-card-badge {
   position: absolute;
-  top: -12px;
+  top: -13px;
   left: 50%;
   transform: translateX(-50%);
-  padding: 3px 12px;
+  padding: 4px 14px;
   border-radius: 999px;
-  background: #18181b;
+  background: linear-gradient(90deg, #7c3aed, #6366f1);
   color: #fff;
   font-size: 0.7rem;
   font-weight: 800;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   white-space: nowrap;
+  box-shadow: 0 2px 10px rgba(124,58,237,0.35);
 }
 
 .pr-card-featured .pr-card-badge {
   background: #fff;
-  color: #09090b;
+  color: #7c3aed;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.12);
 }
 
 .pr-card-head {
-  margin-bottom: 20px;
+  margin-bottom: 22px;
 }
 
 .pr-card-head h2 {
-  margin: 0 0 6px;
-  font-size: 1.0625rem;
-  font-weight: 700;
+  margin: 0 0 7px;
+  font-size: 1.125rem;
+  font-weight: 800;
   letter-spacing: -0.01em;
 }
 
 .pr-card-head p {
   margin: 0;
-  font-size: 0.8375rem;
-  line-height: 1.5;
+  font-size: 0.875rem;
+  line-height: 1.55;
   color: #71717a;
   min-height: 40px;
 }
 
 .pr-card-featured .pr-card-head p {
-  color: #a1a1aa;
+  color: rgba(255,255,255,0.7);
 }
 
 .pr-card-price {
@@ -3153,22 +3198,30 @@ button {
 }
 
 .pr-card-price strong {
-  font-size: 2.5rem;
+  font-size: 3rem;
   font-weight: 800;
   line-height: 1;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.04em;
 }
 
 .pr-card-price span {
-  font-size: 0.9375rem;
+  font-size: 1rem;
   font-weight: 600;
   color: #a1a1aa;
 }
 
+.pr-card-featured .pr-card-price span {
+  color: rgba(255,255,255,0.55);
+}
+
 .pr-card-billed {
-  margin: 6px 0 0;
+  margin: 7px 0 0;
   font-size: 0.8rem;
   color: #a1a1aa;
+}
+
+.pr-card-featured .pr-card-billed {
+  color: rgba(255,255,255,0.55);
 }
 
 /* CTA button */
@@ -3177,30 +3230,38 @@ button {
   align-items: center;
   justify-content: center;
   width: 100%;
-  margin-top: 20px;
-  padding: 11px 16px;
-  border: 1px solid #e4e4e7;
-  border-radius: 10px;
+  margin-top: 22px;
+  padding: 12px 16px;
+  border: 1.5px solid #e4e4e7;
+  border-radius: 12px;
   background: #fff;
   color: #09090b;
-  font-size: 0.9rem;
+  font-size: 0.9375rem;
   font-weight: 700;
   cursor: pointer;
-  transition: background 0.15s, border-color 0.15s;
+  transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
   text-decoration: none;
 }
 
-.pr-card-cta:hover { background: #fafafa; }
+.pr-card-cta:hover {
+  background: #fafafa;
+  border-color: #d4d4d8;
+  box-shadow: 0 2px 8px rgba(9,9,11,0.06);
+}
 .pr-card-cta:disabled { opacity: 0.55; cursor: not-allowed; }
 
 .pr-card-cta-featured {
-  background: #fff;
-  border-color: transparent;
-  color: #09090b;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.18);
+  background: rgba(255,255,255,0.15);
+  border-color: rgba(255,255,255,0.35);
+  color: #fff;
+  backdrop-filter: blur(4px);
 }
 
-.pr-card-cta-featured:hover { background: #f4f4f5; }
+.pr-card-cta-featured:hover {
+  background: rgba(255,255,255,0.25);
+  border-color: rgba(255,255,255,0.5);
+  box-shadow: none;
+}
 
 .plan-button-error {
   display: block;
@@ -3215,46 +3276,64 @@ button {
 .pr-card-features {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin: 20px 0 0;
-  padding: 0;
+  gap: 11px;
+  margin: 0;
+  padding: 22px 0 0;
+  margin-top: 22px;
   list-style: none;
   border-top: 1px solid #f0f0f1;
-  padding-top: 20px;
+  flex: 1;
 }
 
 .pr-card-featured .pr-card-features {
-  border-top-color: #27272a;
+  border-top-color: rgba(255,255,255,0.18);
 }
 
 .pr-card-features li {
   display: flex;
   align-items: center;
-  gap: 9px;
+  gap: 10px;
   font-size: 0.875rem;
   color: #3f3f46;
 }
 
 .pr-card-featured .pr-card-features li {
-  color: #d4d4d8;
+  color: rgba(255,255,255,0.85);
 }
 
 .pr-card-features li svg {
-  width: 15px;
-  height: 15px;
+  width: 16px;
+  height: 16px;
   flex-shrink: 0;
-  color: #16a34a;
+  color: #7c3aed;
+  background: #f3f0ff;
+  border-radius: 50%;
+  padding: 2px;
 }
 
 .pr-card-featured .pr-card-features li svg {
-  color: #86efac;
+  color: #7c3aed;
+  background: rgba(255,255,255,0.9);
 }
 
 .pr-plans-foot {
-  margin: 28px auto 0;
+  margin: 32px auto 0;
   text-align: center;
   font-size: 0.8125rem;
   color: #a1a1aa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.pr-plans-foot::before,
+.pr-plans-foot::after {
+  content: "";
+  display: block;
+  width: 40px;
+  height: 1px;
+  background: #e4e4e7;
 }
 
 /* Managed service section */
@@ -3382,35 +3461,47 @@ button {
 
 /* FAQ */
 .pr-faq {
-  width: min(100% - 40px, 1100px);
-  margin: 64px auto 0;
+  width: min(100% - 40px, 860px);
+  margin: 80px auto 0;
+  text-align: center;
 }
 
 .pr-faq h2 {
-  margin: 0 0 28px;
-  font-size: 1.25rem;
-  font-weight: 700;
+  margin: 0 0 8px;
+  font-size: 1.75rem;
+  font-weight: 800;
   color: #09090b;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
+}
+
+.pr-faq-sub {
+  margin: 0 0 36px;
+  font-size: 1rem;
+  color: #71717a;
 }
 
 .pr-faq-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1px;
-  border: 1px solid #f0f0f1;
-  border-radius: 14px;
-  overflow: hidden;
-  background: #f0f0f1;
+  gap: 16px;
+  text-align: left;
 }
 
 .pr-faq-item {
   padding: 24px;
-  background: #fff;
+  background: #fafafa;
+  border: 1px solid #f0f0f1;
+  border-radius: 16px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.pr-faq-item:hover {
+  border-color: #ddd6fe;
+  box-shadow: 0 4px 16px rgba(124,58,237,0.06);
 }
 
 .pr-faq-item h3 {
-  margin: 0 0 8px;
+  margin: 0 0 10px;
   font-size: 0.9375rem;
   font-weight: 700;
   color: #09090b;
@@ -3420,7 +3511,7 @@ button {
   margin: 0;
   font-size: 0.875rem;
   color: #71717a;
-  line-height: 1.6;
+  line-height: 1.65;
 }
 
 /* Footer */
@@ -3432,7 +3523,7 @@ button {
 }
 
 .pr-footer a {
-  color: #52525b;
+  color: #7c3aed;
   font-weight: 600;
   text-decoration: underline;
 }
