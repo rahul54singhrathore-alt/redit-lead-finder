@@ -26,7 +26,7 @@ const CATEGORY_ORDER = ["Content", "Citations", "Presence", "Technical"];
 const EFFORT_META = {
   quick:  { label: "Quick win", color: "#16a34a", bg: "rgba(22,163,74,0.10)" },
   medium: { label: "Medium",    color: "#d97706", bg: "rgba(217,119,6,0.10)" },
-  high:   { label: "High effort", color: "#7c3aed", bg: "rgba(124,58,237,0.10)" },
+  high:   { label: "High effort", color: "#ea580c", bg: "rgba(234,88,12,0.10)" },
 };
 
 const COVERAGE_AREAS = [
