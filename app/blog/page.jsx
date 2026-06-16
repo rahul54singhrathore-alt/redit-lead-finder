@@ -74,13 +74,31 @@ export default function BlogIndex() {
 
         {/* ── Hero ── */}
         <header className="blog3-hero">
-          <span className="blog3-eyebrow">✦ From the Oras team</span>
-          <h1>
-            GEO guides, playbooks
-            <br />
-            <span className="blog3-hero-muted">and AI visibility insights</span>
-          </h1>
-          <p>Everything you need to get your brand recommended inside ChatGPT, Gemini, Claude, and Perplexity.</p>
+          {/* Floating engine badges */}
+          <span className="blog3-float blog3-float-1">ChatGPT</span>
+          <span className="blog3-float blog3-float-2">Gemini</span>
+          <span className="blog3-float blog3-float-3">Claude</span>
+          <span className="blog3-float blog3-float-4">Perplexity</span>
+          <span className="blog3-float blog3-float-5">Reddit</span>
+          <span className="blog3-float blog3-float-6">GEO Score</span>
+
+          <div className="blog3-hero-inner">
+            <span className="blog3-eyebrow">✦ From the Oras team</span>
+            <h1>
+              GEO guides, playbooks
+              <br />
+              <span className="blog3-hero-muted">and AI visibility insights</span>
+            </h1>
+            <p>Everything you need to get your brand recommended inside AI answers — practical, jargon-free, and updated weekly.</p>
+            <div className="blog3-hero-stats">
+              <span><strong>{posts.length}</strong> articles</span>
+              <span className="blog3-hero-dot" />
+              <span><strong>{posts.reduce((s, p) => s + p.readMinutes, 0)}+</strong> min of GEO content</span>
+              <span className="blog3-hero-dot" />
+              <span>Free to read</span>
+            </div>
+            <a href="#posts" className="blog3-hero-cta">Browse all articles ↓</a>
+          </div>
         </header>
 
         {/* ── Top 2 featured ── */}
@@ -148,7 +166,7 @@ export default function BlogIndex() {
         {/* ── Grid ── */}
         {grid.length > 0 && (
           <>
-            <p className="blog3-section-label">All posts</p>
+            <p className="blog3-section-label" id="posts">All posts</p>
             <ul className="blog3-grid">
               {grid.map((post, i) => (
                 <li key={post.slug}>
