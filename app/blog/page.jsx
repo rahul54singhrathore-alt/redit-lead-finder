@@ -49,7 +49,6 @@ export default function BlogIndex() {
           <span className="blog3-float blog3-float-6">GEO Score</span>
 
           <div className="blog3-hero-inner">
-            <span className="blog3-eyebrow">✦ From the Oras team</span>
             <h1>
               <span className="blog3-hero-color">GEO guides, playbooks, and insights</span>
               <br />
