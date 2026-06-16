@@ -141,8 +141,6 @@ export default function BlogIndex() {
           </div>
         )}
 
-        {/* ── Newsletter ── */}
-        <Newsletter />
 
         {/* ── Search + tabs bar ── */}
         <div className="blog3-toolbar">
