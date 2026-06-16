@@ -21294,6 +21294,23 @@ button {
   margin: 40px auto 96px;
 }
 
+/* Tab bar */
+.cmp-tab-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 40px;
+}
+.cmp-tab-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #71717a;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-right: 4px;
+}
+
 /* Hero */
 .cmp-hero {
   text-align: center;
