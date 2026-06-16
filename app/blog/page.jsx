@@ -4,44 +4,9 @@ import { useState, useMemo } from "react";
 import Link from "next/link";
 import { SiteNavbar } from "@/components/site-navbar";
 import { posts, formatPostDate } from "@/lib/posts";
-import { SearchIcon, ArrowRightIcon, SparklesIcon } from "lucide-react";
+import { SearchIcon, ArrowRightIcon } from "lucide-react";
 import { PostThumbnail } from "@/components/post-thumbnail";
 
-/* ── Newsletter strip ─────────────────────────────── */
-function Newsletter() {
-  const [email, setEmail] = useState("");
-  const [done, setDone] = useState(false);
-  const submit = (e) => {
-    e.preventDefault();
-    if (email) setDone(true);
-  };
-  return (
-    <div className="blog-nl">
-      <div className="blog-nl-left">
-        <span className="blog-nl-icon"><SparklesIcon /></span>
-        <div>
-          <p className="blog-nl-title">Stay ahead of AI</p>
-          <p className="blog-nl-sub">Weekly GEO tactics, straight to your inbox. No spam.</p>
-        </div>
-      </div>
-      {done ? (
-        <p className="blog-nl-done">✓ You're in — check your inbox.</p>
-      ) : (
-        <form className="blog-nl-form" onSubmit={submit}>
-          <input
-            type="email"
-            required
-            placeholder="you@company.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="blog-nl-input"
-          />
-          <button type="submit" className="blog-nl-btn">Subscribe</button>
-        </form>
-      )}
-    </div>
-  );
-}
 
 const ALL = "All";
 
