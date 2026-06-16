@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SiteNavbar } from "@/components/site-navbar";
 import { getAllPosts, getPostBySlug, formatPostDate } from "@/lib/posts";
+import { PostThumbnail } from "@/components/post-thumbnail";
 
 // Pre-render every post at build time.
 export function generateStaticParams() {
@@ -55,6 +56,7 @@ function Block({ block }) {
 export default function BlogPost({ params }) {
   const post = getPostBySlug(params.slug);
   if (!post) notFound();
+  const postIndex = getAllPosts().findIndex((p) => p.slug === params.slug);
 
   // JSON-LD so search and AI engines can parse the article cleanly — fitting
   // for a product about being understood by answer engines.
@@ -83,11 +85,19 @@ export default function BlogPost({ params }) {
           <Link className="oras-post-back" href="/blog">
             ← All articles
           </Link>
+          <div className="oras-post-tags">
+            {post.tags.map((t) => (
+              <span key={t} className="b3-tag">{t}</span>
+            ))}
+          </div>
           <h1>{post.title}</h1>
           <p className="oras-legal-meta">
             <time dateTime={post.date}>{formatPostDate(post.date)}</time> ·{" "}
             {post.readMinutes} min read · {post.author}
           </p>
+          <div className="oras-post-thumb">
+            <PostThumbnail post={post} index={postIndex} size="article" />
+          </div>
         </header>
 
         <div className="oras-post-body">

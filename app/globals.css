@@ -18540,6 +18540,27 @@ button {
   font-weight: 600;
 }
 
+.oras-post-tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.oras-post-thumb {
+  margin-top: 24px;
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+/* Article-size thumbnail — wider, shorter than 16/9 */
+.bt-article {
+  aspect-ratio: 3/1;
+  border-radius: 0;
+}
+
+.bt-article .bt-icon { font-size: 6rem; }
+
 .oras-post-back:hover {
   color: #27272a;
 }
