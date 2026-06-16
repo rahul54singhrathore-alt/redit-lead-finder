@@ -64,7 +64,8 @@ export default function BlogIndex() {
     });
   }, [search, activeTag]);
 
-  const [hero, second, ...grid] = filtered;
+  const [hero] = filtered;
+  const grid = filtered.slice(3);
 
   return (
     <main className="autosend-page">
@@ -101,36 +102,41 @@ export default function BlogIndex() {
           </div>
         </header>
 
-        {/* ── Top 2 featured ── */}
-        {(hero || second) && (
-          <div className="blog3-top">
-            {hero && (
-              <Link href={`/blog/${hero.slug}`} className="blog3-hero-card">
-                <PostThumbnail post={hero} index={0} size="hero" />
-                <div className="blog3-hero-body">
-                  <div className="blog3-meta">
-                    <time>{formatPostDate(hero.date)}</time>
-                    {hero.tags.map((t) => <span key={t} className="b3-tag">{t}</span>)}
-                  </div>
-                  <h2>{hero.title}</h2>
-                  <p>{hero.description}</p>
-                  <span className="b3-read">Read article <ArrowRightIcon /></span>
+        {/* ── Featured section ── */}
+        {hero && (
+          <div className="blog3-featured">
+            {/* Big hero card */}
+            <Link href={`/blog/${hero.slug}`} className="blog3-fc-main">
+              <PostThumbnail post={hero} index={0} size="hero" />
+              <div className="blog3-fc-main-body">
+                <div className="blog3-meta">
+                  <span className="blog3-featured-label">Featured</span>
+                  <time>{formatPostDate(hero.date)}</time>
+                  {hero.tags.map((t) => <span key={t} className="b3-tag">{t}</span>)}
                 </div>
-              </Link>
-            )}
-            {second && (
-              <Link href={`/blog/${second.slug}`} className="blog3-side-card">
-                <PostThumbnail post={second} index={1} size="side" />
-                <div className="blog3-side-body">
-                  <div className="blog3-meta">
-                    <time>{formatPostDate(second.date)}</time>
-                    {second.tags.map((t) => <span key={t} className="b3-tag">{t}</span>)}
-                  </div>
-                  <h2>{second.title}</h2>
-                  <p>{second.description}</p>
-                  <span className="b3-read">Read article <ArrowRightIcon /></span>
-                </div>
-              </Link>
+                <h2>{hero.title}</h2>
+                <p>{hero.description}</p>
+                <span className="b3-read">Read article <ArrowRightIcon /></span>
+              </div>
+            </Link>
+
+            {/* Two stacked secondary cards */}
+            {(filtered[1] || filtered[2]) && (
+              <div className="blog3-fc-stack">
+                {[filtered[1], filtered[2]].filter(Boolean).map((post, i) => (
+                  <Link key={post.slug} href={`/blog/${post.slug}`} className="blog3-fc-small">
+                    <PostThumbnail post={post} index={i + 1} size="small" />
+                    <div className="blog3-fc-small-body">
+                      <div className="blog3-meta">
+                        <time>{formatPostDate(post.date)}</time>
+                        {post.tags.map((t) => <span key={t} className="b3-tag">{t}</span>)}
+                      </div>
+                      <h3>{post.title}</h3>
+                      <span className="b3-read">Read <ArrowRightIcon /></span>
+                    </div>
+                  </Link>
+                ))}
+              </div>
             )}
           </div>
         )}
