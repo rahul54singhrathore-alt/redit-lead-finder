@@ -62,6 +62,176 @@
   --sidebar-ring: #a1a1aa;
 }
 
+/* =====================================================
+   GLOBAL SMOOTHNESS LAYER
+   ===================================================== */
+
+/* Smooth scroll */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Universal transition for interactive elements */
+a, button, input, select, textarea,
+[role="button"], summary {
+  transition: color 0.18s ease, background 0.18s ease,
+              border-color 0.18s ease, box-shadow 0.18s ease,
+              opacity 0.18s ease, transform 0.18s ease;
+}
+
+/* Prevent jarring layout shift on focus */
+*:focus-visible {
+  outline: 2px solid #ea580c;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Page fade-in on load */
+@keyframes site-fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.autosend-page,
+.onb-page,
+.oras-auth-page,
+.cmp-page,
+.tools-page,
+.contact-page,
+.blog-page,
+.pricing-page {
+  animation: site-fade-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Scroll-triggered fade-up — add .fade-up to any element */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fade-up {
+  animation: fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Section entry animations */
+@keyframes section-rise {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.home-hero,
+.home-stats,
+.home-features,
+.home-cta-section,
+.checker,
+.cmp-hero,
+.cmp-section,
+.tools-hero,
+.contact-hero,
+.pr-hero {
+  animation: section-rise 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.home-stats      { animation-delay: 0.08s; }
+.home-features   { animation-delay: 0.12s; }
+.home-cta-section{ animation-delay: 0.16s; }
+
+/* Card hover lifts */
+.home-feature-card,
+.onb-finish-card,
+.tools-card,
+.cmp-finish-card,
+.contact-card,
+.blog-card {
+  transition: transform 0.2s cubic-bezier(0.22,1,0.36,1),
+              box-shadow 0.2s cubic-bezier(0.22,1,0.36,1);
+}
+.home-feature-card:hover,
+.onb-finish-card:hover,
+.tools-card:hover,
+.contact-card:hover,
+.blog-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 28px rgba(9,9,11,0.10);
+}
+
+/* Button press feel */
+button:active:not(:disabled),
+a.home-cta-primary:active,
+a.home-cta-ghost:active,
+.cmp-verdict-cta:active,
+.checker-submit:active {
+  transform: translateY(1px) scale(0.99);
+}
+
+/* Nav link underline slide */
+.autosend-links a {
+  position: relative;
+}
+.autosend-links a::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: #ea580c;
+  border-radius: 999px;
+  transition: width 0.22s cubic-bezier(0.22,1,0.36,1);
+}
+.autosend-links a:hover::after {
+  width: 100%;
+}
+
+/* Input focus glow */
+input:focus,
+select:focus,
+textarea:focus {
+  box-shadow: 0 0 0 3px rgba(234,88,12,0.12);
+  border-color: #ea580c !important;
+  outline: none;
+}
+
+/* Smooth image loads */
+img {
+  transition: opacity 0.2s ease;
+}
+
+/* Progress bar fill animation */
+.onb-progress-fill {
+  transition: width 0.45s cubic-bezier(0.22, 1, 0.36, 1) !important;
+}
+
+/* Checker result fade in */
+@keyframes result-appear {
+  from { opacity: 0; transform: scale(0.98) translateY(8px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+.checker-engine-result,
+.checker-result-wrap {
+  animation: result-appear 0.35s cubic-bezier(0.22,1,0.36,1) both;
+}
+
+/* FAQ accordion smooth open */
+details[open] > *:not(summary) {
+  animation: fade-up 0.22s cubic-bezier(0.22,1,0.36,1) both;
+}
+
+/* Compare tab switch */
+.cmp-hero,
+.cmp-section {
+  transition: opacity 0.18s ease;
+}
+
+/* Smooth chip/badge hover */
+.cmp-chip,
+.onb-engine-pill,
+.home-engine-pill,
+.pr-engine-badge {
+  transition: background 0.15s ease, border-color 0.15s ease,
+              color 0.15s ease, transform 0.15s ease;
+}
+.cmp-chip:hover,
+.pr-engine-badge:hover {
+  transform: translateY(-1px);
+}
+
 /* Orange Mercury-inspired landing page */
 .orange-page {
   min-height: 100vh;

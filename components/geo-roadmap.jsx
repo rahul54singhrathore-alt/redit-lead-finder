@@ -36,7 +36,7 @@ const COVERAGE_AREAS = [
   { icon: ShieldCheckIcon,label: "Competitive edge",   detail: "Positioning gaps vs. your rivals" },
 ];
 
-export function GeoRoadmap({ brand, category, currentScore }) {
+export function GeoRoadmap({ brand, category, currentScore, productUrl, competitors, scanHistory }) {
   const cleanBrand = (brand || "Your brand").trim();
   const storageKey = `geo-roadmap-${cleanBrand.toLowerCase()}`;
   const [scan, setScan] = useState({ status: "idle" });
@@ -62,7 +62,14 @@ export function GeoRoadmap({ brand, category, currentScore }) {
       const response = await fetch("/api/geo-roadmap", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ brand: cleanBrand, category, currentScore }),
+        body: JSON.stringify({
+          brand: cleanBrand,
+          category,
+          currentScore,
+          productUrl: productUrl || "",
+          competitors: competitors || [],
+          scanHistory: scanHistory || [],
+        }),
       });
       const data = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(data?.error || "Roadmap failed.");

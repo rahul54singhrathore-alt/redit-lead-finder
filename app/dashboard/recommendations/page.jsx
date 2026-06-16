@@ -12,6 +12,7 @@ import { normalizeWorkspaceProfile } from "../../../lib/workspace-profile";
 export default function RecommendationsPage() {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
+  const [scanHistory, setScanHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const supabase = useMemo(() => createBrowserSupabaseClient(), []);
@@ -30,6 +31,16 @@ export default function RecommendationsPage() {
       setUser(session.user);
       const { data } = await supabase.from("user_profiles").select("*").maybeSingle();
       if (data) setProfile(normalizeWorkspaceProfile(data));
+
+      // Fetch real scan history for this user
+      const { data: scanData } = await supabase
+        .from("prompt_rank_history")
+        .select("prompt, rank, total, score, mentioned, checked_at")
+        .eq("user_id", session.user.id)
+        .order("checked_at", { ascending: false })
+        .limit(20);
+      if (scanData) setScanHistory(scanData);
+
       setLoading(false);
     };
     check();
@@ -44,6 +55,8 @@ export default function RecommendationsPage() {
   const tierKey = profile?.subscription_tier || "free";
   const brand = profile?.product_name || profile?.starter_keyword || "Your brand";
   const category = profile?.industry || profile?.brand_description || profile?.starter_keyword || "";
+  const productUrl = profile?.product_url || "";
+  const competitors = Array.isArray(profile?.competitors) ? profile.competitors : [];
 
   if (loading) {
     return (
@@ -72,7 +85,14 @@ export default function RecommendationsPage() {
             </div>
           </div>
           <div className="dashboard-content">
-            <GeoRoadmap brand={brand} category={category} currentScore={0} />
+            <GeoRoadmap
+              brand={brand}
+              category={category}
+              currentScore={0}
+              productUrl={productUrl}
+              competitors={competitors}
+              scanHistory={scanHistory}
+            />
           </div>
         </main>
       </SidebarInset>
