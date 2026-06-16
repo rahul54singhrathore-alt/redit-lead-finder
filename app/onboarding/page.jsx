@@ -67,11 +67,11 @@ function isValidUrl(value) {
 
 export default function OnboardingPage() {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(3);
 
-  const [productName, setProductName] = useState("");
+  const [productName, setProductName] = useState("Oras");
   const [productUrl, setProductUrl] = useState("");
   const [industry, setIndustry] = useState("");
   const [brandDescription, setBrandDescription] = useState("");
@@ -408,79 +408,80 @@ export default function OnboardingPage() {
         {/* Step 3 — All set */}
         {step === 3 ? (
           <div className="onb-panel onb-finish">
-            <div className="onb-finish-check">
-              <div className="onb-finish-check-ring" />
-              <svg className="onb-finish-check-svg" viewBox="0 0 52 52" fill="none">
-                <circle cx="26" cy="26" r="25" stroke="#22c55e" strokeWidth="2" fill="#f0fdf4" />
-                <path d="M14 26l9 9 15-15" stroke="#22c55e" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </div>
-            <h1>You&apos;re all set{productName ? `, ${productName}` : ""}!</h1>
-            <p className="onb-sub">Here&apos;s what&apos;s set up and waiting for you in the dashboard.</p>
 
-            {/* What happens next */}
+            {/* Animated check + brand identity */}
+            <div className="onb-finish-hero">
+              <div className="onb-finish-check">
+                <div className="onb-finish-check-ring" />
+                <svg className="onb-finish-check-svg" viewBox="0 0 52 52" fill="none">
+                  <circle cx="26" cy="26" r="25" stroke="#22c55e" strokeWidth="2" fill="#f0fdf4" />
+                  <path d="M14 26l9 9 15-15" stroke="#22c55e" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </div>
+              {faviconUrl ? (
+                <div className="onb-finish-brand-row">
+                  <img className="onb-finish-favicon" src={faviconUrl} alt="" onError={(e) => (e.currentTarget.style.display = "none")} />
+                  <span className="onb-finish-brand-name">{productName}</span>
+                </div>
+              ) : null}
+              <h1 className="onb-finish-title">You&apos;re all set{productName ? `!` : "!"}</h1>
+              <p className="onb-sub">Your AI visibility workspace is ready. Here&apos;s what&apos;s waiting for you.</p>
+            </div>
+
+            {/* Feature cards grid */}
+            <div className="onb-finish-cards">
+              <div className="onb-finish-card onb-finish-card-green">
+                <span className="onb-finish-card-icon"><GaugeIcon /></span>
+                <strong>GEO Score</strong>
+                <p>Track {productName || "your brand"} across {sourceList.length || DEFAULT_VISIBILITY_SOURCES.length} AI engines.</p>
+              </div>
+              <div className="onb-finish-card onb-finish-card-blue">
+                <span className="onb-finish-card-icon"><BellRingIcon /></span>
+                <strong>{selectedFrequency.label} digest</strong>
+                <p>{selectedFrequency.value === "off" ? "Check updates in dashboard anytime." : "Score changes sent to your inbox."}</p>
+              </div>
+              <div className="onb-finish-card onb-finish-card-purple">
+                <span className="onb-finish-card-icon"><SearchIcon /></span>
+                <strong>Competitors</strong>
+                <p>{competitorList.length ? `Benchmarking ${competitorList.slice(0, 2).join(" & ")}.` : "Add competitors to benchmark."}</p>
+              </div>
+              <div className="onb-finish-card onb-finish-card-orange">
+                <span className="onb-finish-card-icon"><ZapIcon /></span>
+                <strong>Actions</strong>
+                <p>Ranked fixes to improve your AI presence.</p>
+              </div>
+            </div>
+
+            {/* What happens next — timeline style */}
             <div className="onb-next-steps">
               <p className="onb-next-steps-label">What happens next</p>
-              <div className="onb-next-steps-flow">
-                <div className="onb-next-step">
-                  <span className="onb-next-step-num">1</span>
-                  <span>We scan AI engines for your brand</span>
+              <div className="onb-timeline">
+                <div className="onb-timeline-item">
+                  <span className="onb-timeline-dot onb-timeline-dot-1" />
+                  <div className="onb-timeline-content">
+                    <strong>First scan runs</strong>
+                    <span>AI engines are queried for {productName || "your brand"}</span>
+                  </div>
                 </div>
-                <span className="onb-next-step-arrow">→</span>
-                <div className="onb-next-step">
-                  <span className="onb-next-step-num">2</span>
-                  <span>You get your first visibility score</span>
+                <div className="onb-timeline-line" />
+                <div className="onb-timeline-item">
+                  <span className="onb-timeline-dot onb-timeline-dot-2" />
+                  <div className="onb-timeline-content">
+                    <strong>Visibility score appears</strong>
+                    <span>See exactly where you rank vs competitors</span>
+                  </div>
                 </div>
-                <span className="onb-next-step-arrow">→</span>
-                <div className="onb-next-step">
-                  <span className="onb-next-step-num">3</span>
-                  <span>Improve with recommendations</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="onb-feature-list">
-              <div className="onb-feature-item">
-                <span className="onb-feature-icon onb-feature-icon-green"><GaugeIcon /></span>
-                <div>
-                  <strong>GEO Score</strong>
-                  <p>Track {productName || "your brand"} across {sourceList.length || DEFAULT_VISIBILITY_SOURCES.length} selected sources.</p>
-                </div>
-              </div>
-              <div className="onb-feature-item">
-                <span className="onb-feature-icon onb-feature-icon-blue"><BellRingIcon /></span>
-                <div>
-                  <strong>{selectedFrequency.label} digest</strong>
-                  <p>{selectedFrequency.value === "off" ? "You can review signals in the dashboard." : "Visibility changes will be summarized for review."}</p>
-                </div>
-              </div>
-              <div className="onb-feature-item">
-                <span className="onb-feature-icon onb-feature-icon-purple"><SearchIcon /></span>
-                <div>
-                  <strong>Competitor context</strong>
-                  <p>{competitorList.length ? `Benchmark against ${competitorList.slice(0, 2).join(" and ")}.` : "Add competitors later when you want benchmarking."}</p>
-                </div>
-              </div>
-              <div className="onb-feature-item">
-                <span className="onb-feature-icon onb-feature-icon-orange"><ZapIcon /></span>
-                <div>
-                  <strong>Recommendations</strong>
-                  <p>Use the setup to generate concrete actions for improving AI visibility.</p>
+                <div className="onb-timeline-line" />
+                <div className="onb-timeline-item">
+                  <span className="onb-timeline-dot onb-timeline-dot-3" />
+                  <div className="onb-timeline-content">
+                    <strong>Recommendations unlock</strong>
+                    <span>Concrete actions ranked by impact</span>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div className="onb-recap onb-recap-striped">
-              <div className="onb-recap-row"><span>Brand</span><strong>{productName || "—"}</strong></div>
-              <div className="onb-recap-row"><span>Website</span><strong>{productUrl || "—"}</strong></div>
-              {industry ? <div className="onb-recap-row"><span>Industry</span><strong>{industry}</strong></div> : null}
-              <div className="onb-recap-row"><span>Audience</span><strong>{customerType.toUpperCase()}</strong></div>
-              <div className="onb-recap-row"><span>Sources</span><strong>{sourceList.join(", ") || "—"}</strong></div>
-              <div className="onb-recap-row"><span>Digest</span><strong>{selectedFrequency.label}</strong></div>
-              {competitorList.length > 0 ? (
-                <div className="onb-recap-row"><span>Competitors</span><strong>{competitorList.join(", ")}</strong></div>
-              ) : null}
-            </div>
           </div>
         ) : null}
 
