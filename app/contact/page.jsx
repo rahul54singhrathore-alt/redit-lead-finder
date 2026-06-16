@@ -56,6 +56,25 @@ export default function ContactPage() {
           <p>Start tracking ChatGPT, Gemini, Claude, and Perplexity — free, no credit card required.</p>
           <Link href="/dashboard" className="contact-cta-btn">Start free</Link>
         </section>
+
+        <section className="contact-free-tools">
+          <div className="contact-free-tools-head">
+            <span>Free tools</span>
+            <a href="/#check">All tools →</a>
+          </div>
+          <div className="contact-free-tools-grid">
+            {[
+              "GEO Score checker", "AI citation audit", "Brand visibility scan",
+              "Competitor comparison", "Prompt gap finder", "AI mention tracker",
+              "ChatGPT rank check", "Gemini brand scan", "Claude mention check",
+              "Perplexity audit", "Reddit visibility", "Quora presence check",
+              "Share of voice report", "Brand memory audit", "GEO score history",
+              "Visibility leaderboard", "AI recommendation gaps", "Citation source finder",
+            ].map((tool) => (
+              <a href="/#check" key={tool} className="contact-tool-link">{tool}</a>
+            ))}
+          </div>
+        </section>
       </div>
     </main>
   );
