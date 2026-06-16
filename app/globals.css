@@ -6442,13 +6442,13 @@ button {
   display: block;
 }
 
-/* Per-engine brand colors */
-.source-preset-green  .source-preset-mark { background: #d1fae5; color: #059669; }
-.source-preset-blue   .source-preset-mark { background: #dbeafe; color: #2563eb; }
-.source-preset-amber  .source-preset-mark { background: #fef3c7; color: #d97706; }
-.source-preset-purple .source-preset-mark { background: #ede9fe; color: #7c3aed; }
-.source-preset-orange .source-preset-mark { background: #ffedd5; color: #ea580c; }
-.source-preset-red    .source-preset-mark { background: #fee2e2; color: #dc2626; }
+/* Per-engine colors — monochrome */
+.source-preset-green  .source-preset-mark,
+.source-preset-blue   .source-preset-mark,
+.source-preset-amber  .source-preset-mark,
+.source-preset-purple .source-preset-mark,
+.source-preset-orange .source-preset-mark,
+.source-preset-red    .source-preset-mark { background: #f4f4f5; color: #18181b; }
 
 /* Name + label stacked */
 .source-preset-info {
@@ -6492,50 +6492,32 @@ button {
   height: 10px;
 }
 
-/* Selected state — per-brand accent border + tinted bg */
+/* Selected state — monochrome black accent */
 .source-preset-selected { box-shadow: none; }
 
-.source-preset-selected.source-preset-green  {
-  border-color: #059669;
-  background: #f0fdf4;
+.source-preset-selected.source-preset-green,
+.source-preset-selected.source-preset-blue,
+.source-preset-selected.source-preset-amber,
+.source-preset-selected.source-preset-purple,
+.source-preset-selected.source-preset-orange,
+.source-preset-selected.source-preset-red {
+  border-color: #18181b;
+  background: #fafafa;
 }
-.source-preset-selected.source-preset-green  .source-preset-check { background: #059669; }
-.source-preset-selected.source-preset-green  .source-preset-mark  { background: #bbf7d0; color: #065f46; }
 
-.source-preset-selected.source-preset-blue   {
-  border-color: #2563eb;
-  background: #eff6ff;
-}
-.source-preset-selected.source-preset-blue   .source-preset-check { background: #2563eb; }
-.source-preset-selected.source-preset-blue   .source-preset-mark  { background: #bfdbfe; color: #1d4ed8; }
+.source-preset-selected.source-preset-green  .source-preset-check,
+.source-preset-selected.source-preset-blue   .source-preset-check,
+.source-preset-selected.source-preset-amber  .source-preset-check,
+.source-preset-selected.source-preset-purple .source-preset-check,
+.source-preset-selected.source-preset-orange .source-preset-check,
+.source-preset-selected.source-preset-red    .source-preset-check { background: #18181b; }
 
-.source-preset-selected.source-preset-amber  {
-  border-color: #d97706;
-  background: #fffbeb;
-}
-.source-preset-selected.source-preset-amber  .source-preset-check { background: #d97706; }
-.source-preset-selected.source-preset-amber  .source-preset-mark  { background: #fde68a; color: #92400e; }
-
-.source-preset-selected.source-preset-purple {
-  border-color: #7c3aed;
-  background: #faf5ff;
-}
-.source-preset-selected.source-preset-purple .source-preset-check { background: #7c3aed; }
-.source-preset-selected.source-preset-purple .source-preset-mark  { background: #ddd6fe; color: #5b21b6; }
-
-.source-preset-selected.source-preset-orange {
-  border-color: #ea580c;
-  background: #fff7ed;
-}
-.source-preset-selected.source-preset-orange .source-preset-check { background: #ea580c; }
-.source-preset-selected.source-preset-orange .source-preset-mark  { background: #fed7aa; color: #c2410c; }
-
-.source-preset-selected.source-preset-red    {
-  border-color: #dc2626;
-  background: #fef2f2;
-}
-.source-preset-selected.source-preset-red    .source-preset-check { background: #dc2626; }
-.source-preset-selected.source-preset-red    .source-preset-mark  { background: #fecaca; color: #b91c1c; }
+.source-preset-selected.source-preset-green  .source-preset-mark,
+.source-preset-selected.source-preset-blue   .source-preset-mark,
+.source-preset-selected.source-preset-amber  .source-preset-mark,
+.source-preset-selected.source-preset-purple .source-preset-mark,
+.source-preset-selected.source-preset-orange .source-preset-mark,
+.source-preset-selected.source-preset-red    .source-preset-mark { background: #e4e4e7; color: #09090b; }
 
 .source-chip-row {
   display: flex;
