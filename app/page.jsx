@@ -135,7 +135,7 @@ export default function Home() {
               View pricing
             </Link>
           </div>
-          <p className="hero-subtext">No credit card required. Free plan forever.</p>
+
         </div>
 
       </section>
