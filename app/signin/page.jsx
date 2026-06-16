@@ -6,7 +6,7 @@ import { MailIcon } from "lucide-react";
 import { SiteNavbar } from "@/components/site-navbar";
 import { createBrowserSupabaseClient, getAppUrl } from "../../lib/supabase";
 
-const OTP_LENGTH = 8;
+const OTP_LENGTH = 6;
 
 export default function SignInPage() {
   const [email, setEmail] = useState("");
