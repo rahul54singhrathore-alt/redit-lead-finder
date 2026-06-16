@@ -12,13 +12,13 @@ const CHANNELS = [
     icon: MailIcon,
     title: "Support",
     desc: "Bug reports, billing, account help.",
-    action: { label: "sourabhsingh2002.rathore@gmail.com", href: "mailto:sourabhsingh2002.rathore@gmail.com" },
+    action: { label: "rahul54.singhrathore@gmail.com", href: "mailto:rahul54.singhrathore@gmail.com" },
   },
   {
     icon: MonitorIcon,
     title: "Sales",
     desc: "Agency plan, custom domains, volume pricing.",
-    action: { label: "sourabhsingh2002.rathore@gmail.com", href: "mailto:sourabhsingh2002.rathore@gmail.com" },
+    action: { label: "rony54.singh@gmail.com", href: "mailto:rony54.singh@gmail.com" },
   },
   {
     icon: BookOpenIcon,
