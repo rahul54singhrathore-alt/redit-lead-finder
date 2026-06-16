@@ -6,14 +6,17 @@ import Link from "next/link";
 import {
   ArrowRightIcon,
   BarChart3Icon,
+  CheckCircleIcon,
   FileTextIcon,
   LockIcon,
   PlusIcon,
   RefreshCwIcon,
   SearchXIcon,
+  ShieldCheckIcon,
   SparklesIcon,
   TrophyIcon,
   UsersIcon,
+  XCircleIcon,
   XIcon,
 } from "lucide-react";
 
@@ -51,6 +54,8 @@ export default function CompetitorsPage() {
   const [newCompetitor, setNewCompetitor] = useState("");
   // Real AI scan: { status: "loading"|"done"|"error", data, error }
   const [scan, setScan] = useState({ status: "idle" });
+  // Brand verification: keyed by prompt key, value: { status, data, error }
+  const [verifyResults, setVerifyResults] = useState({});
   const router = useRouter();
   const supabase = useMemo(() => createBrowserSupabaseClient(), []);
 
@@ -81,6 +86,12 @@ export default function CompetitorsPage() {
   const competitors = profile?.competitors || [];
   const prompt = profile?.starter_keyword || `best ${brand} alternatives`;
 
+  const verifyPrompts = [
+    { key: "awareness",   label: "Direct awareness",   prompt: `What is ${brand}?`,                          hint: "Does AI know your brand exists?" },
+    { key: "category",    label: "Category presence",  prompt: `Best ${prompt}`,                              hint: "Is your brand recommended in your category?" },
+    { key: "alternatives",label: "Alternatives context",prompt: `Alternatives to ${brand}`,                  hint: "Does AI position you as a reference point?" },
+  ];
+
   // One real AI call powers the whole page: ranking, scores, suggestions.
   const runScan = useCallback(async () => {
     if (!brand) return;
@@ -99,6 +110,16 @@ export default function CompetitorsPage() {
       runScan();
     }
   }, [loading, unlocked, brand, scan.status, runScan]);
+
+  const runVerify = useCallback(async (key, verifyPrompt) => {
+    setVerifyResults((prev) => ({ ...prev, [key]: { status: "loading" } }));
+    try {
+      const data = await scanVisibility(verifyPrompt, brand);
+      setVerifyResults((prev) => ({ ...prev, [key]: { status: "done", data } }));
+    } catch (error) {
+      setVerifyResults((prev) => ({ ...prev, [key]: { status: "error", error: error.message } }));
+    }
+  }, [brand]);
 
   const handleSignOut = async () => {
     if (!supabase) return;
@@ -219,6 +240,51 @@ export default function CompetitorsPage() {
                       <span className="unlock-score-num">{scan.status === "done" ? myGeo : "—"}</span>
                     </div>
                     <small>GEO score</small>
+                  </div>
+                </section>
+
+                {/* Brand Verification */}
+                <section className="dashboard-card">
+                  <div className="card-header">
+                    <div>
+                      <h2><ShieldCheckIcon className="card-header-icon" /> Verify your brand</h2>
+                      <p className="card-supporting-copy">Run quick checks to see how AI engines recognise {brand}.</p>
+                    </div>
+                  </div>
+                  <div className="verify-rows">
+                    {verifyPrompts.map(({ key, label, prompt: vp, hint }) => {
+                      const r = verifyResults[key];
+                      const isLoading = r?.status === "loading";
+                      const isDone    = r?.status === "done";
+                      const mentioned = isDone && r.data?.mentioned;
+                      const count     = isDone ? `${r.data?.mentionedCount ?? 0}/${r.data?.engineCount ?? 4} engines` : null;
+                      return (
+                        <div key={key} className="verify-row">
+                          <div className="verify-row-meta">
+                            <span className="verify-row-label">{label}</span>
+                            <span className="verify-row-prompt">"{vp}"</span>
+                            <span className="verify-row-hint">{hint}</span>
+                          </div>
+                          <div className="verify-row-result">
+                            {isDone ? (
+                              <span className={`verify-badge${mentioned ? " verify-badge-yes" : " verify-badge-no"}`}>
+                                {mentioned ? <CheckCircleIcon /> : <XCircleIcon />}
+                                {mentioned ? `Mentioned · ${count}` : `Not found · ${count}`}
+                              </span>
+                            ) : null}
+                            <button
+                              type="button"
+                              className="action-button"
+                              onClick={() => runVerify(key, vp)}
+                              disabled={isLoading}
+                            >
+                              <RefreshCwIcon className={isLoading ? "button-icon spin" : "button-icon"} />
+                              {isLoading ? "Checking…" : isDone ? "Re-check" : "Check"}
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </section>
 
