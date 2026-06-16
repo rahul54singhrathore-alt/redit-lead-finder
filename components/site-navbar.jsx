@@ -24,6 +24,7 @@ export function SiteNavbar({ className = "" }) {
           <Link href="/pricing">Pricing</Link>
           <Link href="/blog">Blog</Link>
           <Link href="/compare">Compare</Link>
+          <Link href="/contact">Contact</Link>
         </nav>
 
         <div className="oras-nav-right">
@@ -44,6 +45,7 @@ export function SiteNavbar({ className = "" }) {
           <Link href="/pricing">Pricing</Link>
           <Link href="/blog">Blog</Link>
           <Link href="/compare">Compare</Link>
+          <Link href="/contact">Contact</Link>
           <Link href="/signin">Sign in</Link>
         </div>
       )}
