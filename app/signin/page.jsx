@@ -145,7 +145,7 @@ export default function SignInPage() {
 
     const { data, error } = await supabase.auth.verifyOtp({
       email: email.trim(),
-      token: trimmedOtp,
+      token: otp.trim(),
       type: "email",
     });
 
