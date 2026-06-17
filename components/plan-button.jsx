@@ -7,7 +7,7 @@ import { createBrowserSupabaseClient } from "@/lib/supabase";
 
 // Payments are gated behind a public flag so the app can launch free-only:
 // while it's off, paid plans show "Coming soon" instead of a dead checkout.
-// Set NEXT_PUBLIC_PAYMENTS_ENABLED=true once Stripe is configured to go live.
+// Set NEXT_PUBLIC_PAYMENTS_ENABLED=true once Dodo Payments is configured to go live.
 const paymentsEnabled = process.env.NEXT_PUBLIC_PAYMENTS_ENABLED === "true";
 
 // Pricing CTA. Free continues into the app; a paid plan starts a real Stripe
@@ -61,12 +61,12 @@ export function PlanButton({ tierKey, label, className, billingCycle = "monthly"
       const data = await response.json().catch(() => ({}));
 
       if (response.ok && data.url) {
-        window.location.href = data.url; // Stripe-hosted secure checkout
+        window.location.href = data.url; // Dodo-hosted secure checkout
         return;
       }
 
       if (response.status === 503) {
-        setError("Payments aren't configured yet. Add your Stripe keys to enable checkout.");
+        setError("Payments aren't configured yet. Add your Dodo Payments keys to enable checkout.");
       } else {
         setError(data.error || "Could not start checkout.");
       }

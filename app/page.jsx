@@ -2,12 +2,13 @@ import Link from "next/link";
 import { SiteNavbar } from "@/components/site-navbar";
 import { FreeVisibilityChecker } from "@/components/free-visibility-checker";
 import {
-  ArrowRightIcon,
   ArrowUpRightIcon,
   BotIcon,
   BoxIcon,
   BracesIcon,
   ChevronDownIcon,
+  CodeIcon,
+  CopyIcon,
   GlobeIcon,
   MailIcon,
   PlusIcon,
@@ -15,32 +16,65 @@ import {
   SettingsIcon,
   SparklesIcon,
   StarIcon,
-  TrendingUpIcon,
   WorkflowIcon,
-  ZapIcon,
 } from "lucide-react";
+
+const solutionCards = [
+  {
+    title: "AI Visibility Score",
+    copy: "Track ChatGPT, Gemini, Claude, and one overall GEO score in one dashboard.",
+  },
+  {
+    title: "Competitor Gap",
+    copy: "Compare your mentions against competitors and see who AI recommends first.",
+  },
+  {
+    title: "Prompt Library",
+    copy: "Monitor prompts like best SEO tools, best AI tools, best CRM, and influencer platforms.",
+  },
+];
+
+const stats = [
+  ["65/100", "ChatGPT visibility"],
+  ["72/100", "Gemini visibility"],
+  ["40/100", "Claude visibility"],
+  ["62/100", "Overall GEO score"],
+];
+
+const companies = ["Your Brand 18", "Competitor A 42", "Competitor B 35", "Today +15"];
 
 const features = [
   {
     icon: BracesIcon,
-    title: "AI Citation Sources",
-    copy: "See where AI pulls brand context from: Reddit, Quora, blogs, news, comparison pages, and directories.",
+    title: "AI CITATION SOURCES",
+    copy: "See where AI is pulling brand context from: Reddit, Quora, blogs, news, comparison pages, and directories.",
   },
   {
     icon: BoxIcon,
-    title: "Why Not Mentioned?",
-    copy: "Oras explains why competitors appear — high authority citations, stronger entity coverage, or missing comparison pages.",
+    title: "WHY NOT MENTIONED?",
+    copy: "Oras explains why competitors appear, like high authority citations, stronger entity coverage, or missing comparison pages.",
   },
   {
     icon: GlobeIcon,
-    title: "GEO Recommendations",
+    title: "GEO RECOMMENDATIONS",
     copy: "Get automatic actions: add FAQ schema, author pages, comparison pages, citations, and entity-rich content.",
   },
   {
     icon: WorkflowIcon,
-    title: "Brand Monitoring",
+    title: "BRAND MONITORING",
     copy: "Run daily scans, track yesterday vs today mentions, and watch trend graphs across every AI answer engine.",
   },
+];
+
+const integrations = [
+  ["ChatGPT", SparklesIcon],
+  ["Gemini", BotIcon],
+  ["Claude", StarIcon],
+  ["Perplexity", WorkflowIcon],
+  ["Reddit", BoxIcon],
+  ["Quora", SendIcon],
+  ["Blogs", BotIcon],
+  ["News", PlusIcon],
 ];
 
 const faqs = [
@@ -58,15 +92,15 @@ const faqs = [
   },
   {
     q: "How is this different from traditional SEO tools?",
-    a: "SEO tools track keyword rankings on search engines. Oras tracks whether AI answer engines mention you in their responses — a separate and growing channel where there is no second page.",
+    a: "SEO tools track keyword rankings on search engines. Oras tracks whether AI answer engines mention you in their responses, a separate and growing channel where there is no second page, so if you aren't mentioned you're invisible.",
   },
   {
     q: "Can I track competitors?",
-    a: "Yes. Oras compares your mentions against competitors across every engine, shows who gets recommended first, and explains why — from citation authority to missing comparison pages.",
+    a: "Yes. Oras compares your mentions against competitors across every engine, shows who gets recommended first, and explains why, from citation authority to missing comparison pages.",
   },
   {
     q: "Do you offer reports for agencies?",
-    a: "Yes. Oras generates white-label GEO audit reports and lets agencies manage every client dashboard from one account.",
+    a: "Yes. Oras generates white label GEO audit reports and lets agencies manage every client dashboard from one account.",
   },
 ];
 
@@ -78,148 +112,110 @@ const trackedPrompts = [
   ["Best UGC marketplace", "Gap detected: competitors rank, your brand is missing."],
 ];
 
-const ENGINES = [
-  { name: "ChatGPT",    color: "#10a37f" },
-  { name: "Gemini",     color: "#4285f4" },
-  { name: "Claude",     color: "#d97706" },
-  { name: "Perplexity", color: "#ea580c" },
-];
-
 export default function Home() {
   return (
     <main className="autosend-page">
       <SiteNavbar />
 
-      {/* ── Hero ── */}
-      <section className="home-hero">
-        <div className="home-hero-inner">
-          <div className="home-hero-copy">
-            <span className="home-eyebrow">
-              <span className="home-eyebrow-dot" />
-              GEO — Generative Engine Optimization
-            </span>
-            <h1>
-              Be the brand <em>AI recommends</em>,<br />not a competitor
-            </h1>
-            <p>
-              Oras tracks where ChatGPT, Gemini, Claude, and Perplexity mention
-              your brand, shows why competitors rank higher, and gives you a
-              ranked action plan to fix it.
-            </p>
-            <div className="home-hero-actions">
-              <Link className="home-cta-primary" href="#check">
-                Check your visibility free <ArrowRightIcon />
-              </Link>
-              <Link className="home-cta-ghost" href="/pricing">
-                View pricing
-              </Link>
-            </div>
-          </div>
-
-          {/* Dashboard preview card */}
-          <div className="home-hero-visual">
-            <div className="home-preview-card">
-              <div className="home-preview-header">
-                <span className="home-preview-title">GEO Score</span>
-                <span className="home-preview-live"><span />Live</span>
-              </div>
-              <div className="home-preview-score-row">
-                <div className="home-preview-ring">
-                  <svg viewBox="0 0 80 80">
-                    <circle cx="40" cy="40" r="34" fill="none" stroke="#f4f4f5" strokeWidth="7" />
-                    <circle cx="40" cy="40" r="34" fill="none" stroke="#ea580c" strokeWidth="7"
-                      strokeDasharray="213.6" strokeDashoffset="64" strokeLinecap="round"
-                      transform="rotate(-90 40 40)" />
-                  </svg>
-                  <div className="home-preview-ring-val"><strong>70</strong><span>/100</span></div>
-                </div>
-                <div className="home-preview-engines-col">
-                  {[
-                    { name: "ChatGPT", rank: "#2", win: false },
-                    { name: "Gemini",  rank: "#1", win: true  },
-                    { name: "Claude",  rank: "#3", win: false },
-                    { name: "Perplexity", rank: "#1", win: true },
-                  ].map((e) => (
-                    <div key={e.name} className="home-preview-engine-row">
-                      <span>{e.name}</span>
-                      <span className={e.win ? "home-preview-rank-win" : "home-preview-rank"}>{e.rank}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div className="home-preview-trend">
-                <TrendingUpIcon />
-                <span>+12 pts this week</span>
-              </div>
-            </div>
-
-            {/* Floating badge */}
-            <div className="home-preview-badge home-preview-badge-1">
-              <ZapIcon />
-              <span>3 fixes available</span>
-            </div>
-            <div className="home-preview-badge home-preview-badge-2">
-              <SparklesIcon />
-              <span>Mentioned on Gemini #1</span>
-            </div>
+      <section className="autosend-hero" id="demo">
+        <div className="autosend-hero-copy">
+          <span className="autosend-hero-eyebrow">GEO — GENERATIVE ENGINE OPTIMIZATION</span>
+          <h1>
+            Be the brand <em>AI recommends</em>, not a competitor
+          </h1>
+          <p>
+            Oras tracks where ChatGPT, Gemini, Claude, and Perplexity mention your brand,
+            shows why competitors rank higher, and gives you a ranked action plan to fix it.
+          </p>
+          <div className="autosend-hero-actions">
+            <Link className="autosend-button autosend-button-primary" href="#check">
+              Check your visibility free
+            </Link>
+            <Link className="autosend-button autosend-button-ghost" href="/pricing">
+              View pricing
+            </Link>
           </div>
         </div>
 
-        {/* Engine strip */}
-        <div className="home-engine-strip">
-          <span className="home-engine-strip-label">Live queries to</span>
-          {ENGINES.map(({ name, color }) => (
-            <span key={name} className="home-engine-pill">
-              <span style={{ background: color }} className="home-engine-dot" />
-              {name}
-            </span>
+        <div className="hero-product-preview">
+
+          <div className="hero-preview-window">
+            <div className="hero-preview-bar">
+              <span /><span /><span />
+              <div className="hero-preview-title">GEO Score — Oras</div>
+            </div>
+            <div className="hero-preview-body">
+              <div className="hero-preview-score-col">
+                <div className="hero-preview-ring">
+                  <strong>74</strong>
+                  <span>/ 100</span>
+                </div>
+                <div className="hero-preview-grade">Growing</div>
+                <div className="hero-preview-note">20 AI checks · 2 live engines</div>
+              </div>
+              <div className="hero-preview-engines">
+                {[
+                  { name: "ChatGPT", rate: 80, color: "#10a37f", hits: "4/5" },
+                  { name: "Gemini",  rate: 60, color: "#4285f4", hits: "3/5" },
+                  { name: "Claude",  rate: 80, color: "#7c3aed", hits: "4/5" },
+                  { name: "Perplexity", rate: 60, color: "#f59e0b", hits: "3/5" },
+                ].map((e) => (
+                  <div key={e.name} className="hero-preview-engine-row">
+                    <span className="hero-preview-engine-dot" style={{ background: e.color }} />
+                    <span className="hero-preview-engine-name">{e.name}</span>
+                    <div className="hero-preview-bar-track">
+                      <div className="hero-preview-bar-fill" style={{ width: `${e.rate}%`, background: e.color }} />
+                    </div>
+                    <span className="hero-preview-engine-hits" style={{ color: e.color }}>{e.hits}</span>
+                  </div>
+                ))}
+                <div className="hero-preview-divider" />
+                <div className="hero-preview-impact">
+                  <span className="hero-preview-impact-plus">+18 pts available</span>
+                  <span className="hero-preview-impact-hint">See recommendations</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <FreeVisibilityChecker />
+
+      <section className="autosend-docs-grid" id="solutions">
+        {solutionCards.map((card) => (
+          <article key={card.title}>
+            <h2>{card.title}</h2>
+            <p>{card.copy}</p>
+            <a href="#docs">
+              DOCS <ArrowUpRightIcon aria-hidden="true" />
+            </a>
+          </article>
+        ))}
+      </section>
+
+      <section className="autosend-proof">
+        <div className="autosend-stat-grid">
+          {stats.map(([value, label]) => (
+            <div key={label}>
+              <strong>{value}</strong>
+              <span>{label}</span>
+            </div>
+          ))}
+        </div>
+        <h2>AI MENTION TRACKING FOR BRANDS AND AGENCIES</h2>
+        <div className="autosend-company-grid">
+          {companies.map((company, index) => (
+            <div key={company}>
+              <span>{company}</span>
+            </div>
           ))}
         </div>
       </section>
 
-      {/* ── Free checker ── */}
-      <FreeVisibilityChecker />
-
-      {/* ── Stats strip ── */}
-      <section className="home-stats">
-        {[
-          { val: "4",    label: "AI engines tracked" },
-          { val: "Live", label: "Real queries, not simulated" },
-          { val: "Free", label: "No credit card required" },
-          { val: "60s",  label: "First score in 60 seconds" },
-        ].map(({ val, label }) => (
-          <div key={label} className="home-stat">
-            <strong>{val}</strong>
-            <span>{label}</span>
-          </div>
-        ))}
-      </section>
-
-      {/* ── Features ── */}
-      <section className="home-features" id="docs">
-        <div className="home-features-head">
-          <span className="home-section-label">Features</span>
-          <h2>Everything you need to win in AI search</h2>
-          <p>Track, understand, and improve your brand's presence across every major AI engine.</p>
-        </div>
-        <div className="home-features-grid">
-          {features.map((f) => {
-            const Icon = f.icon;
-            return (
-              <div key={f.title} className="home-feature-card">
-                <span className="home-feature-icon"><Icon /></span>
-                <h3>{f.title}</h3>
-                <p>{f.copy}</p>
-              </div>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* ── Product demo ── */}
-      <section className="autosend-product" id="demo">
+      <section className="autosend-product" id="docs">
         <div className="autosend-product-head">
-          <span>#01 AI RECOMMENDATION TRACKER</span>
+          <span>#01 AI RECOMMENDATION SIMULATOR</span>
           <h2>See which AI engine recommends you, competitors, or nobody.</h2>
         </div>
         <div className="autosend-product-body">
@@ -230,7 +226,7 @@ export default function Home() {
                 <article key={feature.title}>
                   <Icon aria-hidden="true" />
                   <div>
-                    <h3>{feature.title.toUpperCase()}</h3>
+                    <h3>{feature.title}</h3>
                     <p>{feature.copy}</p>
                   </div>
                 </article>
@@ -239,11 +235,18 @@ export default function Home() {
           </div>
           <div className="autosend-code-panel">
             <div className="autosend-window">
-              <div className="autosend-window-bar"><span /><span /><span /></div>
+              <div className="autosend-window-bar">
+                <span />
+                <span />
+                <span />
+              </div>
               <div className="autosend-code-content">
                 <aside>
                   {["ChatGPT", "Gemini", "Claude", "Perplexity", "Reddit", "Quora", "Blogs", "News"].map((item) => (
-                    <button key={item} type="button">{item}</button>
+                    <button key={item} type="button">
+                      <CodeIcon aria-hidden="true" />
+                      {item}
+                    </button>
                   ))}
                 </aside>
                 <pre>{`Prompt:
@@ -260,18 +263,80 @@ Competitor A appears on 15 high-authority
 sites. Your brand appears on only 3.
 
 Recommended actions:
-→ Add comparison pages
-→ Add FAQ schema
-→ Build Reddit & Quora citations
-→ Create author and entity pages`}</pre>
+Add comparison pages
+Add FAQ schema
+Build Reddit and Quora citations
+Create author and entity pages`}</pre>
+                <button className="autosend-copy" type="button" aria-label="Copy code">
+                  <CopyIcon aria-hidden="true" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <a className="autosend-section-link" href="#docs">
+          EXPLORE THE AI SIMULATOR <ArrowUpRightIcon aria-hidden="true" />
+        </a>
+      </section>
+
+      <section className="autosend-split">
+        <div>
+          <span>COMPETITOR CONTENT GAP</span>
+          <h2>Find prompts competitors rank for and you do not.</h2>
+          <p>Track gaps like influencer marketing platform, UGC marketplace, creator CRM, best AI tools, best CRM, and best SEO tools.</p>
+        </div>
+        <div className="autosend-project-visual">
+          <div className="autosend-window">
+            <div className="autosend-window-bar">
+              <span />
+              <span />
+              <span />
+            </div>
+            <div className="autosend-project-card">
+              <button type="button">
+                <MailIcon aria-hidden="true" />
+                Client Workspace
+                <ChevronDownIcon aria-hidden="true" />
+              </button>
+              <div>
+                <p>
+                  <MailIcon aria-hidden="true" />
+                  <strong>Brand Alpha</strong>
+                  <small>18 mentions</small>
+                  <SettingsIcon aria-hidden="true" />
+                </p>
+                <p>
+                  <SparklesIcon aria-hidden="true" />
+                  <strong>Competitor A</strong>
+                  <small>42 mentions</small>
+                </p>
+                <p>
+                  <PlusIcon aria-hidden="true" />
+                  <strong>NEW CLIENT</strong>
+                </p>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── Prompt library ── */}
-      <section className="oras-prompt-library" id="prompts">
+      <section className="autosend-integrations" id="agents">
+        <div>
+          <span>AI CITATION SOURCES</span>
+          <h2>Know where answer engines learn about your brand.</h2>
+        </div>
+        <div className="autosend-integration-grid">
+          {integrations.map(([name, Icon]) => (
+            <article key={name}>
+              <Icon aria-hidden="true" />
+              <ArrowUpRightIcon aria-hidden="true" />
+              <h3>{name}</h3>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="oras-prompt-library" id="blog">
         <div className="oras-prompt-lead">
           <span>PROMPT LIBRARY</span>
           <h2>Track the prompts that decide who gets recommended.</h2>
@@ -285,23 +350,14 @@ Recommended actions:
         ))}
       </section>
 
-      {/* ── CTA ── */}
-      <section className="home-cta-section">
-        <span className="home-section-label">Get started free</span>
-        <h2>Your AI visibility dashboard, ready in 60 seconds</h2>
-        <p>Start tracking ChatGPT, Gemini, Claude, and Perplexity — free, no credit card required.</p>
-        <div className="home-cta-row">
-          <Link href="/signin" className="home-cta-primary">
-            Start free <ArrowRightIcon />
-          </Link>
-          <Link href="/pricing" className="home-cta-ghost">
-            See pricing
-          </Link>
-        </div>
-        <p className="home-cta-note">Agency plan available · White-label reports · Cancel anytime</p>
+      <section className="autosend-pricing" id="pricing">
+        <span>AGENCY READY</span>
+        <h2>One dashboard. Every client. White label GEO audit reports included.</h2>
+        <Link className="autosend-button autosend-button-primary" href="/pricing">
+          See pricing
+        </Link>
       </section>
 
-      {/* ── FAQ ── */}
       <section className="oras-faq" id="faq">
         <script
           type="application/ld+json"
@@ -334,59 +390,54 @@ Recommended actions:
         </div>
       </section>
 
-      {/* ── Footer ── */}
       <footer className="oras-footer">
-        <div className="oras-footer-inner">
-          <div className="oras-footer-brand">
-            <Link className="autosend-brand" href="/">
-              <img src="/logo.png" alt="" />
-              <span>ORAS</span>
-            </Link>
-            <p className="oras-footer-tagline">Online Reputation &amp; AI Search</p>
-            <p>AI visibility, GEO audits, citation tracking, and white-label reports for brands and agencies.</p>
-          </div>
-          {[
-            ["Product",   ["GEO Score", "/#demo"],     ["Visibility", "/dashboard"],  ["Competitors", "/dashboard/competitors"], ["Pricing", "/pricing"]],
-            ["Tools",     ["Free GEO check", "/tools"], ["AI citation audit", "/tools"], ["Prompt gap finder", "/tools"],        ["Brand memory audit", "/tools"]],
-            ["Solutions", ["For founders", "/pricing"], ["For agencies", "/pricing"],  ["For marketers", "/pricing"],            ["For creators", "/pricing"]],
-            ["Company",   ["Blog", "/blog"],            ["Compare", "/compare"],        ["Contact", "/contact"],                  ["Sign in", "/signin"]],
-            ["Legal",     ["Privacy Policy", "/privacy"], ["Terms of Service", "/terms"]],
-          ].map(([heading, ...pairs]) => (
+        <div className="oras-footer-brand">
+          <Link className="autosend-brand" href="/">
+            <img src="/logo.png" alt="" />
+            <span>ORAS</span>
+          </Link>
+          <p className="oras-footer-tagline">Online Reputation &amp; AI Search</p>
+          <p>AI visibility, GEO audits, citation tracking, and white-label reports for brands and agencies.</p>
+        </div>
+        {[
+          ["PRODUCT", "GEO Score", "Prompt Library", "Citation Sources", "Reports"],
+          ["ENGINES", "ChatGPT", "Gemini", "Claude", "Perplexity"],
+          ["COMPANY", "How it works", "Free check", "Pricing", "Blog"],
+          ["ACCOUNT", "Log in", "Dashboard", "Pricing", "Support"],
+          ["LEGAL", "Privacy Policy", "Terms of Service"],
+        ].map(([heading, ...items]) => {
+          const hrefFor = (item) =>
+            ({
+              "GEO Score": "/#check",
+              "Prompt Library": "/#blog",
+              "Citation Sources": "/#agents",
+              Reports: "/#pricing",
+              ChatGPT: "/#agents",
+              Gemini: "/#agents",
+              Claude: "/#agents",
+              Perplexity: "/#agents",
+              "How it works": "/#docs",
+              "Free check": "/#check",
+              Blog: "/blog",
+              Pricing: "/pricing",
+              "Log in": "/signin",
+              Dashboard: "/dashboard",
+              Support: "mailto:support@tryoras.com",
+              "Privacy Policy": "/privacy",
+              "Terms of Service": "/terms",
+            }[item] || "/");
+          return (
             <div className="oras-footer-list" key={heading}>
               <h2>{heading}</h2>
-              {pairs.map(([label, href]) => (
-                <a href={href} key={label}>{label}</a>
+              {items.map((item) => (
+                <a href={hrefFor(item)} key={item}>
+                  {item}
+                </a>
               ))}
             </div>
-          ))}
-        </div>
-
-        <div className="oras-footer-bottom-bar">
-          <span className="oras-footer-status">
-            <span className="oras-footer-status-dot" />
-            Operational
-          </span>
-          <span className="oras-footer-copy">© 2026 · ORAS INC.</span>
-        </div>
-
-        <div className="oras-footer-resources">
-          <div className="oras-footer-resources-head">
-            <span>Free tools</span>
-            <a href="/tools">All tools →</a>
-          </div>
-          <div className="oras-footer-resources-grid">
-            {[
-              "GEO Score checker", "AI citation audit", "Brand visibility scan",
-              "Competitor comparison", "Prompt gap finder", "AI mention tracker",
-              "ChatGPT rank check", "Gemini brand scan", "Claude mention check",
-              "Perplexity audit", "Reddit visibility", "Quora presence check",
-              "Share of voice report", "Brand memory audit", "GEO score history",
-              "Visibility leaderboard", "AI recommendation gaps", "Citation source finder",
-            ].map((tool) => (
-              <a href="/tools" key={tool} className="oras-footer-tool-link">{tool}</a>
-            ))}
-          </div>
-        </div>
+          );
+        })}
+        <p className="oras-footer-bottom">© 2026 · ORAS INC.</p>
       </footer>
     </main>
   );
