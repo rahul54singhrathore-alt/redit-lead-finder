@@ -391,53 +391,57 @@ Create author and entity pages`}</pre>
       </section>
 
       <footer className="oras-footer">
-        <div className="oras-footer-brand">
-          <Link className="autosend-brand" href="/">
-            <img src="/logo.png" alt="" />
-            <span>ORAS</span>
-          </Link>
-          <p className="oras-footer-tagline">Online Reputation &amp; AI Search</p>
-          <p>AI visibility, GEO audits, citation tracking, and white-label reports for brands and agencies.</p>
+        <div className="oras-footer-inner">
+          <div className="oras-footer-brand">
+            <Link className="autosend-brand" href="/">
+              <img src="/logo.png" alt="" />
+              <span>ORAS</span>
+            </Link>
+            <p className="oras-footer-tagline">Online Reputation &amp; AI Search</p>
+            <p>AI visibility, GEO audits, citation tracking, and white-label reports for brands and agencies.</p>
+          </div>
+          {[
+            ["PRODUCT", "GEO Score", "Prompt Library", "Citation Sources", "Reports"],
+            ["ENGINES", "ChatGPT", "Gemini", "Claude", "Perplexity"],
+            ["COMPANY", "How it works", "Free check", "Pricing", "Blog"],
+            ["ACCOUNT", "Log in", "Dashboard", "Pricing", "Support"],
+            ["LEGAL", "Privacy Policy", "Terms of Service"],
+          ].map(([heading, ...items]) => {
+            const hrefFor = (item) =>
+              ({
+                "GEO Score": "/#check",
+                "Prompt Library": "/#blog",
+                "Citation Sources": "/#agents",
+                Reports: "/#pricing",
+                ChatGPT: "/#agents",
+                Gemini: "/#agents",
+                Claude: "/#agents",
+                Perplexity: "/#agents",
+                "How it works": "/#docs",
+                "Free check": "/#check",
+                Blog: "/blog",
+                Pricing: "/pricing",
+                "Log in": "/signin",
+                Dashboard: "/dashboard",
+                Support: "mailto:support@tryoras.com",
+                "Privacy Policy": "/privacy",
+                "Terms of Service": "/terms",
+              }[item] || "/");
+            return (
+              <div className="oras-footer-list" key={heading}>
+                <h2>{heading}</h2>
+                {items.map((item) => (
+                  <a href={hrefFor(item)} key={item}>
+                    {item}
+                  </a>
+                ))}
+              </div>
+            );
+          })}
         </div>
-        {[
-          ["PRODUCT", "GEO Score", "Prompt Library", "Citation Sources", "Reports"],
-          ["ENGINES", "ChatGPT", "Gemini", "Claude", "Perplexity"],
-          ["COMPANY", "How it works", "Free check", "Pricing", "Blog"],
-          ["ACCOUNT", "Log in", "Dashboard", "Pricing", "Support"],
-          ["LEGAL", "Privacy Policy", "Terms of Service"],
-        ].map(([heading, ...items]) => {
-          const hrefFor = (item) =>
-            ({
-              "GEO Score": "/#check",
-              "Prompt Library": "/#blog",
-              "Citation Sources": "/#agents",
-              Reports: "/#pricing",
-              ChatGPT: "/#agents",
-              Gemini: "/#agents",
-              Claude: "/#agents",
-              Perplexity: "/#agents",
-              "How it works": "/#docs",
-              "Free check": "/#check",
-              Blog: "/blog",
-              Pricing: "/pricing",
-              "Log in": "/signin",
-              Dashboard: "/dashboard",
-              Support: "mailto:support@tryoras.com",
-              "Privacy Policy": "/privacy",
-              "Terms of Service": "/terms",
-            }[item] || "/");
-          return (
-            <div className="oras-footer-list" key={heading}>
-              <h2>{heading}</h2>
-              {items.map((item) => (
-                <a href={hrefFor(item)} key={item}>
-                  {item}
-                </a>
-              ))}
-            </div>
-          );
-        })}
-        <p className="oras-footer-bottom">© 2026 · ORAS INC.</p>
+        <div className="oras-footer-bottom-bar">
+          <span className="oras-footer-copy">© 2026 · ORAS INC.</span>
+        </div>
       </footer>
     </main>
   );
