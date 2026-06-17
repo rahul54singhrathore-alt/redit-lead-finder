@@ -2,7 +2,13 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowRightIcon, LockIcon, SearchIcon, SparklesIcon, TrophyIcon, ZapIcon } from "lucide-react";
+import { ArrowRightIcon, SearchIcon, SparklesIcon, TrophyIcon, ZapIcon, AlertCircleIcon, CheckCircleIcon, InfoIcon } from "lucide-react";
+
+const PRIORITY_ICON = {
+  High: AlertCircleIcon,
+  Medium: InfoIcon,
+  Low: CheckCircleIcon,
+};
 
 export function FreeVisibilityChecker() {
   const [brand, setBrand] = useState("");
@@ -164,20 +170,34 @@ export function FreeVisibilityChecker() {
               ))}
             </div>
 
-            <div className="checker-locked">
-              <div className="checker-locked-blur">
-                <p>1. Fix citation gaps on {result.engines?.[0]?.brandsInOrder?.[0] || "top competitor"}</p>
-                <p>2. Add prompt-optimised FAQ schema</p>
-                <p>3. Build Reddit &amp; Quora citations</p>
+            {result.recommendations?.length > 0 && (
+              <div className="checker-recs">
+                <h4 className="checker-recs-title">What to fix for {result.brand}</h4>
+                <div className="checker-recs-list">
+                  {result.recommendations.map((rec, i) => {
+                    const Icon = PRIORITY_ICON[rec.priority] || InfoIcon;
+                    return (
+                      <div key={i} className={`checker-rec checker-rec-${rec.priority.toLowerCase()}`}>
+                        <Icon className="checker-rec-icon" />
+                        <div>
+                          <strong>{rec.title}</strong>
+                          <p>{rec.detail}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className="checker-signup-cta">
+                  <div>
+                    <strong>Track {result.brand} daily — free</strong>
+                    <span>Get alerts when your AI ranking changes across all 4 engines.</span>
+                  </div>
+                  <Link href="/signin" className="checker-cta">
+                    Start monitoring <ArrowRightIcon />
+                  </Link>
+                </div>
               </div>
-              <div className="checker-locked-overlay">
-                <LockIcon />
-                <strong>See the full fix plan for {result.brand}</strong>
-                <Link href="/signin" className="checker-cta">
-                  Get your full report, free <ArrowRightIcon />
-                </Link>
-              </div>
-            </div>
+            )}
           </div>
         ) : null}
       </div>

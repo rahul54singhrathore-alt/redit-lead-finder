@@ -14,6 +14,7 @@ import {
 
 const ENGINE_ORDER = ["chatgpt", "gemini", "claude", "perplexity"];
 const ENGINE_LABELS = { chatgpt: "ChatGPT", gemini: "Gemini", claude: "Claude", perplexity: "Perplexity" };
+const ENGINE_COLORS = { chatgpt: "#10a37f", gemini: "#4285f4", claude: "#7c3aed", perplexity: "#f59e0b" };
 
 function scoreLabel(score) {
   if (score >= 75) return { grade: "Strong", color: "#16a34a", ringColor: "#22c55e", ringFade: "rgba(34,197,94,0.10)" };
@@ -63,7 +64,7 @@ export function GeoScore({ brand, category }) {
           <div>
             <h2><GaugeIcon className="geo-score-title-icon" /> GEO Score</h2>
             <p className="card-supporting-copy">
-              Real mention rate across AI engines — how often {cleanBrand} appears in AI answers.
+              How often {cleanBrand} appears across ChatGPT, Gemini, Claude &amp; Perplexity.
             </p>
           </div>
           <button
@@ -124,19 +125,21 @@ export function GeoScore({ brand, category }) {
 
               {/* Right column: engine breakdown + reasons */}
               <div className="geo-score-detail">
-                {/* Per-engine mini cards */}
-                <h3 className="geo-score-reasons-title">Per-engine breakdown</h3>
                 <div className="geo-engine-grid">
                   {ENGINE_ORDER.map((key) => {
                     const eng = data.engines?.find((e) => e.key === key);
                     if (!eng) return null;
-                    const color = rateColor(eng.mentionRate);
+                    const color = ENGINE_COLORS[key] || rateColor(eng.mentionRate);
                     return (
                       <div key={key} className="geo-engine-card">
                         <div className="geo-engine-top">
-                          <span className="geo-engine-label">{eng.label}</span>
+                          <span className="geo-engine-label">
+                            <span className="geo-engine-dot" style={{ background: color }} />
+                            {eng.label}
+                          </span>
                           <span className="geo-engine-rate" style={{ color }}>
                             {eng.mentionCount}/{eng.totalPrompts}
+                            <em>{eng.mentionRate}%</em>
                           </span>
                         </div>
                         <div className="geo-engine-bar-track">
@@ -145,13 +148,11 @@ export function GeoScore({ brand, category }) {
                             style={{ width: `${eng.mentionRate}%`, background: color }}
                           />
                         </div>
-                        <span className="geo-engine-sub">
-                          {eng.mentionRate === 0
-                            ? "not mentioned"
-                            : eng.avgRank
-                            ? `avg rank #${eng.avgRank}`
-                            : "mentioned"}
-                        </span>
+                        {eng.mentionRate === 0 ? (
+                          <span className="geo-engine-sub geo-engine-sub-miss">not mentioned</span>
+                        ) : eng.avgRank ? (
+                          <span className="geo-engine-sub">avg rank #{eng.avgRank}</span>
+                        ) : null}
                       </div>
                     );
                   })}

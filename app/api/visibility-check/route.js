@@ -62,6 +62,8 @@ export async function POST(request) {
       );
     }
 
+    const recommendations = buildRecommendations(brand, engines, aggregate);
+
     const payload = {
       engine: "Multi-engine",
       brand,
@@ -74,6 +76,7 @@ export async function POST(request) {
       engineCount: aggregate.engineCount,
       liveCount: aggregate.liveCount,
       engines,
+      recommendations,
     };
 
     // Cache the fresh result (best-effort).
@@ -89,6 +92,71 @@ export async function POST(request) {
     }
     return NextResponse.json({ error: "AI request failed." }, { status: 502 });
   }
+}
+
+function buildRecommendations(brand, engines, aggregate) {
+  const recs = [];
+  const missed = engines.filter((e) => !e.mentioned && !e.error).map((e) => e.label);
+  const hitting = engines.filter((e) => e.mentioned && !e.error);
+  const avgRank = hitting.length
+    ? Math.round(hitting.reduce((s, e) => s + (e.rank || 5), 0) / hitting.length)
+    : null;
+
+  if (aggregate.mentionedCount === 0) {
+    recs.push({
+      priority: "High",
+      title: "Build your AI citation base",
+      detail: `${brand} is not appearing in any AI engine for this prompt. Create or claim profiles on G2, Capterra, Product Hunt, and Trustpilot — these are the top sources AI engines pull from.`,
+    });
+    recs.push({
+      priority: "High",
+      title: "Add a comparison page",
+      detail: `Write a page titled "${brand} vs [Top Competitor]" on your site. AI engines rank brands that appear on direct-comparison pages higher in recommendation prompts.`,
+    });
+    recs.push({
+      priority: "Medium",
+      title: "Get Reddit & Quora mentions",
+      detail: `Answer questions about your category on Reddit and Quora mentioning ${brand}. Perplexity and ChatGPT heavily weight these community sources.`,
+    });
+  } else if (missed.length > 0) {
+    recs.push({
+      priority: "High",
+      title: `Fix visibility on ${missed.join(" & ")}`,
+      detail: `${brand} is missing from ${missed.join(", ")}. These engines rely on different citation sources — get listed on ${missed.includes("Gemini") ? "Google Business Profile and Wikipedia" : "Reddit, G2, and comparison sites"} to appear there.`,
+    });
+    if (avgRank && avgRank > 2) {
+      recs.push({
+        priority: "Medium",
+        title: `Move from rank #${avgRank} to #1`,
+        detail: `You're appearing but not at the top. Add an FAQ schema to your homepage, build 3–5 more third-party reviews, and create a "[Category] tools" comparison page.`,
+      });
+    }
+    recs.push({
+      priority: "Medium",
+      title: "Strengthen entity coverage",
+      detail: `Add a clear "What is ${brand}?" section to your site with structured data. AI engines surface brands with strong entity definitions more consistently.`,
+    });
+  } else {
+    if (avgRank && avgRank > 1) {
+      recs.push({
+        priority: "Medium",
+        title: `Push from rank #${avgRank} to #1`,
+        detail: `${brand} appears on all engines but isn't leading. Outrank competitors by getting more review citations, adding author bios, and building comparison content.`,
+      });
+    }
+    recs.push({
+      priority: "Low",
+      title: "Monitor for drift",
+      detail: `Your visibility looks solid for this prompt. Set up daily monitoring to catch ranking drops before they compound — AI engine rankings shift as new content is indexed.`,
+    });
+    recs.push({
+      priority: "Medium",
+      title: "Expand to more prompts",
+      detail: `You're visible here but buyers use many different prompts. Track "${brand} pricing", "best ${brand} alternatives", and category prompts to get the full picture.`,
+    });
+  }
+
+  return recs;
 }
 
 function rateLimitHeaders(rate) {

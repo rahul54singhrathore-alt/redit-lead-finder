@@ -9197,18 +9197,42 @@ button {
 }
 
 .geo-engine-label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
   font-size: 0.8125rem;
   font-weight: 700;
   color: #3f3f46;
 }
 
+.geo-engine-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
 .geo-engine-rate {
+  display: flex;
+  align-items: center;
+  gap: 5px;
   font-size: 0.9375rem;
   font-weight: 800;
 }
 
+.geo-engine-rate em {
+  font-style: normal;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #a1a1aa;
+}
+
+.geo-engine-sub-miss {
+  color: #ef4444;
+}
+
 .geo-engine-bar-track {
-  height: 5px;
+  height: 7px;
   border-radius: 999px;
   background: #e4e4e7;
   overflow: hidden;
@@ -14455,6 +14479,102 @@ button {
 .checker-cta svg {
   width: 15px;
   height: 15px;
+}
+
+/* Recommendations */
+.checker-recs {
+  margin-top: 20px;
+  border-top: 1px solid #f4f4f5;
+  padding-top: 20px;
+}
+
+.checker-recs-title {
+  margin: 0 0 14px;
+  font-size: 0.8125rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #71717a;
+}
+
+.checker-recs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.checker-rec {
+  display: flex;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #fafafa;
+  border: 1px solid #f4f4f5;
+}
+
+.checker-rec-high { border-left: 3px solid #ef4444; }
+.checker-rec-medium { border-left: 3px solid #f59e0b; }
+.checker-rec-low { border-left: 3px solid #22c55e; }
+
+.checker-rec-icon {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+}
+
+.checker-rec-high .checker-rec-icon { color: #ef4444; }
+.checker-rec-medium .checker-rec-icon { color: #f59e0b; }
+.checker-rec-low .checker-rec-icon { color: #22c55e; }
+
+.checker-rec strong {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: #18181b;
+  margin-bottom: 3px;
+}
+
+.checker-rec p {
+  margin: 0;
+  font-size: 0.78rem;
+  color: #71717a;
+  line-height: 1.5;
+}
+
+.checker-signup-cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 16px;
+  padding: 16px;
+  border-radius: 12px;
+  background: #18181b;
+  color: #fff;
+}
+
+.checker-signup-cta div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.checker-signup-cta strong {
+  font-size: 0.875rem;
+  font-weight: 800;
+}
+
+.checker-signup-cta span {
+  font-size: 0.78rem;
+  color: #a1a1aa;
+}
+
+.checker-signup-cta .checker-cta {
+  background: #fff;
+  color: #18181b;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 /* New checker additions */
