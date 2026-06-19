@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { AppSidebar } from "@/components/app-sidebar";
 import { DashboardOnboarding } from "@/components/dashboard-onboarding";
 import { GeoScore } from "@/components/geo-score";
+import { TrendChart } from "@/components/trend-chart";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { createBrowserSupabaseClient } from "../../lib/supabase";
 import { normalizeWorkspaceProfile } from "../../lib/workspace-profile";
@@ -14,6 +15,8 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState(null);
   const [message, setMessage] = useState("");
+  const [accessToken, setAccessToken] = useState(null);
+  const [trendKey, setTrendKey] = useState(0);
   const router = useRouter();
   const supabase = useMemo(() => createBrowserSupabaseClient(), []);
 
@@ -27,6 +30,7 @@ export default function DashboardPage() {
         return;
       }
       setUser(session.user);
+      setAccessToken(session.access_token);
       const needsOnboarding = await loadDashboardData(session.user.id);
       if (needsOnboarding) {
         router.replace("/onboarding");
@@ -158,6 +162,13 @@ export default function DashboardPage() {
             <GeoScore
               brand={profile?.product_name || profile?.starter_keyword || "Your brand"}
               category={profile?.industry || profile?.brand_description || ""}
+              accessToken={accessToken}
+              onScoreSaved={() => setTrendKey((k) => k + 1)}
+            />
+            <TrendChart
+              key={trendKey}
+              brand={profile?.product_name || profile?.starter_keyword || "Your brand"}
+              accessToken={accessToken}
             />
 
             {message ? <p className="signin-message" style={{ textAlign: "left" }}>{message}</p> : null}

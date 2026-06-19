@@ -13459,39 +13459,53 @@ button {
 }
 
 /* Visibility trend chart */
+.trend-header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
 .trend-delta {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 5px 12px;
+  gap: 5px;
+  padding: 4px 10px;
   border-radius: 999px;
   font-size: 0.8125rem;
-  font-weight: 800;
+  font-weight: 700;
+  white-space: nowrap;
 }
+.trend-delta svg { width: 13px; height: 13px; }
+.trend-delta-up   { background: #dcfce7; color: #15803d; }
+.trend-delta-down { background: #fee2e2; color: #b91c1c; }
 
-.trend-delta svg {
-  width: 15px;
-  height: 15px;
+.trend-toggle {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #71717a;
+  background: #f4f4f5;
+  border: 1px solid #e4e4e7;
+  border-radius: 7px;
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
 }
-
-.trend-delta-up {
-  background: #dcfce7;
-  color: #15803d;
-}
-
-.trend-delta-down {
-  background: #fee2e2;
-  color: #b91c1c;
-}
+.trend-toggle:hover        { color: #3f3f46; background: #ececec; }
+.trend-toggle-active       { background: #fff7ed; border-color: #fed7aa; color: #ea580c; }
 
 .trend-chart-wrap {
   position: relative;
+  margin-top: 8px;
+  cursor: crosshair;
 }
 
 .trend-svg {
   width: 100%;
   height: 160px;
   display: block;
+  overflow: visible;
 }
 
 .trend-grid {
@@ -13500,38 +13514,80 @@ button {
   stroke-dasharray: 4 5;
 }
 
-.trend-current {
+.trend-axis-label {
+  font-size: 10px;
+  fill: #a1a1aa;
+  font-family: inherit;
+}
+
+.trend-tooltip {
   position: absolute;
-  top: 6px;
-  right: 6px;
-  display: grid;
-  justify-items: end;
-  padding: 6px 12px;
-  border-radius: 12px;
-  background: #f9fafb;
-  border: 1px solid #e4e4e7;
+  transform: translate(-50%, -100%);
+  background: #18181b;
+  color: #fff;
+  border-radius: 8px;
+  padding: 7px 11px;
+  pointer-events: none;
+  z-index: 10;
+  min-width: 90px;
 }
-
-.trend-current strong {
-  font-size: 1.25rem;
-  font-weight: 800;
-  line-height: 1;
-  color: #71717a;
-}
-
-.trend-current span {
-  font-size: 0.6875rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  color: #09090b;
-}
-
-.trend-axis {
+.trend-tooltip-date  { font-size: 0.75rem; color: #a1a1aa; margin: 0 0 2px; }
+.trend-tooltip-score { font-size: 1.125rem; font-weight: 800; margin: 0; color: #fff; }
+.trend-tooltip-score span { font-size: 0.75rem; font-weight: 500; color: #71717a; }
+.trend-tooltip-engines {
   display: flex;
-  justify-content: space-between;
-  margin-top: 6px;
-  font-size: 0.75rem;
-  color: var(--muted);
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 5px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+}
+
+.trend-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #f4f4f5;
+}
+.trend-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.8125rem;
+  color: #52525b;
+  font-weight: 500;
+}
+.trend-legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.trend-skeleton {
+  height: 180px;
+  background: linear-gradient(90deg, #f4f4f5 25%, #ececec 50%, #f4f4f5 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 8px;
+}
+
+.trend-empty {
+  padding: 32px 0;
+  text-align: center;
+}
+.trend-empty-title {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: #3f3f46;
+  margin: 0 0 6px;
+}
+.trend-empty-sub {
+  font-size: 0.8125rem;
+  color: #71717a;
+  margin: 0;
 }
 
 /* Prompt tracker */

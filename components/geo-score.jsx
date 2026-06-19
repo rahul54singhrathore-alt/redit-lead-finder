@@ -28,7 +28,7 @@ function rateColor(rate) {
   return "#dc2626";
 }
 
-export function GeoScore({ brand, category }) {
+export function GeoScore({ brand, category, accessToken, onScoreSaved }) {
   const cleanBrand = (brand || "Your brand").trim();
   const [scan, setScan] = useState({ status: "idle" });
   const [expanded, setExpanded] = useState(null);
@@ -45,6 +45,13 @@ export function GeoScore({ brand, category }) {
       const data = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(data?.error || "Scan failed.");
       setScan({ status: "done", data });
+      if (accessToken && data?.score != null) {
+        fetch("/api/save-score", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${accessToken}` },
+          body: JSON.stringify({ brand: cleanBrand, score: data.score, engines: data.engines || [] }),
+        }).then(() => onScoreSaved?.()).catch(() => {});
+      }
     } catch (error) {
       setScan({ status: "error", error: error.message });
     }
