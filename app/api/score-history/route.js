@@ -21,7 +21,7 @@ export async function GET(request) {
 
   const query = admin
     .from("visibility_scores")
-    .select("recorded_date, score, chatgpt_score, gemini_score, claude_score, perplexity_score")
+    .select("recorded_date, score, chatgpt_score, gemini_score, claude_score, perplexity_score, grok_score")
     .eq("user_id", user.id)
     .gte("recorded_date", sinceStr)
     .order("recorded_date", { ascending: true });

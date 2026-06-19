@@ -33,6 +33,7 @@ export async function POST(request) {
         gemini_score:     byKey("gemini"),
         claude_score:     byKey("claude"),
         perplexity_score: byKey("perplexity"),
+        grok_score:       byKey("grok"),
         recorded_date:    today,
       },
       { onConflict: "user_id,brand,recorded_date" }

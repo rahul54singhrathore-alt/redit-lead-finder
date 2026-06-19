@@ -30,8 +30,9 @@ const ENGINE_META = {
   gemini:     { color: "#4285f4", bg: "rgba(66,133,244,0.08)",  label: "Gemini",     tagline: "Google's AI — critical for search-adjacent discovery." },
   claude:     { color: "#d97706", bg: "rgba(217,119,6,0.08)",   label: "Claude",     tagline: "Technical and B2B audiences prefer this engine." },
   perplexity: { color: "#7c3aed", bg: "rgba(124,58,237,0.08)",  label: "Perplexity", tagline: "Research-driven users with high purchase intent." },
+  grok:       { color: "#0891b2", bg: "rgba(8,145,178,0.08)",   label: "Grok",       tagline: "xAI's engine — growing fast with X/Twitter audience." },
 };
-const ENGINE_ORDER = ["chatgpt", "gemini", "claude", "perplexity"];
+const ENGINE_ORDER = ["chatgpt", "gemini", "claude", "perplexity", "grok"];
 
 function scoreLabel(score) {
   if (score >= 75) return { text: "Strong",  color: "#16a34a" };

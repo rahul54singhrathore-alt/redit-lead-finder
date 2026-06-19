@@ -18,8 +18,9 @@ const ENGINE_META = {
   gemini:     { label: "Gemini",     color: "#4285f4" },
   claude:     { label: "Claude",     color: "#d97706" },
   perplexity: { label: "Perplexity", color: "#7c3aed" },
+  grok:       { label: "Grok",       color: "#0891b2" },
 };
-const ENGINE_ORDER = ["chatgpt", "gemini", "claude", "perplexity"];
+const ENGINE_ORDER = ["chatgpt", "gemini", "claude", "perplexity", "grok"];
 
 async function fetchOverview(brand, category) {
   const res = await fetch("/api/visibility-overview", {

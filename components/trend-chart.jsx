@@ -8,6 +8,7 @@ const ENGINE_LINES = [
   { key: "gemini_score",     label: "Gemini",     color: "#4285f4" },
   { key: "claude_score",     label: "Claude",     color: "#d97706" },
   { key: "perplexity_score", label: "Perplexity", color: "#7c3aed" },
+  { key: "grok_score",       label: "Grok",       color: "#0891b2" },
 ];
 
 function formatDate(dateStr) {
