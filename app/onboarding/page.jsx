@@ -4,8 +4,9 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   ArrowLeftIcon, ArrowRightIcon, BellRingIcon, CheckIcon,
-  GaugeIcon, SearchIcon, SparklesIcon, TrendingUpIcon,
-  WandSparklesIcon, ZapIcon,
+  CheckCircle2Icon, GaugeIcon, RefreshCwIcon, SearchIcon,
+  SparklesIcon, TrendingUpIcon, WandSparklesIcon, XCircleIcon,
+  ZapIcon,
 } from "lucide-react";
 
 import { SourcePresetPicker } from "../../components/source-preset-picker";
@@ -157,6 +158,7 @@ export default function OnboardingPage() {
   const [isFetching, setIsFetching] = useState(false);
   const [fetchNote, setFetchNote] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [onbScan, setOnbScan] = useState({ status: "idle" });
 
   const router = useRouter();
   const supabase = useMemo(() => createBrowserSupabaseClient(), []);
@@ -227,11 +229,29 @@ export default function OnboardingPage() {
   const competitorList = competitors.split(",").map(c => c.trim()).filter(Boolean);
   const selectedFrequency = frequencyOptions.find(f => f.value === digestFrequency) || frequencyOptions[0];
 
+  const runOnbScan = async (brand, category) => {
+    setOnbScan({ status: "loading" });
+    try {
+      const res = await fetch("/api/visibility-overview", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ brand, category }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data?.error || "Scan failed.");
+      setOnbScan({ status: "done", data });
+    } catch (err) {
+      setOnbScan({ status: "error", error: err.message });
+    }
+  };
+
   const goNext = () => {
     setMessage("");
     if (step === 1) {
       if (!productName.trim()) return setMessage("Add your brand name.");
       if (!productUrl.trim() || !isValidUrl(productUrl)) return setMessage("Add a valid website URL.");
+      // Fire scan in background — results will be ready by Step 3
+      runOnbScan(productName.trim(), industry || brandDescription.trim());
     }
     if (step === 2 && sourceList.length === 0) return setMessage("Choose at least one source to monitor.");
     setStep(s => Math.min(3, s + 1));
@@ -457,78 +477,119 @@ export default function OnboardingPage() {
             </div>
           )}
 
-          {/* Step 3 — All set */}
+          {/* Step 3 — Live scan results */}
           {step === 3 && (
             <div className="onb-panel onb-finish">
-              <div className="onb-finish-hero">
-                <div className="onb-finish-check">
-                  <div className="onb-finish-check-ring" />
-                  <svg className="onb-finish-check-svg" viewBox="0 0 52 52" fill="none">
-                    <circle cx="26" cy="26" r="25" stroke="#22c55e" strokeWidth="2" fill="#f0fdf4" />
-                    <path d="M14 26l9 9 15-15" stroke="#22c55e" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                </div>
-                {faviconUrl && (
-                  <div className="onb-finish-brand-row">
-                    <img className="onb-finish-favicon" src={faviconUrl} alt="" onError={(e) => (e.currentTarget.style.display = "none")} />
-                    <span className="onb-finish-brand-name">{productName}</span>
-                  </div>
-                )}
-                <h1 className="onb-finish-title">You&apos;re all set!</h1>
-                <p className="onb-sub">Your AI visibility workspace is ready. Here&apos;s what&apos;s waiting for you.</p>
-              </div>
 
-              <div className="onb-finish-cards">
-                <div className="onb-finish-card onb-finish-card-green">
-                  <span className="onb-finish-card-icon"><GaugeIcon /></span>
-                  <strong>GEO Score</strong>
-                  <p>Track {productName || "your brand"} across {sourceList.length || DEFAULT_VISIBILITY_SOURCES.length} AI engines.</p>
+              {/* Scanning state */}
+              {onbScan.status === "loading" && (
+                <div className="onb-scan-loading">
+                  <div className="onb-scan-spinner">
+                    <RefreshCwIcon className="onb-spin" />
+                  </div>
+                  <h1 className="onb-scan-title">Scanning AI engines…</h1>
+                  <p className="onb-sub">Asking ChatGPT, Gemini, Claude &amp; Perplexity about {productName}.</p>
+                  <div className="onb-scan-engines">
+                    {ENGINES.map(({ name, color }) => (
+                      <div key={name} className="onb-scan-engine-row">
+                        <span className="onb-scan-engine-dot onb-scan-dot-pulse" style={{ background: color }} />
+                        <span className="onb-scan-engine-name">{name}</span>
+                        <span className="onb-scan-engine-status">Querying…</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                <div className="onb-finish-card onb-finish-card-blue">
-                  <span className="onb-finish-card-icon"><BellRingIcon /></span>
-                  <strong>{selectedFrequency.label} digest</strong>
-                  <p>{selectedFrequency.value === "off" ? "Check updates in dashboard anytime." : "Score changes sent to your inbox."}</p>
-                </div>
-                <div className="onb-finish-card onb-finish-card-purple">
-                  <span className="onb-finish-card-icon"><SearchIcon /></span>
-                  <strong>Competitors</strong>
-                  <p>{competitorList.length ? `Benchmarking ${competitorList.slice(0, 2).join(" & ")}.` : "Add competitors to benchmark."}</p>
-                </div>
-                <div className="onb-finish-card onb-finish-card-orange">
-                  <span className="onb-finish-card-icon"><ZapIcon /></span>
-                  <strong>Actions</strong>
-                  <p>Ranked fixes to improve your AI presence.</p>
-                </div>
-              </div>
+              )}
 
-              <div className="onb-next-steps">
-                <p className="onb-next-steps-label">What happens next</p>
-                <div className="onb-timeline">
-                  <div className="onb-timeline-item">
-                    <span className="onb-timeline-dot onb-timeline-dot-1" />
-                    <div className="onb-timeline-content">
-                      <strong>First scan runs</strong>
-                      <span>AI engines are queried for {productName || "your brand"}</span>
+              {/* Results state */}
+              {onbScan.status === "done" && onbScan.data && (() => {
+                const d = onbScan.data;
+                const scoreColor = d.overall >= 60 ? "#16a34a" : d.overall >= 30 ? "#d97706" : "#dc2626";
+                const scoreLabel = d.overall >= 60 ? "Strong" : d.overall >= 30 ? "Growing" : "Low";
+                const missed = d.engines?.filter(e => !e.mentioned).map(e => e.name) || [];
+                const mentioned = d.engines?.filter(e => e.mentioned) || [];
+                return (
+                  <div className="onb-results">
+                    <div className="onb-results-header">
+                      {faviconUrl && (
+                        <img className="onb-finish-favicon" src={faviconUrl} alt="" onError={(e) => (e.currentTarget.style.display = "none")} />
+                      )}
+                      <div>
+                        <h1 className="onb-results-title">Your AI visibility score</h1>
+                        <p className="onb-sub" style={{ marginTop: 2 }}>Live results across 4 AI engines</p>
+                      </div>
                     </div>
-                  </div>
-                  <div className="onb-timeline-line" />
-                  <div className="onb-timeline-item">
-                    <span className="onb-timeline-dot onb-timeline-dot-2" />
-                    <div className="onb-timeline-content">
-                      <strong>Visibility score appears</strong>
-                      <span>See exactly where you rank vs competitors</span>
+
+                    <div className="onb-score-hero">
+                      <div className="onb-score-ring" style={{ "--score-color": scoreColor }}>
+                        <span className="onb-score-number" style={{ color: scoreColor }}>{d.overall}</span>
+                        <span className="onb-score-denom">/100</span>
+                      </div>
+                      <div>
+                        <span className="onb-score-label" style={{ color: scoreColor }}>{scoreLabel}</span>
+                        <p className="onb-score-sub">
+                          {mentioned.length > 0
+                            ? `Mentioned by ${mentioned.length}/${d.engineCount} engines`
+                            : `Not yet found on any AI engine`}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                  <div className="onb-timeline-line" />
-                  <div className="onb-timeline-item">
-                    <span className="onb-timeline-dot onb-timeline-dot-3" />
-                    <div className="onb-timeline-content">
-                      <strong>Recommendations unlock</strong>
-                      <span>Concrete actions ranked by impact</span>
+
+                    <div className="onb-engine-results">
+                      {ENGINES.map(({ name, color }) => {
+                        const engine = d.engines?.find(e => e.name === name);
+                        const hit = engine?.mentioned;
+                        return (
+                          <div key={name} className={`onb-engine-result-row${hit ? " onb-engine-hit" : ""}`}>
+                            <span className="onb-engine-result-dot" style={{ background: color }} />
+                            <span className="onb-engine-result-name">{name}</span>
+                            {hit
+                              ? <span className="onb-engine-result-yes"><CheckCircle2Icon /> Rank #{engine.rank ?? "?"}</span>
+                              : <span className="onb-engine-result-no"><XCircleIcon /> Not mentioned</span>}
+                          </div>
+                        );
+                      })}
                     </div>
+
+                    {missed.length > 0 && (
+                      <div className="onb-results-insight">
+                        <ZapIcon className="onb-results-insight-icon" />
+                        <span>
+                          <strong>{missed.join(" & ")}</strong> {missed.length === 1 ? "doesn't" : "don't"} mention {productName} yet — your dashboard has the exact content to fix this.
+                        </span>
+                      </div>
+                    )}
+                    {missed.length === 0 && (
+                      <div className="onb-results-insight onb-results-insight-green">
+                        <CheckCircle2Icon className="onb-results-insight-icon" />
+                        <span><strong>{productName}</strong> appears on all 4 engines. Your dashboard shows how to climb the rankings.</span>
+                      </div>
+                    )}
                   </div>
+                );
+              })()}
+
+              {/* Error / idle fallback — same as original finish screen */}
+              {(onbScan.status === "error" || onbScan.status === "idle") && (
+                <div className="onb-finish-hero">
+                  <div className="onb-finish-check">
+                    <div className="onb-finish-check-ring" />
+                    <svg className="onb-finish-check-svg" viewBox="0 0 52 52" fill="none">
+                      <circle cx="26" cy="26" r="25" stroke="#22c55e" strokeWidth="2" fill="#f0fdf4" />
+                      <path d="M14 26l9 9 15-15" stroke="#22c55e" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </div>
+                  {faviconUrl && (
+                    <div className="onb-finish-brand-row">
+                      <img className="onb-finish-favicon" src={faviconUrl} alt="" onError={(e) => (e.currentTarget.style.display = "none")} />
+                      <span className="onb-finish-brand-name">{productName}</span>
+                    </div>
+                  )}
+                  <h1 className="onb-finish-title">You&apos;re all set!</h1>
+                  <p className="onb-sub">Your workspace is ready — first scan runs when you open the dashboard.</p>
                 </div>
-              </div>
+              )}
+
             </div>
           )}
 
@@ -540,8 +601,15 @@ export default function OnboardingPage() {
               : <span />}
             {step < 3
               ? <button type="button" className="onb-next" onClick={goNext}>Continue <ArrowRightIcon /></button>
-              : <button type="button" className="onb-next" onClick={handleSubmit} disabled={isSubmitting}>
-                  {isSubmitting ? "Setting up…" : "Go to dashboard"} {!isSubmitting && <ArrowRightIcon />}
+              : <button
+                  type="button"
+                  className="onb-next"
+                  onClick={handleSubmit}
+                  disabled={isSubmitting || onbScan.status === "loading"}
+                >
+                  {isSubmitting ? "Setting up…" : onbScan.status === "loading" ? "Scanning…" : "Go to dashboard"}
+                  {!isSubmitting && onbScan.status !== "loading" && <ArrowRightIcon />}
+                  {onbScan.status === "loading" && <RefreshCwIcon className="onb-spin" style={{ width: 16, height: 16 }} />}
                 </button>}
           </div>
         </div>

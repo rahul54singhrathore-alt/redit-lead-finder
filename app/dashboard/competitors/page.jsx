@@ -33,6 +33,7 @@ import {
 import { openWhiteLabelReport } from "../../../lib/report-export";
 import { ShareOfVoice } from "@/components/share-of-voice";
 import { CompetitorEdge } from "@/components/competitor-edge";
+import { HeadToHead } from "@/components/head-to-head";
 
 // Asks the real /api/visibility-check route, which queries AI with the
 // prompt and returns its genuine ranked list of recommended brands.
@@ -440,6 +441,8 @@ export default function CompetitorsPage() {
                     </div>
                   )}
                 </section>
+
+                <HeadToHead brand={brand} competitors={competitors} category={prompt} />
 
                 {competitors.length > 0 ? (
                   <CompetitorEdge brand={brand} competitors={competitors} category={prompt} />
