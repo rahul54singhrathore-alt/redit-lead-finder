@@ -18869,19 +18869,25 @@ button {
   line-height: 1.5;
 }
 
-.footer-x-handle {
+.footer-social-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+.footer-social-handle {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  margin-top: 14px;
   font-size: 0.8125rem;
   font-weight: 600;
   color: #52525b;
   text-decoration: none;
   transition: color 0.15s;
 }
-.footer-x-handle:hover { color: #18181b; }
-.footer-x-icon {
+.footer-social-handle:hover { color: #18181b; }
+.footer-social-icon {
   width: 13px;
   height: 13px;
   fill: currentColor;
