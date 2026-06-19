@@ -411,6 +411,17 @@ Create author and entity pages`}</pre>
             </Link>
             <p className="oras-footer-tagline">Online Reputation &amp; AI Search</p>
             <p>AI visibility, GEO audits, citation tracking, and white-label reports for brands and agencies.</p>
+            <a
+              href="https://x.com/TryOraswa"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="footer-x-handle"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true" className="footer-x-icon">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622 5.91-5.622Zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+              </svg>
+              @TryOraswa
+            </a>
           </div>
           {[
             ["PRODUCT", "GEO Score", "Prompt Library", "Citation Sources", "Reports"],
