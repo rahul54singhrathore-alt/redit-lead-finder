@@ -25611,3 +25611,267 @@ select.ob3-input { cursor: pointer; }
 }
 
 .dov-welcome-dismiss:hover { background: rgba(255,255,255,0.3); }
+
+/* ══════════════════════════════════════════════════════════════
+   MOBILE RESPONSIVE — global pass
+   Targets: landing page, hlscan mockup, dashboard overview,
+            engine strip, dashboard layout, settings, footer.
+   Breakpoints: 768px (tablet), 560px (mobile), 400px (xs)
+══════════════════════════════════════════════════════════════ */
+
+/* ─── Landing page: feature grid (docs) → 1-col ─────────────── */
+@media (max-width: 768px) {
+  .autosend-docs-grid {
+    grid-template-columns: 1fr;
+  }
+  .autosend-docs-grid article {
+    border-right: none;
+    border-bottom: 1px solid #e4e4e7;
+  }
+  .autosend-docs-grid article:last-child {
+    border-bottom: none;
+  }
+
+  /* Stats → 2-col */
+  .autosend-stat-grid,
+  .autosend-company-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Integration grid → 2-col */
+  .autosend-integration-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Engine strip → wrap & center */
+  .oras-engine-strip {
+    padding: 28px 20px;
+  }
+  .oras-engine-logos {
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .oras-eng-logo {
+    gap: 6px;
+  }
+  .oras-eng-logo span {
+    font-size: 0.78rem;
+  }
+
+  /* START NOW CTA */
+  .oras-start-cta {
+    padding: 48px 20px;
+  }
+  .oras-start-cta-link {
+    font-size: clamp(2rem, 8vw, 3.5rem);
+    letter-spacing: -0.02em;
+  }
+}
+
+/* ─── HeroLiveScan dashboard mockup ─────────────────────────── */
+@media (max-width: 860px) {
+  /* Hide sidebar in the mockup — shrink to table-only view */
+  .hlscan-sidebar {
+    display: none;
+  }
+  .hlscan-body {
+    grid-template-columns: 1fr;
+  }
+
+  /* Stack the inner dov layout */
+  .hlscan-dov-body {
+    grid-template-columns: 1fr;
+  }
+  .hlscan-dov-right-col {
+    display: none;     /* hide SOV + citations on narrow screens */
+  }
+  .hlscan-dov-table-wrap {
+    border-right: none;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .hlscan-dov-table {
+    min-width: 360px;
+  }
+
+  /* Shrink the chrome bar text */
+  .hlscan-chrome-bar {
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 520px) {
+  .hlscan-shell {
+    border-radius: 10px;
+  }
+  .hlscan-dov-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .hlscan-dov-header-right {
+    align-self: flex-start;
+  }
+}
+
+/* ─── Dashboard Overview ─────────────────────────────────────── */
+@media (max-width: 768px) {
+  /* Header: domain + tabs wrap, scan badge on new row */
+  .dov-header {
+    padding: 10px 14px;
+  }
+  .dov-header-left {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .dov-domain {
+    width: 100%;
+    margin-right: 0;
+    margin-bottom: 4px;
+  }
+
+  /* Tab overflow scroll */
+  .dov-header-left {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .dov-header-left::-webkit-scrollbar { display: none; }
+
+  /* Table wrapper: horizontal scroll */
+  .dov-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .dov-table {
+    min-width: 520px;
+  }
+
+  /* Engine cards: 2-col */
+  .dov-eng-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  /* Citations two-col → 1-col */
+  .dov-cite-two-col {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Engine cards: 1-col on xs */
+  .dov-eng-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Welcome banner: smaller */
+  .dov-welcome-banner {
+    font-size: 0.8rem;
+    padding: 10px 12px;
+  }
+
+  /* Footer bar: stack */
+  .dov-footer-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    padding: 8px 14px;
+  }
+}
+
+/* ─── Dashboard page main layout ────────────────────────────── */
+@media (max-width: 640px) {
+  .dashboard-header {
+    padding: 12px 16px;
+    gap: 10px;
+  }
+  .dashboard-header h1 {
+    font-size: 1.1rem;
+  }
+  .dashboard-content {
+    padding: 12px 12px 24px;
+  }
+}
+
+/* ─── Settings page ──────────────────────────────────────────── */
+@media (max-width: 768px) {
+  /* Hide left nav on mobile — show full-width sections */
+  .stg2-layout {
+    grid-template-columns: 1fr;
+  }
+  .stg2-nav {
+    display: none;
+  }
+  .stg2-content {
+    padding: 16px;
+  }
+  .stg2-card {
+    padding: 16px;
+  }
+}
+
+/* ─── Landing page sections: mobile spacing ──────────────────── */
+@media (max-width: 560px) {
+  /* Feature articles: reduce padding */
+  .autosend-docs-grid h2  { font-size: 14px; padding: 18px 18px 6px; }
+  .autosend-docs-grid p   { font-size: 14px; padding: 0 18px 18px; }
+  .autosend-docs-grid a   { padding: 11px 18px; }
+
+  /* Stats grid: 2-col stays, just smaller text */
+  .autosend-stat-grid div { min-height: 80px; }
+
+  /* Integration grid: 1-col on xs */
+  .autosend-integration-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Engine strip: hide logo labels, just show icons */
+  .oras-eng-logo span {
+    display: none;
+  }
+  .oras-engine-logos {
+    gap: 24px;
+  }
+  .oras-eng-logo svg {
+    width: 22px;
+    height: 22px;
+  }
+}
+
+/* ─── Footer: single column on xs ───────────────────────────── */
+@media (max-width: 400px) {
+  .oras-footer-inner {
+    grid-template-columns: 1fr;
+  }
+  .oras-footer-brand {
+    grid-column: 1;
+  }
+}
+
+/* ─── Free visibility checker (landing) ─────────────────────── */
+@media (max-width: 560px) {
+  .fvc-form {
+    flex-direction: column;
+  }
+  .fvc-input, .fvc-submit {
+    width: 100%;
+  }
+}
+
+/* ─── Onboarding (ob3 wizard): already has sidebar hide at 768px ── */
+@media (max-width: 480px) {
+  .ob3-form-wrap {
+    padding: 24px 16px 40px;
+  }
+  .ob3-step-head h1 {
+    font-size: 1.3rem;
+  }
+  .ob3-url-row {
+    flex-direction: column;
+  }
+  .ob3-autofill-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
