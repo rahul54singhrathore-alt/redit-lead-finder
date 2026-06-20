@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { SiteNavbar } from "@/components/site-navbar";
 import { FreeVisibilityChecker } from "@/components/free-visibility-checker";
+import { HeroLiveScan } from "@/components/hero-live-scan";
 import {
   ArrowUpRightIcon,
   BotIcon,
@@ -135,61 +136,9 @@ export default function Home() {
               View pricing
             </Link>
           </div>
-
-          <a
-            href="https://x.com/TryOraswa"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hero-x-follow"
-          >
-            <svg viewBox="0 0 24 24" aria-hidden="true" className="hero-x-icon footer-social-icon">
-              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622 5.91-5.622Zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-            </svg>
-            Follow <strong>@TryOraswa</strong> for GEO tips
-          </a>
         </div>
 
-        <div className="hero-product-preview">
-
-          <div className="hero-preview-window">
-            <div className="hero-preview-bar">
-              <span /><span /><span />
-              <div className="hero-preview-title">GEO Score — Oras</div>
-            </div>
-            <div className="hero-preview-body">
-              <div className="hero-preview-score-col">
-                <div className="hero-preview-ring">
-                  <strong>74</strong>
-                  <span>/ 100</span>
-                </div>
-                <div className="hero-preview-grade">Growing</div>
-                <div className="hero-preview-note">20 AI checks · 2 live engines</div>
-              </div>
-              <div className="hero-preview-engines">
-                {[
-                  { name: "ChatGPT", rate: 80, color: "#10a37f", hits: "4/5" },
-                  { name: "Gemini",  rate: 60, color: "#4285f4", hits: "3/5" },
-                  { name: "Claude",  rate: 80, color: "#7c3aed", hits: "4/5" },
-                  { name: "Perplexity", rate: 60, color: "#f59e0b", hits: "3/5" },
-                ].map((e) => (
-                  <div key={e.name} className="hero-preview-engine-row">
-                    <span className="hero-preview-engine-dot" style={{ background: e.color }} />
-                    <span className="hero-preview-engine-name">{e.name}</span>
-                    <div className="hero-preview-bar-track">
-                      <div className="hero-preview-bar-fill" style={{ width: `${e.rate}%`, background: e.color }} />
-                    </div>
-                    <span className="hero-preview-engine-hits" style={{ color: e.color }}>{e.hits}</span>
-                  </div>
-                ))}
-                <div className="hero-preview-divider" />
-                <div className="hero-preview-impact">
-                  <span className="hero-preview-impact-plus">+18 pts available</span>
-                  <span className="hero-preview-impact-hint">See recommendations</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <HeroLiveScan />
       </section>
 
       <FreeVisibilityChecker />
@@ -400,6 +349,12 @@ Create author and entity pages`}</pre>
             </details>
           ))}
         </div>
+      </section>
+
+      <section className="oras-start-cta">
+        <Link href="/signin" className="oras-start-cta-link">
+          START NOW <span aria-hidden="true">↗</span>
+        </Link>
       </section>
 
       <footer className="oras-footer">

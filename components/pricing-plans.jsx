@@ -29,7 +29,7 @@ export function PricingPlans() {
           onClick={() => setCycle("yearly")}
         >
           Yearly
-          <span className="pr-cycle-save">Save 20%</span>
+          <span className="pr-cycle-save">Save ~17%</span>
         </button>
       </div>
 

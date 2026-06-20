@@ -4,8 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AppSidebar } from "@/components/app-sidebar";
 import { DashboardOnboarding } from "@/components/dashboard-onboarding";
-import { GeoScore } from "@/components/geo-score";
-import { TrendChart } from "@/components/trend-chart";
+import { DashboardOverview } from "@/components/dashboard-overview";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { createBrowserSupabaseClient } from "../../lib/supabase";
 import { normalizeWorkspaceProfile } from "../../lib/workspace-profile";
@@ -16,7 +15,6 @@ export default function DashboardPage() {
   const [profile, setProfile] = useState(null);
   const [message, setMessage] = useState("");
   const [accessToken, setAccessToken] = useState(null);
-  const [trendKey, setTrendKey] = useState(0);
   const router = useRouter();
   const supabase = useMemo(() => createBrowserSupabaseClient(), []);
 
@@ -150,27 +148,22 @@ export default function DashboardPage() {
           <div className="dashboard-header">
             <div>
               <SidebarTrigger className="dashboard-sidebar-trigger" />
-              <h1>GEO Score</h1>
+              <h1>Overview</h1>
               <p className="page-subtitle">
-                How often AI engines mention {profile?.product_name || "your brand"} — and what to improve.
+                AI engine rankings, share of voice, and recent citations for{" "}
+                {profile?.product_name || "your brand"}.
               </p>
             </div>
             <div className="user-avatar">{getInitials(user?.email)}</div>
           </div>
 
           <div className="dashboard-content">
-            <GeoScore
+            <DashboardOverview
               brand={profile?.product_name || profile?.starter_keyword || "Your brand"}
               category={profile?.industry || profile?.brand_description || ""}
-              accessToken={accessToken}
-              onScoreSaved={() => setTrendKey((k) => k + 1)}
-            />
-            <TrendChart
-              key={trendKey}
-              brand={profile?.product_name || profile?.starter_keyword || "Your brand"}
+              competitors={profile?.competitors || []}
               accessToken={accessToken}
             />
-
             {message ? <p className="signin-message" style={{ textAlign: "left" }}>{message}</p> : null}
           </div>
         </main>
