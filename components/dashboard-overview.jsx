@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { RefreshCwIcon } from "lucide-react";
+import { RefreshCwIcon, ZapIcon } from "lucide-react";
 
 /* ── constants ──────────────────────────────────────────────────────────── */
 
@@ -48,11 +48,29 @@ export function DashboardOverview({ brand, category, competitors = [], accessTok
   const [citations,     setCitations]     = useState(null);
   const [activeTab,     setActiveTab]     = useState("overview");
   const [lastScanned,   setLastScanned]   = useState(null);
+  const [isFirstScan,   setIsFirstScan]   = useState(false);
 
   const compList = Array.isArray(competitors) ? competitors.slice(0, 3) : [];
 
   const runScan = useCallback(async () => {
     if (!brand) return;
+
+    // Use scan result cached during onboarding (avoids double scan)
+    try {
+      const raw = sessionStorage.getItem("oras_first_scan");
+      if (raw) {
+        sessionStorage.removeItem("oras_first_scan");
+        const { brand: cachedBrand, data, ts } = JSON.parse(raw);
+        if (cachedBrand === brand && Date.now() - ts < 5 * 60 * 1000 && data) {
+          setBrandData(data);
+          setLastScanned(new Date(ts));
+          setStatus("done");
+          setIsFirstScan(true);
+          return;
+        }
+      }
+    } catch {}
+
     setStatus("scanning");
 
     const tasks = [
@@ -117,6 +135,15 @@ export function DashboardOverview({ brand, category, competitors = [], accessTok
   /* ── render ── */
   return (
     <div className="dov-root">
+
+      {/* ── first-scan welcome banner ── */}
+      {isFirstScan && (
+        <div className="dov-welcome-banner">
+          <ZapIcon className="dov-welcome-icon" />
+          <span>Your first AI visibility scan is in — here&apos;s where you stand.</span>
+          <button className="dov-welcome-dismiss" onClick={() => setIsFirstScan(false)}>×</button>
+        </div>
+      )}
 
       {/* ── header ── */}
       <div className="dov-header">

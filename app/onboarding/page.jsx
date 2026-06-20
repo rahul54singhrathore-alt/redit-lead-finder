@@ -297,6 +297,17 @@ export default function OnboardingPage() {
     if (kwErr && !isMissingSupabaseTableError(kwErr, "tracked_keywords"))
       console.error("Failed to create initial tracked keyword:", kwErr);
 
+    // Cache scan result so the dashboard shows instant results on first load
+    if (onbScan.status === "done" && onbScan.data) {
+      try {
+        sessionStorage.setItem("oras_first_scan", JSON.stringify({
+          brand: productName.trim(),
+          data:  onbScan.data,
+          ts:    Date.now(),
+        }));
+      } catch {}
+    }
+
     setIsSubmitting(false);
     router.replace("/dashboard");
   };
