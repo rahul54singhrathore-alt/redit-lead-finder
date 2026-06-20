@@ -119,6 +119,13 @@ export default function Home() {
       <SiteNavbar />
 
       <section className="autosend-hero" id="demo">
+        {/* animated background orbs */}
+        <div className="hero-bg-orbs" aria-hidden="true">
+          <div className="hero-orb hero-orb-1" />
+          <div className="hero-orb hero-orb-2" />
+          <div className="hero-orb hero-orb-3" />
+        </div>
+
         <div className="autosend-hero-copy">
           <span className="autosend-hero-eyebrow">GEO — GENERATIVE ENGINE OPTIMIZATION</span>
           <h1>
