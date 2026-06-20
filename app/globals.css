@@ -24790,3 +24790,61 @@ button {
   flex-shrink: 0;
 }
 .hlscan-dov-footer-link { color: #3b82f6; font-weight: 500; }
+
+/* ═══════════════════════════════════════════════════════
+   Engine logos strip
+   ═══════════════════════════════════════════════════════ */
+
+.oras-engine-strip {
+  width: 100%;
+  padding: 48px 24px 52px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+  background: transparent;
+}
+
+.oras-engine-strip-label {
+  font-size: 0.8rem;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  letter-spacing: 0.06em;
+  color: #a1a1aa;
+  text-align: center;
+  margin: 0;
+}
+
+.oras-engine-logos {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 48px;
+  flex-wrap: wrap;
+}
+
+.oras-eng-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #71717a;
+  transition: color 0.2s;
+}
+
+.oras-eng-logo:hover { color: #18181b; }
+
+.oras-eng-logo svg {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+}
+
+.oras-eng-logo span {
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+@media (max-width: 640px) {
+  .oras-engine-logos { gap: 28px; }
+  .oras-eng-logo span { font-size: 0.85rem; }
+}
