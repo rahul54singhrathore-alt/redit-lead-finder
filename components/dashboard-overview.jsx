@@ -212,7 +212,7 @@ export function DashboardOverview({ brand, category, competitors = [], accessTok
                   {compList.length === 0 && status === "done" && (
                     <tr>
                       <td colSpan={6} className="dov-empty-row">
-                        <Link href="/dashboard/settings" className="dov-add-comp-link">
+                        <Link href="/dashboard/settings?section=general" className="dov-add-comp-link">
                           + Add competitors in Settings to compare rankings
                         </Link>
                       </td>

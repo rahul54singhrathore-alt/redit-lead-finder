@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useMemo, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -60,6 +60,46 @@ function initials(email) {
   return email.split("@")[0].slice(0, 2).toUpperCase();
 }
 
+function CompetitorTags({ value, onChange }) {
+  const [draft, setDraft] = useState("");
+  const tags = value ? value.split(",").map(t => t.trim()).filter(Boolean) : [];
+
+  const add = useCallback(() => {
+    const name = draft.trim();
+    if (!name || tags.includes(name)) { setDraft(""); return; }
+    onChange([...tags, name].join(", "));
+    setDraft("");
+  }, [draft, tags, onChange]);
+
+  const remove = (tag) => onChange(tags.filter(t => t !== tag).join(", "));
+
+  const onKey = (e) => {
+    if (e.key === "Enter" || e.key === ",") { e.preventDefault(); add(); }
+    if (e.key === "Backspace" && !draft && tags.length) {
+      remove(tags[tags.length - 1]);
+    }
+  };
+
+  return (
+    <div className="stg2-tags-wrap">
+      {tags.map(tag => (
+        <span key={tag} className="stg2-tag">
+          {tag}
+          <button type="button" className="stg2-tag-remove" onClick={() => remove(tag)} aria-label={`Remove ${tag}`}>×</button>
+        </span>
+      ))}
+      <input
+        className="stg2-tags-input"
+        value={draft}
+        onChange={e => setDraft(e.target.value)}
+        onKeyDown={onKey}
+        onBlur={add}
+        placeholder={tags.length ? "Add another…" : "e.g. Competitor A"}
+      />
+    </div>
+  );
+}
+
 function Field({ label, description, inputLabel, children, noBorder }) {
   return (
     <div className={`stg2-field${noBorder ? " stg2-field-no-border" : ""}`}>
@@ -107,6 +147,12 @@ export default function SettingsPage() {
 
   const router   = useRouter();
   const supabase = useMemo(() => createBrowserSupabaseClient(), []);
+
+  // honour ?section= query param (e.g. from dashboard "Add competitors" link)
+  useEffect(() => {
+    const sec = new URLSearchParams(window.location.search).get("section");
+    if (sec && SECTIONS.find(s => s.key === sec)) setActiveSection(sec);
+  }, []);
 
   useEffect(() => {
     if (!supabase) return;
@@ -355,9 +401,11 @@ export default function SettingsPage() {
                     <Field label="Description" description="A short summary of what your brand does. Makes AI checks significantly more accurate." inputLabel="Description">
                       <textarea className="stg2-input stg2-textarea" value={settings.brandDescription} onChange={e => set("brandDescription", e.target.value)} placeholder="What does your brand do and who does it help?" rows={3} />
                     </Field>
-                    <Field label="Competitors" description="Brands tracked alongside yours in every AI check." inputLabel="Competitors" noBorder>
-                      <input className="stg2-input" value={settings.competitors} onChange={e => set("competitors", e.target.value)} placeholder="Competitor A, Competitor B" />
-                      <span className="stg2-field-hint">Comma-separated</span>
+                    <Field label="Competitors" description="Brands tracked alongside yours in every AI engine check. Press Enter or comma to add each one." noBorder>
+                      <CompetitorTags
+                        value={settings.competitors}
+                        onChange={v => set("competitors", v)}
+                      />
                     </Field>
                   </div>
                 )}
