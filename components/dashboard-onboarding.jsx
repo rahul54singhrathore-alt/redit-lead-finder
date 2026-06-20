@@ -1,463 +1,410 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import {
   ArrowRightIcon,
   BellRingIcon,
-  CheckCircle2Icon,
-  GlobeIcon,
+  CheckIcon,
   Loader2Icon,
-  SearchIcon,
   SparklesIcon,
+  UsersIcon,
   WandSparklesIcon,
+  ZapIcon,
 } from "lucide-react";
-
-import { SourcePresetPicker } from "@/components/source-preset-picker";
 import {
   INDUSTRY_OPTIONS,
   formatDefaultVisibilitySources,
   parseCommaSeparatedList,
 } from "@/lib/workspace-profile";
 
-const frequencyOptions = [
-  {
-    value: "daily",
-    label: "Daily",
-    description: "A compact summary once per day.",
-  },
-  {
-    value: "weekly",
-    label: "Weekly",
-    description: "Batch results into a weekly digest.",
-  },
-  {
-    value: "off",
-    label: "Off",
-    description: "Keep notifications inside the dashboard.",
-  },
+/* ── constants ──────────────────────────────────────────────────────────── */
+
+const STEPS = [
+  { key: "brand",       label: "Your brand",    icon: SparklesIcon },
+  { key: "competitors", label: "Competitors",   icon: UsersIcon },
+  { key: "notify",      label: "Notifications", icon: BellRingIcon },
 ];
 
-const DESCRIPTION_MAX = 180;
+const FREQUENCY_OPTIONS = [
+  { value: "daily",  label: "Daily",  description: "A compact summary every morning." },
+  { value: "weekly", label: "Weekly", description: "One digest every week." },
+  { value: "off",    label: "Off",    description: "I'll check the dashboard myself." },
+];
+
+const DESC_MAX = 200;
+
+/* ── helpers ────────────────────────────────────────────────────────────── */
 
 function isValidUrl(value) {
-  const trimmed = String(value || "").trim();
-  if (!trimmed) return false;
+  const v = String(value || "").trim();
+  if (!v) return false;
   try {
-    const withProtocol = /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
-    const url = new URL(withProtocol);
-    return Boolean(url.hostname) && url.hostname.includes(".");
-  } catch {
-    return false;
-  }
+    const u = new URL(/^https?:\/\//i.test(v) ? v : `https://${v}`);
+    return u.hostname.includes(".");
+  } catch { return false; }
 }
 
-export function DashboardOnboarding({ user, supabase, onComplete }) {
-  const [brandName, setBrandName] = useState("Oras");
-  const [websiteUrl, setWebsiteUrl] = useState("https://oras.com");
-  const [brandDescription, setBrandDescription] = useState(
-    "AI visibility, GEO audits, citation tracking, and white-label reports for brands and agencies.",
-  );
-  const [industry, setIndustry] = useState("SEO");
-  const [competitors, setCompetitors] = useState("");
-  const [sources, setSources] = useState(formatDefaultVisibilitySources());
-  const [digestFrequency, setDigestFrequency] = useState("daily");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isFetching, setIsFetching] = useState(false);
-  const [fetchNote, setFetchNote] = useState("");
-  const [errors, setErrors] = useState({});
-  const [message, setMessage] = useState("");
+/* ── CompetitorTags ─────────────────────────────────────────────────────── */
 
-  const clearError = (field) =>
-    setErrors((prev) => {
-      if (!prev[field]) return prev;
-      const next = { ...prev };
-      delete next[field];
-      return next;
-    });
+function CompetitorTags({ tags, onChange }) {
+  const [draft, setDraft] = useState("");
 
-  const handleAutoFill = async () => {
-    setFetchNote("");
-    setMessage("");
+  const add = useCallback(() => {
+    const name = draft.trim();
+    if (!name || tags.includes(name)) { setDraft(""); return; }
+    onChange([...tags, name]);
+    setDraft("");
+  }, [draft, tags, onChange]);
 
-    if (!isValidUrl(websiteUrl)) {
-      setErrors((prev) => ({ ...prev, websiteUrl: "Enter a valid website URL first." }));
-      return;
-    }
+  const remove = (tag) => onChange(tags.filter(t => t !== tag));
 
-    setIsFetching(true);
-    try {
-      const response = await fetch("/api/brand-lookup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: websiteUrl.trim() }),
-      });
-      const data = await response.json();
-
-      if (!response.ok) {
-        setFetchNote(data?.error || "Could not read that website.");
-        return;
-      }
-
-      const filled = [];
-      if (data.brandName) {
-        setBrandName(data.brandName);
-        filled.push("name");
-      }
-      if (data.description) {
-        setBrandDescription(data.description.slice(0, DESCRIPTION_MAX));
-        filled.push("description");
-      }
-      if (data.industry) {
-        setIndustry(data.industry);
-        filled.push("industry");
-      }
-      if (data.websiteUrl) {
-        setWebsiteUrl(data.websiteUrl);
-      }
-      clearError("brandName");
-      clearError("websiteUrl");
-
-      setFetchNote(
-        filled.length
-          ? `Auto-filled ${filled.join(", ")} from your site. Review before continuing.`
-          : "We reached the site but found no brand metadata. Fill the fields manually.",
-      );
-    } catch {
-      setFetchNote("Something went wrong reaching that website. Try again.");
-    } finally {
-      setIsFetching(false);
-    }
-  };
-
-  const validate = (trimmedBrandName, trimmedWebsiteUrl, sourceList) => {
-    const nextErrors = {};
-    if (!trimmedBrandName) {
-      nextErrors.brandName = "Add the brand you want to track.";
-    }
-    if (trimmedWebsiteUrl && !isValidUrl(trimmedWebsiteUrl)) {
-      nextErrors.websiteUrl = "Enter a valid URL, e.g. https://oras.com";
-    }
-    if (sourceList.length === 0) {
-      nextErrors.sources = "Add at least one source or competitor.";
-    }
-    return nextErrors;
-  };
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-
-    const trimmedBrandName = brandName.trim();
-    const trimmedWebsiteUrl = websiteUrl.trim();
-    const trimmedDescription = brandDescription.trim();
-    const sourceList = parseCommaSeparatedList(sources);
-    const competitorList = parseCommaSeparatedList(competitors);
-
-    const nextErrors = validate(trimmedBrandName, trimmedWebsiteUrl, sourceList);
-    if (Object.keys(nextErrors).length > 0) {
-      setErrors(nextErrors);
-      setMessage("");
-      return;
-    }
-
-    if (!supabase || !user) {
-      setMessage("Supabase is not configured yet.");
-      return;
-    }
-
-    setErrors({});
-    setIsSubmitting(true);
-    setMessage("");
-
-    const profileResult = await supabase
-      .from("user_profiles")
-      .upsert({
-        user_id: user.id,
-        onboarding_completed: true,
-        product_name: trimmedBrandName,
-        product_url: trimmedWebsiteUrl,
-        brand_description: trimmedDescription,
-        industry,
-        competitors: competitorList,
-        starter_keyword: trimmedBrandName,
-        target_subreddits: sourceList,
-        digest_frequency: digestFrequency,
-        updated_at: new Date().toISOString(),
-      })
-      .select("*")
-      .single();
-
-    const keywordResult = await supabase.from("tracked_keywords").insert({
-      user_id: user.id,
-      keyword: trimmedBrandName,
-      subreddits: sourceList,
-    });
-
-    const alertResult = await supabase.from("alert_rules").insert({
-      user_id: user.id,
-      name: "Visibility audits",
-      trigger: "new matching signal found",
-      channel: digestFrequency === "off" ? "Dashboard only" : "Instant email",
-      active: digestFrequency !== "off",
-    });
-
-    setIsSubmitting(false);
-
-    if (profileResult.error || alertResult.error) {
-      const errorMessage =
-        profileResult.error?.message ||
-        alertResult.error?.message ||
-        "Could not save onboarding setup.";
-      setMessage(errorMessage);
-      return;
-    }
-
-    onComplete({
-      product_name: trimmedBrandName,
-      product_url: trimmedWebsiteUrl,
-      brand_description: trimmedDescription,
-      industry,
-      competitors: competitorList,
-      starter_keyword: trimmedBrandName,
-      target_subreddits: sourceList,
-      digest_frequency: digestFrequency,
-    });
+  const onKey = (e) => {
+    if (e.key === "Enter" || e.key === ",") { e.preventDefault(); add(); }
+    if (e.key === "Backspace" && !draft && tags.length) remove(tags[tags.length - 1]);
   };
 
   return (
-    <section className="onboarding-shell">
-      <div className="onboarding-intro">
-        <span className="onboarding-kicker">
-          <SparklesIcon className="onboarding-kicker-icon" />
-          First-time setup
+    <div className="ob3-tags-wrap">
+      {tags.map(tag => (
+        <span key={tag} className="ob3-tag">
+          {tag}
+          <button type="button" className="ob3-tag-x" onClick={() => remove(tag)}>×</button>
         </span>
-        <h1>Set up the brands, sources, and visibility rhythm you care about.</h1>
-        <p>
-          We will create your first tracked brand, save the source targets,
-          and store your audit frequency so the workspace is ready the next time
-          you sign in.
-        </p>
+      ))}
+      <input
+        className="ob3-tags-input"
+        value={draft}
+        onChange={e => setDraft(e.target.value)}
+        onKeyDown={onKey}
+        onBlur={add}
+        placeholder={tags.length ? "Add another…" : "e.g. Ahrefs, Semrush"}
+      />
+    </div>
+  );
+}
 
-        <div className="onboarding-steps">
-          <div className="onboarding-step">
-            <SearchIcon className="onboarding-step-icon" />
-            <div>
-              <strong>Brand information</strong>
-              <span>Add your site and let us auto-fill the brand details.</span>
-            </div>
+/* ── main component ─────────────────────────────────────────────────────── */
+
+export function DashboardOnboarding({ user, supabase, onComplete }) {
+  const [step,        setStep]        = useState(0);
+  const [submitting,  setSubmitting]  = useState(false);
+  const [autofilling, setAutofilling] = useState(false);
+  const [autofillMsg, setAutofillMsg] = useState("");
+  const [errors,      setErrors]      = useState({});
+  const [saveError,   setSaveError]   = useState("");
+
+  // Step 1 — brand
+  const [url,         setUrl]         = useState("");
+  const [brandName,   setBrandName]   = useState("");
+  const [description, setDescription] = useState("");
+  const [industry,    setIndustry]    = useState("");
+
+  // Step 2 — competitors
+  const [competitors, setCompetitors] = useState([]);
+
+  // Step 3 — notifications
+  const [frequency,   setFrequency]   = useState("weekly");
+
+  /* ── auto-fill ── */
+  const handleAutoFill = async () => {
+    if (!isValidUrl(url)) {
+      setErrors(e => ({ ...e, url: "Enter a valid URL first." }));
+      return;
+    }
+    setAutofilling(true);
+    setAutofillMsg("");
+    setErrors(e => { const n = { ...e }; delete n.url; return n; });
+    try {
+      const res  = await fetch("/api/brand-lookup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: url.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setAutofillMsg(data?.error || "Couldn't read that site."); return; }
+      const filled = [];
+      if (data.brandName)   { setBrandName(data.brandName);                   filled.push("name"); }
+      if (data.description) { setDescription(data.description.slice(0, DESC_MAX)); filled.push("description"); }
+      if (data.industry)    { setIndustry(data.industry);                     filled.push("industry"); }
+      if (data.websiteUrl)  setUrl(data.websiteUrl);
+      setAutofillMsg(filled.length
+        ? `Auto-filled: ${filled.join(", ")}. Review and continue.`
+        : "Site reached but no metadata found — fill in manually.");
+    } catch { setAutofillMsg("Something went wrong. Try again."); }
+    finally { setAutofilling(false); }
+  };
+
+  /* ── validation per step ── */
+  const validateStep = () => {
+    if (step === 0) {
+      const errs = {};
+      if (!brandName.trim()) errs.brandName = "Brand name is required.";
+      if (url && !isValidUrl(url)) errs.url = "Enter a valid URL, e.g. https://oras.com";
+      setErrors(errs);
+      return Object.keys(errs).length === 0;
+    }
+    return true;
+  };
+
+  const next = () => { if (validateStep()) setStep(s => s + 1); };
+  const back = () => { setStep(s => s - 1); setErrors({}); };
+
+  /* ── submit ── */
+  const handleSubmit = async () => {
+    if (!supabase || !user) { setSaveError("Session expired — please refresh."); return; }
+    setSubmitting(true);
+    setSaveError("");
+
+    const sources = parseCommaSeparatedList(formatDefaultVisibilitySources());
+
+    const { error } = await supabase.from("user_profiles").upsert({
+      user_id:              user.id,
+      onboarding_completed: true,
+      product_name:         brandName.trim(),
+      product_url:          url.trim(),
+      brand_description:    description.trim(),
+      industry,
+      competitors,
+      starter_keyword:      brandName.trim(),
+      target_subreddits:    sources,
+      digest_frequency:     frequency,
+      email_digest:         frequency !== "off",
+      updated_at:           new Date().toISOString(),
+    });
+
+    if (!error) {
+      await supabase.from("tracked_keywords").insert({
+        user_id:    user.id,
+        keyword:    brandName.trim(),
+        subreddits: sources,
+      }).catch(() => {});
+    }
+
+    setSubmitting(false);
+    if (error) { setSaveError(error.message || "Could not save. Try again."); return; }
+
+    onComplete({
+      product_name:      brandName.trim(),
+      product_url:       url.trim(),
+      brand_description: description.trim(),
+      industry,
+      competitors,
+      digest_frequency:  frequency,
+    });
+  };
+
+  const currentStep = STEPS[step];
+  const progress    = ((step) / (STEPS.length)) * 100;
+
+  return (
+    <div className="ob3-root">
+
+      {/* ── sidebar / intro ── */}
+      <div className="ob3-sidebar">
+        <div className="ob3-sidebar-top">
+          <div className="ob3-brand">
+            <img src="/logo.png" alt="" className="ob3-logo" />
+            <span>ORAS</span>
           </div>
-          <div className="onboarding-step">
-            <CheckCircle2Icon className="onboarding-step-icon" />
-            <div>
-              <strong>Sources and competitors</strong>
-              <span>Focus on the websites, forums, and competitors that shape AI visibility.</span>
-            </div>
-          </div>
-          <div className="onboarding-step">
-            <BellRingIcon className="onboarding-step-icon" />
-            <div>
-              <strong>Audit frequency</strong>
-              <span>Choose how often you want visibility checks surfaced back to you.</span>
-            </div>
-          </div>
+          <h2 className="ob3-sidebar-title">
+            Get your brand visible in every AI answer.
+          </h2>
+          <p className="ob3-sidebar-sub">
+            Takes 60 seconds. We'll run your first scan as soon as you're done.
+          </p>
+        </div>
+
+        {/* step list */}
+        <div className="ob3-steps">
+          {STEPS.map((s, i) => {
+            const Icon = s.icon;
+            const done    = i < step;
+            const active  = i === step;
+            return (
+              <div key={s.key} className={`ob3-step-row${active ? " active" : ""}${done ? " done" : ""}`}>
+                <div className="ob3-step-icon-wrap">
+                  {done ? <CheckIcon className="ob3-step-check" /> : <Icon />}
+                </div>
+                <div>
+                  <span className="ob3-step-num">Step {i + 1}</span>
+                  <span className="ob3-step-label">{s.label}</span>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
 
-      <form className="onboarding-card" onSubmit={handleSubmit} noValidate>
-        <div className="card-header">
-          <h2>Visibility setup</h2>
-          <span className="onboarding-progress">Step 1 of 1</span>
+      {/* ── form panel ── */}
+      <div className="ob3-panel">
+
+        {/* progress bar */}
+        <div className="ob3-progress-track">
+          <div className="ob3-progress-fill" style={{ width: `${progress}%` }} />
         </div>
 
-        <div className="settings-stack">
-          <fieldset className="onboarding-fieldset">
-            <legend className="onboarding-legend">
-              <GlobeIcon className="onboarding-legend-icon" />
-              Brand information
-            </legend>
+        <div className="ob3-form-wrap">
 
-            <div className="form-group">
-              <label className="form-label" htmlFor="onboarding-website">
-                Website URL
-              </label>
-              <div className="onboarding-url-row">
-                <input
-                  id="onboarding-website"
-                  className={`form-input${errors.websiteUrl ? " form-input-error" : ""}`}
-                  type="url"
-                  placeholder="https://oras.com"
-                  value={websiteUrl}
-                  onChange={(event) => {
-                    setWebsiteUrl(event.target.value);
-                    clearError("websiteUrl");
-                  }}
-                />
-                <button
-                  type="button"
-                  className="onboarding-autofill"
-                  onClick={handleAutoFill}
-                  disabled={isFetching}
-                >
-                  {isFetching ? (
-                    <Loader2Icon className="button-icon onboarding-spin" />
-                  ) : (
-                    <WandSparklesIcon className="button-icon" />
-                  )}
-                  {isFetching ? "Reading…" : "Auto-fill"}
+          {/* ── Step 0: Brand ── */}
+          {step === 0 && (
+            <div className="ob3-step-content">
+              <div className="ob3-step-head">
+                <span className="ob3-kicker">Step 1 of 3</span>
+                <h1>Tell us about your brand</h1>
+                <p>Paste your website and we'll auto-fill the rest.</p>
+              </div>
+
+              <div className="ob3-fields">
+                {/* URL + autofill */}
+                <div className="ob3-field">
+                  <label>Website URL <span className="ob3-opt">optional</span></label>
+                  <div className="ob3-url-row">
+                    <input
+                      className={`ob3-input${errors.url ? " ob3-input-err" : ""}`}
+                      type="url"
+                      placeholder="https://yourbrand.com"
+                      value={url}
+                      onChange={e => { setUrl(e.target.value); setErrors(v => { const n={...v}; delete n.url; return n; }); setAutofillMsg(""); }}
+                    />
+                    <button type="button" className="ob3-autofill-btn" onClick={handleAutoFill} disabled={autofilling}>
+                      {autofilling
+                        ? <Loader2Icon className="ob3-spin" />
+                        : <WandSparklesIcon />}
+                      {autofilling ? "Reading…" : "Auto-fill"}
+                    </button>
+                  </div>
+                  {errors.url   && <span className="ob3-err-msg">{errors.url}</span>}
+                  {autofillMsg  && <span className="ob3-fill-msg">{autofillMsg}</span>}
+                </div>
+
+                {/* Brand name */}
+                <div className="ob3-field">
+                  <label>Brand name <span className="ob3-req">*</span></label>
+                  <input
+                    className={`ob3-input${errors.brandName ? " ob3-input-err" : ""}`}
+                    type="text"
+                    placeholder="e.g. Acme Inc."
+                    value={brandName}
+                    onChange={e => { setBrandName(e.target.value); setErrors(v => { const n={...v}; delete n.brandName; return n; }); }}
+                  />
+                  {errors.brandName && <span className="ob3-err-msg">{errors.brandName}</span>}
+                </div>
+
+                {/* Description */}
+                <div className="ob3-field">
+                  <label>
+                    What does your brand do?
+                    <span className="ob3-counter">{description.length}/{DESC_MAX}</span>
+                  </label>
+                  <textarea
+                    className="ob3-input ob3-textarea"
+                    rows={3}
+                    maxLength={DESC_MAX}
+                    placeholder="1–2 sentences describing your product and who it's for."
+                    value={description}
+                    onChange={e => setDescription(e.target.value)}
+                  />
+                </div>
+
+                {/* Industry */}
+                <div className="ob3-field">
+                  <label>Industry <span className="ob3-opt">optional</span></label>
+                  <select className="ob3-input" value={industry} onChange={e => setIndustry(e.target.value)}>
+                    <option value="">Select industry…</option>
+                    {INDUSTRY_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
+                  </select>
+                </div>
+              </div>
+
+              <div className="ob3-actions">
+                <button type="button" className="ob3-next-btn" onClick={next}>
+                  Continue <ArrowRightIcon />
                 </button>
               </div>
-              {errors.websiteUrl ? (
-                <span className="onboarding-field-error">{errors.websiteUrl}</span>
-              ) : (
-                <span className="onboarding-field-hint">
-                  Paste your site and we’ll pull the brand name, description, and industry.
-                </span>
-              )}
-              {fetchNote ? <span className="onboarding-field-note">{fetchNote}</span> : null}
             </div>
+          )}
 
-            <div className="form-group">
-              <label className="form-label" htmlFor="onboarding-brand-name">
-                Brand name
-              </label>
-              <input
-                id="onboarding-brand-name"
-                className={`form-input${errors.brandName ? " form-input-error" : ""}`}
-                type="text"
-                placeholder="e.g., Oras"
-                value={brandName}
-                onChange={(event) => {
-                  setBrandName(event.target.value);
-                  clearError("brandName");
-                }}
-              />
-              {errors.brandName ? (
-                <span className="onboarding-field-error">{errors.brandName}</span>
-              ) : null}
-            </div>
-
-            <div className="form-group">
-              <div className="onboarding-label-row">
-                <label className="form-label" htmlFor="onboarding-description">
-                  Brand description
-                </label>
-                <span
-                  className={`onboarding-counter${
-                    brandDescription.length > DESCRIPTION_MAX ? " onboarding-counter-over" : ""
-                  }`}
-                >
-                  {brandDescription.length}/{DESCRIPTION_MAX}
-                </span>
+          {/* ── Step 1: Competitors ── */}
+          {step === 1 && (
+            <div className="ob3-step-content">
+              <div className="ob3-step-head">
+                <span className="ob3-kicker">Step 2 of 3</span>
+                <h1>Who do you compete with?</h1>
+                <p>We'll track them alongside your brand across every AI engine. You can skip this and add them later.</p>
               </div>
-              <textarea
-                id="onboarding-description"
-                className="form-input"
-                rows={2}
-                maxLength={DESCRIPTION_MAX}
-                placeholder="1-2 lines describing what your brand does."
-                value={brandDescription}
-                onChange={(event) => setBrandDescription(event.target.value)}
-              />
+
+              <div className="ob3-fields">
+                <div className="ob3-field">
+                  <label>Competitors <span className="ob3-opt">optional</span></label>
+                  <CompetitorTags tags={competitors} onChange={setCompetitors} />
+                  <span className="ob3-hint">Press Enter or comma after each name.</span>
+                </div>
+
+                {competitors.length > 0 && (
+                  <div className="ob3-comp-preview">
+                    <ZapIcon className="ob3-comp-icon" />
+                    <span>We'll benchmark <strong>{brandName || "your brand"}</strong> against {competitors.length} competitor{competitors.length > 1 ? "s" : ""} in every scan.</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="ob3-actions ob3-actions-row">
+                <button type="button" className="ob3-back-btn" onClick={back}>← Back</button>
+                <button type="button" className="ob3-next-btn" onClick={next}>
+                  {competitors.length ? "Continue" : "Skip for now"} <ArrowRightIcon />
+                </button>
+              </div>
             </div>
+          )}
 
-            <div className="form-group">
-              <label className="form-label" htmlFor="onboarding-industry">
-                Industry / niche
-              </label>
-              <select
-                id="onboarding-industry"
-                className="form-input"
-                value={industry}
-                onChange={(event) => setIndustry(event.target.value)}
-              >
-                {INDUSTRY_OPTIONS.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
+          {/* ── Step 2: Notifications ── */}
+          {step === 2 && (
+            <div className="ob3-step-content">
+              <div className="ob3-step-head">
+                <span className="ob3-kicker">Step 3 of 3</span>
+                <h1>How often should we email you?</h1>
+                <p>We'll send visibility summaries and ranking changes to <strong>{user?.email}</strong>.</p>
+              </div>
+
+              <div className="ob3-fields">
+                <div className="ob3-freq-grid">
+                  {FREQUENCY_OPTIONS.map(opt => (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      className={`ob3-freq-card${frequency === opt.value ? " selected" : ""}`}
+                      onClick={() => setFrequency(opt.value)}
+                    >
+                      <div className="ob3-freq-check">
+                        {frequency === opt.value && <CheckIcon />}
+                      </div>
+                      <strong>{opt.label}</strong>
+                      <span>{opt.description}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {saveError && <p className="ob3-save-err">{saveError}</p>}
+
+              <div className="ob3-actions ob3-actions-row">
+                <button type="button" className="ob3-back-btn" onClick={back}>← Back</button>
+                <button
+                  type="button"
+                  className="ob3-next-btn ob3-submit-btn"
+                  onClick={handleSubmit}
+                  disabled={submitting}
+                >
+                  {submitting
+                    ? <><Loader2Icon className="ob3-spin" /> Setting up…</>
+                    : <>Launch dashboard <ZapIcon /></>}
+                </button>
+              </div>
             </div>
+          )}
 
-            <div className="form-group">
-              <label className="form-label" htmlFor="onboarding-competitors">
-                Competitors <span className="onboarding-optional">optional</span>
-              </label>
-              <input
-                id="onboarding-competitors"
-                className="form-input"
-                type="text"
-                placeholder="e.g., Ahrefs, Semrush, Surfer"
-                value={competitors}
-                onChange={(event) => setCompetitors(event.target.value)}
-              />
-              <span className="onboarding-field-hint">
-                Comma-separated brands we should benchmark you against.
-              </span>
-            </div>
-          </fieldset>
-
-          <div className="form-group">
-            <label className="form-label" htmlFor="onboarding-subreddits">
-              Sources / competitors
-            </label>
-            <input
-              id="onboarding-subreddits"
-              className={`form-input${errors.sources ? " form-input-error" : ""}`}
-              type="text"
-              placeholder={formatDefaultVisibilitySources()}
-              value={sources}
-              onChange={(event) => {
-                setSources(event.target.value);
-                clearError("sources");
-              }}
-            />
-            {errors.sources ? (
-              <span className="onboarding-field-error">{errors.sources}</span>
-            ) : null}
-            <SourcePresetPicker value={sources} onChange={setSources} />
-          </div>
-
-          <div className="form-group">
-            <label className="form-label" htmlFor="onboarding-frequency">
-              Audit frequency
-            </label>
-            <select
-              id="onboarding-frequency"
-              className="form-input"
-              value={digestFrequency}
-              onChange={(event) => setDigestFrequency(event.target.value)}
-            >
-              {frequencyOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="onboarding-summary">
-            {frequencyOptions.map((option) => (
-              <button
-                key={option.value}
-                type="button"
-                className={`onboarding-choice${digestFrequency === option.value ? " onboarding-choice-active" : ""}`}
-                onClick={() => setDigestFrequency(option.value)}
-              >
-                <strong>{option.label}</strong>
-                <span>{option.description}</span>
-              </button>
-            ))}
-          </div>
         </div>
-
-        {message ? <p className="onboarding-message">{message}</p> : null}
-
-        <div className="onboarding-actions">
-          <button className="primary-button onboarding-submit" type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Saving..." : "Create workspace"}
-            {!isSubmitting ? <ArrowRightIcon className="button-icon" /> : null}
-          </button>
-        </div>
-      </form>
-    </section>
+      </div>
+    </div>
   );
 }
