@@ -32,7 +32,7 @@ export function AppSidebar({
   ...props
 }) {
   const navItems = [
-    { title: "GEO Score", url: "/dashboard", icon: GaugeIcon },
+    { title: "Overview", url: "/dashboard", icon: GaugeIcon },
     { title: "Visibility", url: "/dashboard/visibility", icon: SignalIcon },
     { title: "Reddit Engine", url: "/dashboard/reddit", icon: MessageSquareIcon },
     { title: "Competitors", url: "/dashboard/competitors", icon: UsersIcon },
