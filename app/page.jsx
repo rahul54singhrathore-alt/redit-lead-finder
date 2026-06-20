@@ -2,6 +2,7 @@ import Link from "next/link";
 import { SiteNavbar } from "@/components/site-navbar";
 import { FreeVisibilityChecker } from "@/components/free-visibility-checker";
 import { HeroLiveScan } from "@/components/hero-live-scan";
+import { EngineAnswerStrip } from "@/components/engine-answer-strip";
 import {
   ArrowUpRightIcon,
   BotIcon,
@@ -140,6 +141,8 @@ export default function Home() {
 
         <HeroLiveScan />
       </section>
+
+      <EngineAnswerStrip />
 
       {/* engine logos strip */}
       <section className="oras-engine-strip">

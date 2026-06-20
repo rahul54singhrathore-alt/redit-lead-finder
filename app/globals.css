@@ -24848,3 +24848,54 @@ button {
   .oras-engine-logos { gap: 28px; }
   .oras-eng-logo span { font-size: 0.85rem; }
 }
+
+/* ═══════════════════════════════════════════════════════
+   Engine Answer Strip  (.eas-*)
+   ═══════════════════════════════════════════════════════ */
+
+.eas-root {
+  width: 100%;
+  padding: 80px 24px 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+}
+
+.eas-heading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  text-align: center;
+  font-size: clamp(3rem, 8vw, 6.5rem);
+  font-weight: 800;
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  color: #18181b;
+  margin: 0;
+}
+
+.eas-line1 { display: block; }
+
+.eas-line2 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.18em;
+  flex-wrap: nowrap;
+}
+
+.eas-icon-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 0.85em;
+  height: 0.85em;
+  flex-shrink: 0;
+}
+
+.eas-icon-wrap svg {
+  width: 100%;
+  height: 100%;
+}
