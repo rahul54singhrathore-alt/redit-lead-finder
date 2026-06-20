@@ -154,109 +154,199 @@ export function DashboardOverview({ brand, category, competitors = [], accessTok
       {/* ── body ── */}
       <div className="dov-body">
 
-        {/* ── engine ranking table ── */}
-        <div className="dov-table-wrap">
-          <div className="dov-section-label">BY ENGINE · BRAND RANKING</div>
-          <table className="dov-table">
-            <thead>
-              <tr>
-                <th className="dov-th-brand">BRAND</th>
-                {ENGINE_KEYS.map((k) => (
-                  <th key={k} style={{ color: ENGINE_META[k].color }}>
-                    {ENGINE_META[k].label}
-                  </th>
-                ))}
-                <th>GEO</th>
-              </tr>
-            </thead>
-            <tbody>
-              {allRows.map((row) => {
-                const engines = row.data?.engines || [];
-                const geo     = row.data?.overall ?? null;
-                return (
-                  <tr key={row.name} className={row.you ? "dov-row-you" : "dov-row"}>
-                    <td>
-                      <div className="dov-brand-cell">
-                        {row.you && <span className="dov-you-dot" />}
-                        <span className="dov-brand-name">
-                          {row.you ? "Your Brand" : row.name}
-                        </span>
-                        {row.you && <span className="dov-you-tag">YOU</span>}
-                      </div>
-                    </td>
-                    {ENGINE_KEYS.map((k) => {
-                      const eng  = engines.find((e) => e.key === k);
-                      const rank = eng?.rank ?? null;
-                      return (
-                        <td key={k} className="dov-rank-cell">
+        {activeTab === "overview" && (
+          <>
+            {/* ── engine ranking table ── */}
+            <div className="dov-table-wrap">
+              <div className="dov-section-label">BY ENGINE · BRAND RANKING</div>
+              <table className="dov-table">
+                <thead>
+                  <tr>
+                    <th className="dov-th-brand">BRAND</th>
+                    {ENGINE_KEYS.map((k) => (
+                      <th key={k} style={{ color: ENGINE_META[k].color }}>
+                        {ENGINE_META[k].label}
+                      </th>
+                    ))}
+                    <th>GEO</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {allRows.map((row) => {
+                    const engines = row.data?.engines || [];
+                    const geo     = row.data?.overall ?? null;
+                    return (
+                      <tr key={row.name} className={row.you ? "dov-row-you" : "dov-row"}>
+                        <td>
+                          <div className="dov-brand-cell">
+                            {row.you && <span className="dov-you-dot" />}
+                            <span className="dov-brand-name">
+                              {row.you ? "Your Brand" : row.name}
+                            </span>
+                            {row.you && <span className="dov-you-tag">YOU</span>}
+                          </div>
+                        </td>
+                        {ENGINE_KEYS.map((k) => {
+                          const eng  = engines.find((e) => e.key === k);
+                          const rank = eng?.rank ?? null;
+                          return (
+                            <td key={k} className="dov-rank-cell">
+                              {scanning
+                                ? <span className="dov-skel dov-skel-sm" />
+                                : rank
+                                  ? <span className="dov-rank-hit" style={{ color: ENGINE_META[k].color }}>#{rank}</span>
+                                  : <span className="dov-rank-miss">—</span>}
+                            </td>
+                          );
+                        })}
+                        <td className="dov-geo-cell">
                           {scanning
                             ? <span className="dov-skel dov-skel-sm" />
-                            : rank
-                              ? <span className="dov-rank-hit" style={{ color: ENGINE_META[k].color }}>#{rank}</span>
-                              : <span className="dov-rank-miss">—</span>}
+                            : <span className={`dov-geo-badge${row.you ? " dov-geo-you" : ""}`}>
+                                {geo ?? "—"}
+                              </span>}
                         </td>
-                      );
-                    })}
-                    <td className="dov-geo-cell">
-                      {scanning
-                        ? <span className="dov-skel dov-skel-sm" />
-                        : <span className={`dov-geo-badge${row.you ? " dov-geo-you" : ""}`}>
-                            {geo ?? "—"}
-                          </span>}
-                    </td>
-                  </tr>
-                );
-              })}
-
-              {compList.length === 0 && status === "done" && (
-                <tr>
-                  <td colSpan={6} className="dov-empty-row">
-                    <Link href="/dashboard/settings" className="dov-add-comp-link">
-                      + Add competitors in Settings to compare rankings
-                    </Link>
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        {/* ── right column ── */}
-        <div className="dov-right-col">
-
-          {/* Share of Voice */}
-          <div className="dov-panel">
-            <div className="dov-panel-label">SHARE OF VOICE</div>
-            <div className="dov-sov-body">
-              {scanning
-                ? <SovSkeleton />
-                : <SovChart rows={sovRows} />}
+                      </tr>
+                    );
+                  })}
+                  {compList.length === 0 && status === "done" && (
+                    <tr>
+                      <td colSpan={6} className="dov-empty-row">
+                        <Link href="/dashboard/settings" className="dov-add-comp-link">
+                          + Add competitors in Settings to compare rankings
+                        </Link>
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
             </div>
-          </div>
 
-          {/* Recent Citations */}
-          <div className="dov-panel dov-cite-panel">
-            <div className="dov-panel-label">RECENT CITATIONS</div>
-            <div className="dov-cite-list">
-              {scanning
-                ? [1, 2, 3, 4].map((i) => (
-                    <div key={i} className="dov-cite-row">
-                      <span className="dov-skel dov-skel-tag" />
-                      <span className="dov-skel dov-skel-text" />
-                    </div>
-                  ))
-                : citations?.cited?.length > 0
-                  ? citations.cited.slice(0, 6).map((c, i) => (
-                      <div key={i} className="dov-cite-row">
-                        <span className="dov-cite-src">{c.name}</span>
-                        <span className="dov-cite-note">{c.note}</span>
+            {/* ── right column ── */}
+            <div className="dov-right-col">
+              <div className="dov-panel">
+                <div className="dov-panel-label">SHARE OF VOICE</div>
+                <div className="dov-sov-body">
+                  {scanning ? <SovSkeleton /> : <SovChart rows={sovRows} />}
+                </div>
+              </div>
+              <div className="dov-panel dov-cite-panel">
+                <div className="dov-panel-label">RECENT CITATIONS</div>
+                <div className="dov-cite-list">
+                  {scanning
+                    ? [1, 2, 3, 4].map((i) => (
+                        <div key={i} className="dov-cite-row">
+                          <span className="dov-skel dov-skel-tag" />
+                          <span className="dov-skel dov-skel-text" />
+                        </div>
+                      ))
+                    : citations?.cited?.length > 0
+                      ? citations.cited.slice(0, 6).map((c, i) => (
+                          <div key={i} className="dov-cite-row">
+                            <span className="dov-cite-src">{c.name}</span>
+                            <span className="dov-cite-note">{c.note}</span>
+                          </div>
+                        ))
+                      : <p className="dov-empty-msg">No citation data yet</p>}
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+
+        {activeTab === "engines" && (
+          <div className="dov-tab-full">
+            <div className="dov-section-label">ENGINE BREAKDOWN · YOUR BRAND</div>
+            {scanning ? (
+              <div className="dov-eng-grid">
+                {ENGINE_KEYS.map((k) => (
+                  <div key={k} className="dov-eng-card">
+                    <div className="dov-skel" style={{ width: 80, height: 14, marginBottom: 12 }} />
+                    <div className="dov-skel" style={{ width: "100%", height: 8, borderRadius: 4 }} />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="dov-eng-grid">
+                {ENGINE_KEYS.map((k) => {
+                  const eng  = (brandData?.engines || []).find((e) => e.key === k);
+                  const rate = eng?.mentionRate ?? 0;
+                  const rank = eng?.rank ?? null;
+                  const score = eng?.score ?? 0;
+                  return (
+                    <div key={k} className="dov-eng-card">
+                      <div className="dov-eng-card-head">
+                        <span className="dov-eng-card-name" style={{ color: ENGINE_META[k].color }}>
+                          {ENGINE_META[k].label}
+                        </span>
+                        <span className="dov-eng-card-score">{score}</span>
                       </div>
-                    ))
-                  : <p className="dov-empty-msg">No citation data yet</p>}
-            </div>
+                      <div className="dov-eng-bar-track">
+                        <div
+                          className="dov-eng-bar-fill"
+                          style={{
+                            width: `${rate}%`,
+                            background: ENGINE_META[k].color,
+                            transition: "width 0.8s ease",
+                          }}
+                        />
+                      </div>
+                      <div className="dov-eng-card-meta">
+                        <span>Mention rate: <strong>{rate}%</strong></span>
+                        <span>Best rank: <strong>{rank ? `#${rank}` : "—"}</strong></span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
+        )}
 
-        </div>
+        {activeTab === "citations" && (
+          <div className="dov-tab-full">
+            {scanning ? (
+              [1,2,3,4,5].map((i) => (
+                <div key={i} className="dov-cite-row" style={{ marginBottom: 12 }}>
+                  <span className="dov-skel dov-skel-tag" />
+                  <span className="dov-skel dov-skel-text" />
+                </div>
+              ))
+            ) : (
+              <div className="dov-cite-two-col">
+                <div>
+                  <div className="dov-section-label" style={{ marginBottom: 14 }}>WHERE YOU'RE CITED</div>
+                  <div className="dov-cite-list">
+                    {citations?.cited?.length > 0
+                      ? citations.cited.map((c, i) => (
+                          <div key={i} className="dov-cite-row">
+                            <span className="dov-cite-src">{c.name}</span>
+                            <span className="dov-cite-note">{c.note}</span>
+                          </div>
+                        ))
+                      : <p className="dov-empty-msg">No citation data yet</p>}
+                  </div>
+                </div>
+                <div>
+                  <div className="dov-section-label" style={{ marginBottom: 14, color: "#ef4444" }}>
+                    WHERE YOU'RE MISSING
+                  </div>
+                  <div className="dov-cite-list">
+                    {citations?.missing?.length > 0
+                      ? citations.missing.map((c, i) => (
+                          <div key={i} className="dov-cite-row">
+                            <span className="dov-cite-src" style={{ background: "#ef4444" }}>{c.name}</span>
+                            <span className="dov-cite-note">{c.note}</span>
+                          </div>
+                        ))
+                      : <p className="dov-empty-msg">No gaps found</p>}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
       </div>
 
       {/* ── last scanned ── */}
