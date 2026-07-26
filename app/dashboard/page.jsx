@@ -22,10 +22,20 @@ export default function DashboardPage() {
     if (!supabase) return;
 
     const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      let { data: { session } } = await supabase.auth.getSession();
       if (!session) {
-        router.replace("/signin");
-        return;
+        // getSession() only reads the local cookie — it can transiently miss
+        // right after a reload. Confirm with the auth server before bouncing.
+        const { data: { user: verifiedUser } } = await supabase.auth.getUser();
+        if (!verifiedUser) {
+          router.replace("/signin");
+          return;
+        }
+        ({ data: { session } } = await supabase.auth.getSession());
+        if (!session) {
+          router.replace("/signin");
+          return;
+        }
       }
       setUser(session.user);
       setAccessToken(session.access_token);
@@ -40,18 +50,25 @@ export default function DashboardPage() {
     checkUser();
 
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      // The initial session is already handled by checkUser() above — reacting
+      // to it here would double-fetch the profile and race on the redirect.
+      if (event === "INITIAL_SESSION") return;
       if (!session) {
         router.replace("/signin");
-      } else {
-        setUser(session.user);
-        loadDashboardData(session.user.id).then((needsOnboarding) => {
-          if (needsOnboarding) {
-            router.replace("/onboarding");
-          } else {
-            setLoading(false);
-          }
-        });
+        return;
       }
+      // Keep the access token fresh so authenticated API calls don't 401 after
+      // a background token refresh.
+      setUser(session.user);
+      setAccessToken(session.access_token);
+      if (event === "TOKEN_REFRESHED") return; // same user, no need to reload data
+      loadDashboardData(session.user.id).then((needsOnboarding) => {
+        if (needsOnboarding) {
+          router.replace("/onboarding");
+        } else {
+          setLoading(false);
+        }
+      });
     });
 
     return () => {

@@ -27,6 +27,22 @@ const customerOptions = [
 
 const STEPS = ["Brand", "Audience", "You're set"];
 const DESCRIPTION_MAX = 180;
+const DRAFT_KEY = "oras_onboarding_draft";
+
+function loadDraft() {
+  try {
+    const raw = sessionStorage.getItem(DRAFT_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+}
+
+function saveDraft(draft) {
+  try { sessionStorage.setItem(DRAFT_KEY, JSON.stringify(draft)); } catch {}
+}
+
+function clearDraft() {
+  try { sessionStorage.removeItem(DRAFT_KEY); } catch {}
+}
 
 const frequencyOptions = [
   { value: "daily",  label: "Daily",  hint: "Best while tuning visibility." },
@@ -167,8 +183,15 @@ export default function OnboardingPage() {
   useEffect(() => {
     if (!supabase) return;
     const load = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) { router.replace("/signin"); return; }
+      let { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        // getSession() only reads the local cookie — it can transiently miss
+        // right after a reload. Confirm with the auth server before bouncing.
+        const { data: { user: verifiedUser } } = await supabase.auth.getUser();
+        if (!verifiedUser) { router.replace("/signin"); return; }
+        ({ data: { session } } = await supabase.auth.getSession());
+        if (!session) { router.replace("/signin"); return; }
+      }
       setUser(session.user);
 
       const { data, error } = await supabase
@@ -180,7 +203,7 @@ export default function OnboardingPage() {
       }
 
       const profile = data ? normalizeWorkspaceProfile(data) : null;
-      if (profile?.onboarding_completed) { router.replace("/dashboard"); return; }
+      if (profile?.onboarding_completed) { clearDraft(); router.replace("/dashboard"); return; }
 
       if (profile?.product_name) setProductName(profile.product_name);
       if (profile?.product_url) setProductUrl(profile.product_url);
@@ -193,16 +216,45 @@ export default function OnboardingPage() {
         setSources(profile.target_subreddits.join(", "));
       if (profile?.digest_frequency) setDigestFrequency(profile.digest_frequency);
 
+      // Restore any in-progress wizard edits lost to a reload/tab-close
+      const draft = loadDraft();
+      if (draft) {
+        if (draft.productName) setProductName(draft.productName);
+        if (draft.productUrl) setProductUrl(draft.productUrl);
+        if (draft.industry) setIndustry(draft.industry);
+        if (draft.brandDescription) setBrandDescription(draft.brandDescription);
+        if (draft.customerType) setCustomerType(draft.customerType);
+        if (draft.competitors) setCompetitors(draft.competitors);
+        if (draft.sources) setSources(draft.sources);
+        if (draft.digestFrequency) setDigestFrequency(draft.digestFrequency);
+        if (draft.step) setStep(draft.step);
+        // A reload wipes in-memory scan progress — re-run it if we landed back on step 3
+        if (draft.step === 3 && draft.productName) {
+          runOnbScan(draft.productName.trim(), draft.industry || (draft.brandDescription || "").trim());
+        }
+      }
+
       setLoading(false);
     };
 
     load();
-    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      // load() already handles the initial session (with a getUser() retry that
+      // survives a transiently-missing cookie) — don't let INITIAL_SESSION race it.
+      if (event === "INITIAL_SESSION") return;
       if (!session) router.replace("/signin");
       else setUser(session.user);
     });
     return () => authListener?.subscription?.unsubscribe();
   }, [router, supabase]);
+
+  useEffect(() => {
+    if (loading) return;
+    saveDraft({
+      step, productName, productUrl, industry, brandDescription,
+      customerType, competitors, sources, digestFrequency,
+    });
+  }, [loading, step, productName, productUrl, industry, brandDescription, customerType, competitors, sources, digestFrequency]);
 
   const handleAutoFill = async () => {
     setFetchNote(""); setMessage("");
@@ -253,7 +305,14 @@ export default function OnboardingPage() {
       // Fire scan in background — results will be ready by Step 3
       runOnbScan(productName.trim(), industry || brandDescription.trim());
     }
-    if (step === 2 && sourceList.length === 0) return setMessage("Choose at least one source to monitor.");
+    if (step === 2) {
+      if (sourceList.length === 0) return setMessage("Choose at least one source to monitor.");
+      // A reload on step 2 wipes the in-memory scan — make sure one is running
+      // before we land on step 3, so it shows live results instead of the fallback.
+      if ((onbScan.status === "idle" || onbScan.status === "error") && productName.trim()) {
+        runOnbScan(productName.trim(), industry || brandDescription.trim());
+      }
+    }
     setStep(s => Math.min(3, s + 1));
   };
 
@@ -308,6 +367,7 @@ export default function OnboardingPage() {
       } catch {}
     }
 
+    clearDraft();
     setIsSubmitting(false);
     router.replace("/dashboard");
   };
